@@ -1,6 +1,10 @@
 #include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdlib.h>
 #include "modular.h"
 #include "io.h"
+#include "distribution.h"
 
 #define MAX_LEN 100
 
@@ -24,9 +28,11 @@ int main(int argc, char *argv[]) {
                     watermarkImage, watermarkTransformationImage,
                     directory,
                     &k, &n);
+//
+//    // Populate multiplicative inverses mod 251
+//    modularInverse(250, 251, inverses);
 
-    // Populate multiplicative inverses mod 251
-    modularInverse(250, 251, inverses);
+    matA(n, k);
 
     return 0;
 }
