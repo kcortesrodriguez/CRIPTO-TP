@@ -5,6 +5,7 @@
 #include "modular.h"
 #include "io.h"
 #include "distribution.h"
+#include "matrix.h"
 
 #define MAX_LEN 100
 
@@ -32,7 +33,19 @@ int main(int argc, char *argv[]) {
 //    // Populate multiplicative inverses mod 251
 //    modularInverse(250, 251, inverses);
 
+
+
     matA(n, k);
+
+
+    //start testing Matrix X (Kevin)
+    k = 4;
+    n = 8;
+
+    long** matrix;
+    printf("\n");
+    matrix = generateMatrixX(k,n);
+    printMatrix(k,n,matrix);
 
     return 0;
 }

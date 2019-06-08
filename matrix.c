@@ -2,7 +2,9 @@
 //
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "matrix.h"
+#include "random.h"
 
 // Function to get cofactor of mat[p][q] in temp[][]. n is current
 // dimension of mat[][]
@@ -78,5 +80,43 @@ void multiply(int **mat1, int **mat2, int **res, int n, int m, int k) {
                 res[i][j] += mat1[i][h] * mat2[h][j];
             res[i][j] = res[i][j] % 251;
         }
+    }
+}
+
+long* generateVector(int k, int initialValue){
+    int i;
+
+    long *array;
+    array = (long *)malloc(sizeof(long) * k);
+
+    for(i=0; i < k; i++) {
+        //TODO: CHECK IF IT HAS TO BE Z 251
+        array[i] = ( (long)pow(initialValue, i) ) % 251;
+    }
+
+    return array;
+}
+
+void printVector(int k, long* array){
+    for(int i=0; i < k; i++) {
+        printf("%ld ", array[i]);
+    }
+}
+
+long** generateMatrixX(int k, int n){
+    long **temp = (long **) malloc(n * sizeof(long *)); //TODO free
+    int* randoms = generateRandoms(n);
+
+    for (int i = 0; i < n; i++) {
+        temp[i] = generateVector(k, randoms[i]);
+    }
+
+    return temp;
+}
+
+void printMatrix(int k, int n, long** matrix){
+    for (int i = 0; i < n; i++) {
+        printVector(k, matrix[i]);
+        printf("\n");
     }
 }
