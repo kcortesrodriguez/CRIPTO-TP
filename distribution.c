@@ -166,3 +166,12 @@ int **remainderR(int **secretS, int **projectionSd, int n) {
 
     return difference;
 }
+
+int **remainderRw(int **watermarkW, int **projectionSd, int n) {
+    int **difference = (int **) malloc(n * sizeof(int *));
+    for (int i = 0; i < n; i++) difference[i] = (int *) calloc((size_t) n, sizeof(int));
+
+    subtract(watermarkW, projectionSd, difference, n);
+
+    return difference;
+}
