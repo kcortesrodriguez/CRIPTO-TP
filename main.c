@@ -31,8 +31,10 @@ int main(int argc, char *argv[]) {
     // Populate multiplicative inverses mod 251
     int *inverses = modularInverse(250, 251);
 
+    // Matrix A
     int **A = matA(n, k);
 
+    // Matrix Sd
     int **Sd = projectionSd(A, n, k, inverses);
 
     printf("\n");
@@ -68,6 +70,7 @@ int main(int argc, char *argv[]) {
     S[3][2] = 1;
     S[3][3] = 2;
 
+    // Matrix R
     int **R = remainderR(S, Sd, n);
 
     printf("\n");
@@ -81,6 +84,8 @@ int main(int argc, char *argv[]) {
 
     int **recoveredS = (int **) malloc(n * sizeof(int *));
     for (int i = 0; i < n; i++) recoveredS[i] = (int *) calloc((size_t) n, sizeof(int));
+
+    // Recovered Matrix S
     add(R, Sd, recoveredS, n);
     printf("\n");
     printf("S matrix:\n");
@@ -90,6 +95,9 @@ int main(int argc, char *argv[]) {
         }
         printf("\n");
     }
+
+    // Matrix Rw
+//  int **Rw = remainderRw(W, Sd, n); //todo: replace W with watermark
 
     free(inverses);
     freeMatrix(A, n);
