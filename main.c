@@ -105,6 +105,7 @@ int main(int argc, char *argv[]) {
     freeMatrix(R, n);
 
     freeMatrix(recoveredS, n);
+    freeMatrix(S, n);
 
 
     // Start testing Matrix X (Kevin)
