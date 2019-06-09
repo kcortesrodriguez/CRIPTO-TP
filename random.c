@@ -4,6 +4,9 @@
 #include <fcntl.h>
 #include "random.h"
 
+#define TRUE 0
+#define FALSE 1
+
 int urandom_fd = -2;
 
 void urandom_init() {
@@ -29,3 +32,35 @@ unsigned long urandom() {
     return buf_impl;
 }
 
+//chequea si un elemento value se encuentra en el array array de longitud sizeArray
+int containsValue(int* array, int sizeArray, int value){
+    for(int i = 0 ; i < sizeArray ; i++){
+        if (array[i] == value){
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
+//genera un vector de n randoms en Z 251 que no se repiten
+int* generateRandoms(int n){
+    int *array;
+    array = (int *)malloc(sizeof(int) * n);
+
+    for(int i = 0; i < n; i++) {
+
+        int randomNumber = urandom() % 251;
+
+        if( i != 0 ){
+            do {
+                randomNumber = urandom() % 251;
+            } while ( containsValue(array, i, randomNumber) == TRUE );
+        }
+
+        array[i] = randomNumber;
+
+    }
+
+    return array;
+
+}

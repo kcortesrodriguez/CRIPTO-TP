@@ -68,7 +68,6 @@ int main(int argc, char *argv[]) {
     S[3][2] = 1;
     S[3][3] = 2;
 
-
     int **R = remainderR(S, Sd, n);
 
     printf("\n");
@@ -98,6 +97,24 @@ int main(int argc, char *argv[]) {
     freeMatrix(R, n);
 
     freeMatrix(recoveredS, n);
+
+
+    // Start testing Matrix X (Kevin)
+    k = 4;
+    n = 8;
+
+    long** matrix;
+    printf("\n");
+    matrix = generateMatrixX(k,n);
+    printMatrix(k,n,matrix);
+
+    long** matrixTranspose;
+    matrixTranspose = transposeV2(matrix,k,n); //n x k
+    printMatrix(n,k,matrixTranspose); // n x k
+
+    //long** matrixMultiply;
+    //matrixMultiply = multiplyV2(matrix, matrixMultiply, k, n, k);
+    //printMatrix(k, k, matrixMultiply); // k x k
 
     return 0;
 }
