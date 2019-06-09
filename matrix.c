@@ -83,6 +83,8 @@ void multiply(int **mat1, int **mat2, int **res, int n, int m, int k) {
     }
 }
 
+//From now on, these functions are mine
+
 long* generateVector(int k, int initialValue){
     int i;
 
@@ -119,4 +121,42 @@ void printMatrix(int k, int n, long** matrix){
         printVector(k, matrix[i]);
         printf("\n");
     }
+}
+
+long** transposeV2(long** matrix, int n, int k){
+
+    long **transposeMatrix = (long **) malloc(n * sizeof(long *)); //TODO free
+    for (int i = 0; i < n; i++) {
+        transposeMatrix[i] = (long *) malloc(k * sizeof(long));
+    }
+
+
+    for (int i = 0; i < k; i++)
+        for (int j = 0; j < n; j++){
+            transposeMatrix[j][i] = matrix[i][j];
+        }
+
+    return transposeMatrix;
+
+}
+
+long **multiplyV2(long **mat1, long **mat2, int n, int m, int k) {
+
+    long **res = (long **) malloc(n * sizeof(long *)); //TODO free
+    for (int i = 0; i < n; i++) {
+        res[i] = (long *) malloc(k * sizeof(long));
+    }
+
+    int i, j, h;
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < m; j++) {
+            res[i][j] = 0;
+            for (h = 0; h < k; h++)
+                res[i][j] += mat1[i][h] * mat2[h][j];
+            res[i][j] = res[i][j] % 251;
+        }
+    }
+
+    return res;
+
 }

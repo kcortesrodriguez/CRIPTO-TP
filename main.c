@@ -34,8 +34,7 @@ int main(int argc, char *argv[]) {
 //    modularInverse(250, 251, inverses);
 
 
-
-    matA(n, k);
+    //matA(n, k);
 
 
     //start testing Matrix X (Kevin)
@@ -46,6 +45,15 @@ int main(int argc, char *argv[]) {
     printf("\n");
     matrix = generateMatrixX(k,n);
     printMatrix(k,n,matrix);
+
+    long** matrixTranspose;
+    matrixTranspose = transposeV2(matrix,k,n); //n x k
+    printMatrix(n,k,matrixTranspose); // n x k
+
+    //long** matrixMultiply;
+    //matrixMultiply = multiplyV2(matrix, matrixMultiply, k, n, k);
+    //printMatrix(k, k, matrixMultiply); // k x k
+
 
     return 0;
 }
