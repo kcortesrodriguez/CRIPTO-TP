@@ -22,6 +22,6 @@ void printMatrix(int k, int n, long** matrix);
 
 long** transposeV2(long** matrix, int n, int k);
 
-long **multiplyV2(long **mat1, long **mat2, int n, int m, int k);
+long** multiplyV2(long **mat1, long **mat2, int n, int m, int k);
 
 #endif //CRIPTO_TP_MATRIX_H
