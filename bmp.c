@@ -30,7 +30,7 @@ struct __attribute__ ((packed)) bmp_info {
 struct bmp_image {
     struct bmp_header header;
     struct bmp_info info;
-    uint8_t *data;
+    uint8_t *data; //todo MIGRATE ALL int AND longs TO uint8_t
 };
 
 bmp_image_t *bmp_from_path(const char *path) {
