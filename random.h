@@ -1,6 +1,3 @@
-//
-//
-
 #ifndef CRIPTO_TP_RANDOM_H
 #define CRIPTO_TP_RANDOM_H
 
