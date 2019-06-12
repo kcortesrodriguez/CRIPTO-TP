@@ -11,8 +11,6 @@
 
 int main(int argc, char *argv[]) {
 
-    int inverses[251];
-
     char secretImage[MAX_LEN];
     char retrievedImage[MAX_LEN];
     char watermarkImage[MAX_LEN];
@@ -29,15 +27,88 @@ int main(int argc, char *argv[]) {
                     watermarkImage, watermarkTransformationImage,
                     directory,
                     &k, &n);
-//
-//    // Populate multiplicative inverses mod 251
-//    modularInverse(250, 251, inverses);
+
+    // Populate multiplicative inverses mod 251
+    int *inverses = modularInverse(250, 251);
+
+    // Matrix A
+    int **A = matA(n, k);
+
+    // Matrix Sd
+    int **Sd = projectionSd(A, n, k, inverses);
+
+    printf("\n");
+    printf("Sd matrix:\n");
+    for (int row = 0; row < n; row++) {
+        for (int columns = 0; columns < n; columns++) {
+            printf("  %d", Sd[row][columns]);
+        }
+        printf("\n");
+    }
+
+    int **S = (int **) malloc(n * sizeof(int *));
+    for (int i = 0; i < n; i++) S[i] = (int *) malloc(k * sizeof(int));
+
+    // Paper case
+    S[0][0] = 2;
+    S[0][1] = 3;
+    S[0][2] = 1;
+    S[0][3] = 2;
+
+    S[1][0] = 5;
+    S[1][1] = 4;
+    S[1][2] = 6;
+    S[1][3] = 1;
+
+    S[2][0] = 8;
+    S[2][1] = 9;
+    S[2][2] = 7;
+    S[2][3] = 2;
+
+    S[3][0] = 3;
+    S[3][1] = 4;
+    S[3][2] = 1;
+    S[3][3] = 2;
+
+    // Matrix R
+    int **R = remainderR(S, Sd, n);
+
+    printf("\n");
+    printf("R matrix:\n");
+    for (int row = 0; row < n; row++) {
+        for (int columns = 0; columns < n; columns++) {
+            printf("  %d", R[row][columns]); //TODO write in report that R matrix from paper is wrong.q
+        }
+        printf("\n");
+    }
+
+    int **recoveredS = (int **) malloc(n * sizeof(int *));
+    for (int i = 0; i < n; i++) recoveredS[i] = (int *) calloc((size_t) n, sizeof(int));
+
+    // Recovered Matrix S
+    add(R, Sd, recoveredS, n);
+    printf("\n");
+    printf("S matrix:\n");
+    for (int row = 0; row < n; row++) {
+        for (int columns = 0; columns < n; columns++) {
+            printf("  %d", recoveredS[row][columns]);
+        }
+        printf("\n");
+    }
+
+    // Matrix Rw
+//  int **Rw = remainderRw(W, Sd, n); //todo: replace W with watermark
+
+    free(inverses);
+    freeMatrix(A, n);
+    freeMatrix(Sd, n);
+    freeMatrix(R, n);
+
+    freeMatrix(recoveredS, n);
+    freeMatrix(S, n);
 
 
-    //matA(n, k);
-
-
-    //start testing Matrix X (Kevin)
+    // Start testing Matrix X (Kevin)
     k = 4;
     n = 8;
 
@@ -53,7 +124,6 @@ int main(int argc, char *argv[]) {
     //long** matrixMultiply;
     //matrixMultiply = multiplyV2(matrix, matrixMultiply, k, n, k);
     //printMatrix(k, k, matrixMultiply); // k x k
-
 
     return 0;
 }
