@@ -92,7 +92,7 @@ int **multiply(int **mat1, int **mat2, int n, int m, int k) {
             res[i][j] = 0;
             for (h = 0; h < k; h++)
                 res[i][j] += mat1[i][h] * mat2[h][j];
-            res[i][j] = res[i][j] % 251;
+            res[i][j] = modulo(res[i][j], 251);
         }
     }
 
