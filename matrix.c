@@ -176,12 +176,18 @@ int **inverse(int **m, int n, int inverses[251]) {
     return mInverse;
 }
 
-void add(int **mat1, int **mat2, int **res, int n) {
+int **add(int **mat1, int **mat2, int n) {
+    int **res = (int **) malloc(n * sizeof(int *));
+    for (int i = 0; i < n; i++) res[i] = (int *) calloc((size_t) n, sizeof(int));
+
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
             res[i][j] = modulo(mat1[i][j] + mat2[i][j], 251);
         }
     }
+
+    return res;
+
 }
 
 void subtract(int **mat1, int **mat2, int **res, int n) {

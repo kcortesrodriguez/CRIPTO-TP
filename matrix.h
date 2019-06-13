@@ -9,20 +9,15 @@ int **transpose(int **A, int n, int k);
 
 int **multiply(int **mat1, int **mat2, int n, int m, int k);
 
-//void multiply(int **mat1, int **mat2, int **res, int n, int m, int k);
-
-//void inverse(int **m, int **mInverse, int n, int inverses[251]);
-
-void add(int **mat1, int **mat2, int **res, int n);
+//void add(int **mat1, int **mat2, int **res, int n);
 
 void subtract(int **mat1, int **mat2, int **res, int n);
 
 int **inverse(int **m, int n, int inverses[251]);
 
-//int **add(int **mat1, int **mat2, int n);
+int **add(int **mat1, int **mat2, int n);
 
 //int **subtract(int **mat1, int **mat2, int n);
-
 
 void freeMatrix(int **m, int n);
 
