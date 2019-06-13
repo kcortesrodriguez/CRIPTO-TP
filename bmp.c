@@ -6,7 +6,7 @@
 #include "bmp.h"
 
 struct __attribute__ ((packed)) bmp_header {
-    char fileIdentifier[2];
+    char fileIdentifier[2]; // must be BM
     uint32_t fileSize;
     uint16_t reserved1;
     uint16_t reserved2;
@@ -49,13 +49,13 @@ bmp_image_t *bmp_from_path(const char *path) {
 
     const size_t header_size = sizeof(struct bmp_header) + sizeof(struct bmp_info);
 
-    if (header_size != image->header.imageDataOffset) {
-        printf("Image contains extra data!");
-        goto _ABORT;
-    }
+//    if (header_size != image->header.imageDataOffset) {
+//        printf("Image contains extra data!");
+//        goto _ABORT;
+//    }
 
-    if (image->info.bitsPerPixel != 24) {
-        printf("Image does not contains 24 bits per pixel.");
+    if (image->info.bitsPerPixel != 8) {
+        printf("Image does not contains 8 bits per pixel.");
         goto _ABORT;
     }
 
@@ -64,10 +64,10 @@ bmp_image_t *bmp_from_path(const char *path) {
         goto _ABORT;
     }
 
-    if (image->header.imageDataOffset - header_size != 0) {
-        printf("Image contains extra data between header and bitmap!");
-        goto _ABORT;
-    }
+//    if (image->header.imageDataOffset - header_size != 0) {
+//        printf("Image contains extra data between header and bitmap!");
+//        goto _ABORT;
+//    }
 
     image->data = malloc(image->info.imageSize);
     fread(image->data, image->info.imageSize, 1, fp);
@@ -105,7 +105,6 @@ int bmp_save(const bmp_image_t *image, const char *path) {
 }
 
 void bmp_free(bmp_image_t *image) {
-
     free(image->data);
     free(image);
 }
