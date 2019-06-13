@@ -82,10 +82,7 @@ int **projectionSd(int **A, int n, int k, int inverses[251]) {
     if (det != 0) {
         printf("%s", "Inverse exists!\n");
 
-        int **AugmentedAtaInverse = (int **) malloc(k * sizeof(int *)); //TODO free
-        for (int i = 0; i < k; i++) AugmentedAtaInverse[i] = (int *) calloc((size_t) k * 2, sizeof(int));
-
-        inverse(AtA, AugmentedAtaInverse, k, inverses);
+        int **AugmentedAtaInverse = inverse(AtA, k, inverses);
 
         freeMatrix(AtA, k);
 

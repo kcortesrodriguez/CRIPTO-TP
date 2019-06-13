@@ -100,7 +100,11 @@ int **multiply(int **mat1, int **mat2, int n, int m, int k) {
 }
 
 // Function to perform the inverse operation on the matrix.
-void inverse(int **m, int **mInverse, int n, int inverses[251]) {
+int **inverse(int **m, int n, int inverses[251]) {
+
+    int **mInverse = (int **) malloc(n * sizeof(int *)); //TODO free
+    for (int i = 0; i < n; i++) mInverse[i] = (int *) calloc((size_t) n * 2, sizeof(int));
+
 
     printf("\n");
     printf("m matrix:\n");
@@ -168,6 +172,8 @@ void inverse(int **m, int **mInverse, int n, int inverses[251]) {
             mInverse[i][j] = modulo(mInverse[i][j] * inverses[temp], 251);
         }
     }
+
+    return mInverse;
 }
 
 void add(int **mat1, int **mat2, int **res, int n) {
