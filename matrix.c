@@ -68,7 +68,7 @@ int **transpose(int **A, int n, int k) {
 
     for (int i = 0; i < k; i++)
         for (int j = 0; j < n; j++){
-            transposeMatrix[j][i] = A[i][j];
+            transposeMatrix[i][j] = A[j][i];
         }
 
     return transposeMatrix;
