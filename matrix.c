@@ -59,11 +59,19 @@ int determinantOfMatrix(int **mat, int N, int n) {
 }
 
 // This function stores transpose of A[][] in B[][]
-void transpose(int **A, int **B, int n, int k) {
-    int i, j;
-    for (i = 0; i < k; i++)
-        for (j = 0; j < n; j++)
-            B[i][j] = A[j][i];
+int **transpose(int **A, int n, int k) {
+    int **transposeMatrix = (int **) calloc(n, sizeof(int *)); //TODO free
+    for (int i = 0; i < n; i++) {
+        transposeMatrix[i] = (int *) calloc(k, sizeof(int));
+    }
+
+
+    for (int i = 0; i < k; i++)
+        for (int j = 0; j < n; j++){
+            transposeMatrix[j][i] = A[i][j];
+        }
+
+    return transposeMatrix;
 }
 
 // This function multiplies mat1[][] and mat2[][],
@@ -71,15 +79,24 @@ void transpose(int **A, int **B, int n, int k) {
 // n is the rows of mat1
 // m is the cols of mat2
 // k is the cols of mat1 and rows of mat2
-void multiply(int **mat1, int **mat2, int **res, int n, int m, int k) {
+int **multiply(int **mat1, int **mat2, int n, int m, int k) {
+
+    int **res = (int **) calloc(n, sizeof(int *)); //TODO free
+    for (int i = 0; i < n; i++) {
+        res[i] = (int *) calloc(k, sizeof(int));
+    }
+
     int i, j, h;
     for (i = 0; i < n; i++) {
         for (j = 0; j < m; j++) {
             res[i][j] = 0;
             for (h = 0; h < k; h++)
-                res[i][j] = modulo(res[i][j] + modulo(mat1[i][h] * mat2[h][j], 251), 251);
+                res[i][j] += mat1[i][h] * mat2[h][j];
+            res[i][j] = res[i][j] % 251;
         }
     }
+
+    return res;
 }
 
 // Function to perform the inverse operation on the matrix.

@@ -3,11 +3,15 @@
 
 int determinantOfMatrix(int **mat, int N, int n);
 
-void transpose(int **A, int **B, int n, int k);
+//void transpose(int **A, int **B, int n, int k);
 
-void multiply(int **mat1, int **mat2, int **res, int n, int m, int k);
+int **transpose(int **A, int n, int k);
+
+//void multiply(int **mat1, int **mat2, int **res, int n, int m, int k);
 
 void inverse(int **m, int **mInverse, int n, int inverses[251]);
+
+int **multiply(int **mat1, int **mat2, int n, int m, int k);
 
 void add(int **mat1, int **mat2, int **res, int n);
 
