@@ -133,10 +133,13 @@ long **projectionSd(long **A, int n, int k, int inverses[251]) {
 
         // (A * (At * A)') * At
 
+
         long **proj = multiply(AxInverse, At, n, n, k);
 
-        freeMatrix(AxInverse, n);
-        freeMatrix(At, k);
+        printf("Entroooo");
+
+        //freeMatrix(AxInverse, n);
+        //freeMatrix(At, k);
 
         return proj;
     } else {
