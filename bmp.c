@@ -52,7 +52,7 @@ bmp_image_t *bmp_from_path(const char *path) {
     if (header_size != image->header.imageDataOffset) {
         printf("Image contains extra data!");
         goto _ABORT;
-}
+    }
 
     if (image->info.bitsPerPixel != 24) {
         printf("Image does not contains 24 bits per pixel.");
