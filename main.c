@@ -82,11 +82,8 @@ int main(int argc, char *argv[]) {
         printf("\n");
     }
 
-    int **recoveredS = (int **) malloc(n * sizeof(int *));
-    for (int i = 0; i < n; i++) recoveredS[i] = (int *) calloc((size_t) n, sizeof(int));
-
     // Recovered Matrix S
-    add(R, Sd, recoveredS, n);
+    int **recoveredS = add(R, Sd, n);
     printf("\n");
     printf("S matrix:\n");
     for (int row = 0; row < n; row++) {

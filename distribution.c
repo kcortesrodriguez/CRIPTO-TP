@@ -43,13 +43,8 @@ int **matA(int n, int k) {
 }
 
 int **projectionSd(int **A, int n, int k, int inverses[251]) {
-    int **At = (int **) malloc(k * sizeof(int *));
-    for (int i = 0; i < k; i++) At[i] = (int *) calloc((size_t) n, sizeof(int));
 
-    transpose(A, At, n, k);
-
-    int **AtA = (int **) malloc(k * sizeof(int *));
-    for (int i = 0; i < k; i++) AtA[i] = (int *) calloc((size_t) k, sizeof(int));
+    int **At = transpose(A, n, k);
 
     printf("\n");
 
@@ -61,7 +56,7 @@ int **projectionSd(int **A, int n, int k, int inverses[251]) {
         printf("\n");
     }
 
-    multiply(At, A, AtA, k, k, n);
+    int **AtA = multiply(At, A, k, k, n);
 
     printf("\n");
     printf("pre AtA matrix:\n");
@@ -88,10 +83,7 @@ int **projectionSd(int **A, int n, int k, int inverses[251]) {
     if (det != 0) {
         printf("%s", "Inverse exists!\n");
 
-        int **AugmentedAtaInverse = (int **) malloc(k * sizeof(int *)); //TODO free
-        for (int i = 0; i < k; i++) AugmentedAtaInverse[i] = (int *) calloc((size_t) k * 2, sizeof(int));
-
-        inverse(AtA, AugmentedAtaInverse, k, inverses);
+        int **AugmentedAtaInverse = inverse(AtA, k, inverses);
 
         freeMatrix(AtA, k);
 
@@ -126,10 +118,8 @@ int **projectionSd(int **A, int n, int k, int inverses[251]) {
         freeMatrix(AugmentedAtaInverse, k);
 
         // A * (At * A)'
-        int **AxInverse = (int **) malloc(n * sizeof(int *));
-        for (int i = 0; i < n; i++) AxInverse[i] = (int *) calloc(1, k * sizeof(int));
 
-        multiply(A, AtAInverse, AxInverse, n, k, k);
+        int **AxInverse = multiply(A, AtAInverse, n, k, k);
 
         freeMatrix(AtAInverse, k);
 
@@ -143,10 +133,8 @@ int **projectionSd(int **A, int n, int k, int inverses[251]) {
         }
 
         // (A * (At * A)') * At
-        int **proj = (int **) malloc(n * sizeof(int *));
-        for (int i = 0; i < n; i++) proj[i] = (int *) calloc(1, k * sizeof(int));
 
-        multiply(AxInverse, At, proj, n, n, k);
+        int **proj = multiply(AxInverse, At, n, n, k);
 
         freeMatrix(AxInverse, n);
         freeMatrix(At, k);
@@ -160,21 +148,11 @@ int **projectionSd(int **A, int n, int k, int inverses[251]) {
 }
 
 int **remainderR(int **secretS, int **projectionSd, int n) {
-    int **difference = (int **) malloc(n * sizeof(int *));
-    for (int i = 0; i < n; i++) difference[i] = (int *) calloc((size_t) n, sizeof(int));
-
-    subtract(secretS, projectionSd, difference, n);
-
-    return difference;
+    return subtract(secretS, projectionSd, n);
 }
 
 int **remainderRw(int **watermarkW, int **projectionSd, int n) {
-    int **difference = (int **) malloc(n * sizeof(int *));
-    for (int i = 0; i < n; i++) difference[i] = (int *) calloc((size_t) n, sizeof(int));
-
-    subtract(watermarkW, projectionSd, difference, n);
-
-    return difference;
+    return subtract(watermarkW, projectionSd, n);
 }
 
 /*
