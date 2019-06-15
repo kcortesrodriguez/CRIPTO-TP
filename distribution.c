@@ -34,7 +34,7 @@ long **matA(int n, int k) {
     printf("A matrix:\n");
     for (int row = 0; row < n; row++) {
         for (int columns = 0; columns < k; columns++) {
-            printf("  %d", A[row][columns]);
+            printf("  %ld", A[row][columns]);
         }
         printf("\n");
     }
@@ -67,7 +67,7 @@ long **projectionSd(long **A, int n, int k, int inverses[251]) {
         printf("\n");
     }
 
-    int det = determinantOfMatrix(AtA, k, k);
+    long det = determinantOfMatrix(AtA, k, k);
 
     printf("post AtA matrix:\n");
     for (int row = 0; row < k; row++) {
@@ -78,7 +78,7 @@ long **projectionSd(long **A, int n, int k, int inverses[251]) {
     }
 
     printf("\n");
-    printf("det: %d\n", det);
+    printf("det: %ld\n", det);
 
     if (det != 0) {
         printf("%s", "Inverse exists!\n");
@@ -133,14 +133,10 @@ long **projectionSd(long **A, int n, int k, int inverses[251]) {
         }
 
         // (A * (At * A)') * At
-
-
         long **proj = multiply(AxInverse, At, n, n, k);
 
-        printf("Entroooo");
-
-        //freeMatrix(AxInverse, n);
-        //freeMatrix(At, k);
+        freeMatrix(AxInverse, n);
+        freeMatrix(At, k);
 
         return proj;
     } else {
@@ -165,8 +161,8 @@ long **remainderRw(long **watermarkW, long **projectionSd, int n) {
  * k is the min number of participants.
  * t is the current participant index.
  */
-int *g_i_j(int **R, int initial_column, int t, int n, int k) {
-    int *res = (int *) calloc(n, sizeof(int));
+long *g_i_j(long **R, int initial_column, int t, int n, int k) {
+    long *res = (long *) calloc(n, sizeof(long));
 
     for (int row = 0; row < n; row++) {
         for (int column = initial_column; column < k + initial_column; column++) {
@@ -184,17 +180,15 @@ int *g_i_j(int **R, int initial_column, int t, int n, int k) {
  * k is the min number of participants.
  * t is the current participant index.
  */
-int **matG_t(int **R, int n, int k, int t) {
+long **matG_t(long **R, int n, int k, int t) {
     int max_t = (int) ceil(n / k); // TODO: code method for create matrix !
-    int **res = (int **) calloc(max_t, sizeof(int *));
+    long **res = (long **) calloc((size_t) max_t, sizeof(long *));
 
     for (int i = 0; i < max_t; i++) {
         res[i] = g_i_j(R, i * 2, t, n, k);
     }
 
-    int **resT = (int **) malloc(n * sizeof(int *));
-    for (int i = 0; i < n; i++) resT[i] = (int *) calloc(max_t, sizeof(int));
-    transpose(res, resT, max_t, n);
+    long **resT = transpose(res, max_t, n);
 
     freeMatrix(res, max_t);
 
@@ -206,8 +200,8 @@ int **matG_t(int **R, int n, int k, int t) {
  * n is the max number of participants.
  * k is the min number of participants.
  */
-int ***matG(int **R, int n, int k) {
-    int ***matG = (int ***) malloc(n * sizeof(int **));
+long ***matG(long **R, int n, int k) {
+    long ***matG = (long ***) malloc(n * sizeof(long **));
 
     for (int t = 0; t < n; t++) {
         matG[t] = matG_t(R, n, k, t + 1);

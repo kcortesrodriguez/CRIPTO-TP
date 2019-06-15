@@ -1,7 +1,7 @@
 #ifndef CRIPTO_TP_MATRIX_H
 #define CRIPTO_TP_MATRIX_H
 
-int determinantOfMatrix(long **mat, int N, int n);
+long determinantOfMatrix(long **mat, int N, int n);
 
 long **transpose(long **A, int n, int k);
 

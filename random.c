@@ -33,9 +33,9 @@ unsigned long urandom() {
 }
 
 //chequea si un elemento value se encuentra en el array array de longitud sizeArray
-int containsValue(int* array, int sizeArray, int value){
-    for(int i = 0 ; i < sizeArray ; i++){
-        if (array[i] == value){
+int containsValue(const int *array, int sizeArray, int value) {
+    for (int i = 0; i < sizeArray; i++) {
+        if (array[i] == value) {
             return TRUE;
         }
     }
@@ -43,18 +43,18 @@ int containsValue(int* array, int sizeArray, int value){
 }
 
 //genera un vector de n randoms en Z 251 que no se repiten
-int* generateRandoms(int n){
+int *generateRandoms(int n) {
     int *array;
-    array = (int *)malloc(sizeof(int) * n);
+    array = (int *) malloc(sizeof(int) * n);
 
-    for(int i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++) {
 
-        int randomNumber = urandom() % 251;
+        int randomNumber = (int) (urandom() % 251);
 
-        if( i != 0 ){
+        if (i != 0) {
             do {
-                randomNumber = urandom() % 251;
-            } while ( containsValue(array, i, randomNumber) == TRUE );
+                randomNumber = (int) (urandom() % 251);
+            } while (containsValue(array, i, randomNumber) == TRUE);
         }
 
         array[i] = randomNumber;

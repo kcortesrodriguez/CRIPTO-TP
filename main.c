@@ -41,34 +41,34 @@ int main(int argc, char *argv[]) {
     printf("Sd matrix:\n");
     for (int row = 0; row < n; row++) {
         for (int columns = 0; columns < n; columns++) {
-            printf("  %d", Sd[row][columns]);
+            printf("  %ld", Sd[row][columns]);
         }
         printf("\n");
     }
 
     long **S = (long **) malloc(n * sizeof(long *));
-    for (int i = 0; i < n; i++) S[i] = (long *) malloc(k * sizeof(long));
+    for (int i = 0; i < n; i++) S[i] = (long *) calloc(n, sizeof(long));
 
     // Paper case
-    S[0][0] = 2;
-    S[0][1] = 5;
-    S[0][2] = 2;
-    S[0][3] = 3;
+    S[0][0] = 2L;
+    S[0][1] = 5L;
+    S[0][2] = 2L;
+    S[0][3] = 3L;
 
-    S[1][0] = 3;
-    S[1][1] = 6;
-    S[1][2] = 4;
-    S[1][3] = 5;
+    S[1][0] = 3L;
+    S[1][1] = 6L;
+    S[1][2] = 4L;
+    S[1][3] = 5L;
 
-    S[2][0] = 4;
-    S[2][1] = 7;
-    S[2][2] = 4;
-    S[2][3] = 6;
+    S[2][0] = 4L;
+    S[2][1] = 7L;
+    S[2][2] = 4L;
+    S[2][3] = 6L;
 
-    S[3][0] = 1;
-    S[3][1] = 4;
-    S[3][2] = 1;
-    S[3][3] = 7;
+    S[3][0] = 1L;
+    S[3][1] = 4L;
+    S[3][2] = 1L;
+    S[3][3] = 7L;
 
     // Matrix R
     long **R = remainderR(S, Sd, n);
@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
     printf("R matrix:\n");
     for (int row = 0; row < n; row++) {
         for (int columns = 0; columns < n; columns++) {
-            printf("  %d", R[row][columns]); //TODO write in report that R matrix from paper is wrong.q
+            printf("  %ld", R[row][columns]); //TODO write in report that R matrix from paper is wrong.q
         }
         printf("\n");
     }
@@ -88,13 +88,13 @@ int main(int argc, char *argv[]) {
     printf("S matrix:\n");
     for (int row = 0; row < n; row++) {
         for (int columns = 0; columns < n; columns++) {
-            printf("  %d", recoveredS[row][columns]);
+            printf("  %ld", recoveredS[row][columns]);
         }
         printf("\n");
     }
 
     // Matrix Rw
-//  int **Rw = remainderRw(W, Sd, n); //todo: replace W with watermark
+//    long **Rw = remainderRw(W, Sd, n); //todo: replace W with watermark
 
     free(inverses);
     freeMatrix(A, n);
@@ -125,19 +125,19 @@ int main(int argc, char *argv[]) {
     // Matrix G
     printf("\n");
     printf("G matrix:\n");
-    int ***G = matG(R, n, k);
+    long ***G = matG(R, n, k);
     for (int t = 0; t < n; t++) {
         printf("G_%d matrix:\n", t + 1);
         for (int row = 0; row < n; row++) {
             for (int columns = 0; columns < k; columns++) {
-                printf("  %d", G[t][row][columns]);
+                printf("  %ld", G[t][row][columns]);
             }
             printf("\n");
         }
     }
 
     freeMatrix(R, n);
-    
+
     for (int t = 0; t < n; t++) {
         freeMatrix(G[t], n);
     }

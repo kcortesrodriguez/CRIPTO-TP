@@ -3,7 +3,7 @@
 
 // Considering negative x too
 // TODO remember to include this discovery in report
-int modulo(int x, int N) {
+long modulo(long x, int N) {
     return (x % N + N) % N;
 }
 
