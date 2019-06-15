@@ -21,7 +21,7 @@ long* generateVector(int k, int initialValue);
 
 void printVector(int k, long* array);
 
-long** generateMatrixX(int k, int n);
+long** matX(int k, int n);
 
 void printMatrix(int k, int n, long** matrix);
 

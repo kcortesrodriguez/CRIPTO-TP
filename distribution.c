@@ -209,3 +209,11 @@ long ***matG(long **R, int n, int k) {
 
     return matG;
 }
+
+long **matV(long **A, long **X, int n, int k){
+    long** matrixMultiply;
+    printf("\n");
+    matrixMultiply = multiplyV2(A, X, n, n, k);
+
+    return matrixMultiply;
+}

@@ -237,7 +237,7 @@ void printVector(int k, long *array) {
     }
 }
 
-long **generateMatrixX(int k, int n) {
+long **matX(int k, int n) {
     long **temp = (long **) malloc(n * sizeof(long *)); //TODO free
     int *randoms = generateRandoms(n);
 
@@ -245,7 +245,9 @@ long **generateMatrixX(int k, int n) {
         temp[i] = generateVector(k, randoms[i]);
     }
 
-    return temp;
+    //transposeV2(matrix,k,n)
+    //return temp;
+    return transposeV2(temp, k, n);
 }
 
 void printMatrix(int k, int n, long **matrix) {

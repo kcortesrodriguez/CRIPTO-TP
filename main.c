@@ -113,27 +113,20 @@ int main(int argc, char *argv[]) {
 
     long** matrix;
     printf("\n");
-    matrix = generateMatrixX(k,n); //filas x columnas --> n filas x k columnas
-    printMatrix(k,n,matrix);
+    matrix = matX(k, n); //filas x columnas --> n filas x k columnas
+    printMatrix(n,k,matrix);
 
     printf("\n");
     printMatrix(k,n,A);
 
-    long** matrixTranspose;
-    printf("\n");
-    matrixTranspose = transposeV2(matrix,k,n); //filas x columnas --> k filas x n columnas
-    printMatrix(n,k,matrixTranspose); // n x k
 
     //Tenemos que hacer A x X para tener V
     // A --> n x k
     // MI X --> n x k, entonces lo hago con la Xt --> k x n
     // A x Xt --> n x n
 
-    long** matrixMultiply;
     printf("\n");
-    matrixMultiply = multiplyV2(A, matrixTranspose, n, n, k);
-    printMatrix(n, n, matrixMultiply); // k x k
-
+    printMatrix(n, n, matV(A, matrix, n, k)); // k x k
 
 
     // Matrix G
