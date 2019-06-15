@@ -111,13 +111,13 @@ int main(int argc, char *argv[]) {
     k = 2;
     n = 4;
 
-    long** matrix;
+    long **matrix;
     printf("\n");
     matrix = matX(k, n); //filas x columnas --> n filas x k columnas
-    printMatrix(n,k,matrix);
+    printMatrix(n, k, matrix);
 
     printf("\n");
-    printMatrix(k,n,A);
+    printMatrix(k, n, A);
 
 
     //Tenemos que hacer A x X para tener V
@@ -126,8 +126,35 @@ int main(int argc, char *argv[]) {
     // A x Xt --> n x n
 
     printf("\n");
-    printMatrix(n, n, matV(A, matrix, n, k)); // k x k
+    long **V = matV(A, matrix, n, k);
 
+    printf("\n");
+    printf("V matrix:\n");
+    printMatrix(n, n, V); // k x k
+
+    long **VDemo = (long **) malloc(n * sizeof(long *));
+    for (int i = 0; i < n; i++) VDemo[i] = (long *) calloc(n, sizeof(long));
+
+    // Paper case
+    VDemo[0][0] = 62L;
+    VDemo[0][1] = 59L;
+    VDemo[0][2] = 43L;
+    VDemo[0][3] = 84L;
+
+    VDemo[1][0] = 40L;
+    VDemo[1][1] = 28L;
+    VDemo[1][2] = 28L;
+    VDemo[1][3] = 48L;
+
+    VDemo[2][0] = 83L;
+    VDemo[2][1] = 62L;
+    VDemo[2][2] = 58L;
+    VDemo[2][3] = 102L;
+
+    VDemo[3][0] = 23L;
+    VDemo[3][1] = 20L;
+    VDemo[3][2] = 16L;
+    VDemo[3][3] = 30L;
 
     // Matrix G
     printf("\n");
@@ -145,11 +172,25 @@ int main(int argc, char *argv[]) {
 
     freeMatrix(R, n);
 
+    // Matrix Sh
+    printf("\n");
+    printf("Sh matrix:\n");
+    long ***Sh = matSh(G, VDemo, n, k);
+    for (int t = 0; t < n; t++) {
+        printf("Sh_%d matrix:\n", t + 1);
+        for (int row = 0; row < n; row++) {
+            for (int columns = 0; columns < k + 1; columns++) {
+                printf("  %ld", Sh[t][row][columns]);
+            }
+            printf("\n");
+        }
+    }
+
     for (int t = 0; t < n; t++) {
         freeMatrix(G[t], n);
     }
-
     free(G);
+    free(Sh);
 
     return 0;
 }

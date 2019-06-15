@@ -17,4 +17,6 @@ long ***matG(long **R, int n, int k);
 
 long **matV(long **A, long **X, int n, int k);
 
+long ***matSh(long ***G, long **V, int n, int k);
+
 #endif //CRIPTO_TP_DISTRIBUTION_H
