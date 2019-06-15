@@ -272,9 +272,10 @@ long **transposeV2(long **matrix, int n, int k) {
 }
 
 long **multiplyV2(long **mat1, long **mat2, int n, int m, int k) {
-    long **res = (long **) malloc(n * sizeof(long *)); //TODO free
+
+    long **res = (long **) calloc(n, sizeof(long *)); //TODO free
     for (int i = 0; i < n; i++) {
-        res[i] = (long *) malloc(k * sizeof(long));
+        res[i] = (long *) calloc(m, sizeof(long));
     }
 
     int i, j, h;
@@ -283,7 +284,7 @@ long **multiplyV2(long **mat1, long **mat2, int n, int m, int k) {
             res[i][j] = 0;
             for (h = 0; h < k; h++)
                 res[i][j] += mat1[i][h] * mat2[h][j];
-            res[i][j] = res[i][j] % 251;
+            res[i][j] = modulo(res[i][j], 251);
         }
     }
 

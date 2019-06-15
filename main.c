@@ -103,23 +103,37 @@ int main(int argc, char *argv[]) {
     freeMatrix(recoveredS, n);
     freeMatrix(S, n);
 
+    //freeMatrix(recoveredS, n);
+    //freeMatrix(S, n);
 
     // Start testing Matrix X (Kevin)
-//    k = 4;
-//    n = 8;
 
-//    long** matrix;
-//    printf("\n");
-//    matrix = generateMatrixX(k,n);
-//    printMatrix(k,n,matrix);
-//
-//    long** matrixTranspose;
-//    matrixTranspose = transposeV2(matrix,k,n); //n x k
-//    printMatrix(n,k,matrixTranspose); // n x k
+    k = 2;
+    n = 4;
 
-    //long** matrixMultiply;
-    //matrixMultiply = multiplyV2(matrix, matrixMultiply, k, n, k);
-    //printMatrix(k, k, matrixMultiply); // k x k
+    long** matrix;
+    printf("\n");
+    matrix = generateMatrixX(k,n); //filas x columnas --> n filas x k columnas
+    printMatrix(k,n,matrix);
+
+    printf("\n");
+    printMatrix(k,n,A);
+
+    long** matrixTranspose;
+    printf("\n");
+    matrixTranspose = transposeV2(matrix,k,n); //filas x columnas --> k filas x n columnas
+    printMatrix(n,k,matrixTranspose); // n x k
+
+    //Tenemos que hacer A x X para tener V
+    // A --> n x k
+    // MI X --> n x k, entonces lo hago con la Xt --> k x n
+    // A x Xt --> n x n
+
+    long** matrixMultiply;
+    printf("\n");
+    matrixMultiply = multiplyV2(A, matrixTranspose, n, n, k);
+    printMatrix(n, n, matrixMultiply); // k x k
+
 
 
     // Matrix G
