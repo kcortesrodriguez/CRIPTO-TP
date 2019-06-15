@@ -11,13 +11,13 @@
 // rank k
 // det != 0
 // proj(A) y S - proj(A) no debe tener valores mayores que 251
-int **matA(int n, int k) {
-    int **A = (int **) malloc(n * sizeof(int *));
-    for (int i = 0; i < n; i++) A[i] = (int *) malloc(k * sizeof(int));
+long **matA(int n, int k) {
+    long **A = (long **) malloc(n * sizeof(long *));
+    for (int i = 0; i < n; i++) A[i] = (long *) malloc(k * sizeof(long));
 
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < k; j++) {
-            A[i][j] = (int) (urandom() % 251); // 251 because A must have values in [0, 251)
+            A[i][j] = (long) (urandom() % 251); // 251 because A must have values in [0, 251)
         }
     }
 
@@ -42,27 +42,27 @@ int **matA(int n, int k) {
     return A;
 }
 
-int **projectionSd(int **A, int n, int k, int inverses[251]) {
+long **projectionSd(long **A, int n, int k, int inverses[251]) {
 
-    int **At = transpose(A, n, k);
+    long **At = transpose(A, n, k);
 
     printf("\n");
 
     printf("At matrix:\n");
     for (int row = 0; row < k; row++) {
         for (int columns = 0; columns < n; columns++) {
-            printf("  %d", At[row][columns]);
+            printf("  %ld", At[row][columns]);
         }
         printf("\n");
     }
 
-    int **AtA = multiply(At, A, k, k, n);
+    long **AtA = multiply(At, A, k, k, n);
 
     printf("\n");
     printf("pre AtA matrix:\n");
     for (int row = 0; row < k; row++) {
         for (int columns = 0; columns < k; columns++) {
-            printf("  %d", AtA[row][columns]);
+            printf("  %ld", AtA[row][columns]);
         }
         printf("\n");
     }
@@ -72,7 +72,7 @@ int **projectionSd(int **A, int n, int k, int inverses[251]) {
     printf("post AtA matrix:\n");
     for (int row = 0; row < k; row++) {
         for (int columns = 0; columns < k; columns++) {
-            printf("  %d", AtA[row][columns]);
+            printf("  %ld", AtA[row][columns]);
         }
         printf("\n");
     }
@@ -83,7 +83,7 @@ int **projectionSd(int **A, int n, int k, int inverses[251]) {
     if (det != 0) {
         printf("%s", "Inverse exists!\n");
 
-        int **AugmentedAtaInverse = inverse(AtA, k, inverses);
+        long **AugmentedAtaInverse = inverse(AtA, k, inverses);
 
         freeMatrix(AtA, k);
 
@@ -91,13 +91,13 @@ int **projectionSd(int **A, int n, int k, int inverses[251]) {
         printf("AugmentedAtaInverse matrix:\n");
         for (int row = 0; row < k; row++) {
             for (int columns = 0; columns < k * 2; columns++) {
-                printf("  %d", AugmentedAtaInverse[row][columns]);
+                printf("  %ld", AugmentedAtaInverse[row][columns]);
             }
             printf("\n");
         }
 
-        int **AtAInverse = (int **) malloc(k * sizeof(int *));
-        for (int i = 0; i < k; i++) AtAInverse[i] = (int *) calloc((size_t) k, sizeof(int));
+        long **AtAInverse = (long **) malloc(k * sizeof(long *));
+        for (int i = 0; i < k; i++) AtAInverse[i] = (long *) calloc((size_t) k, sizeof(long));
 
         // Fill AtAInverse
         for (int row = 0; row < k; row++) {
@@ -110,7 +110,7 @@ int **projectionSd(int **A, int n, int k, int inverses[251]) {
         printf("AtAInverse matrix:\n");
         for (int row = 0; row < k; row++) {
             for (int columns = 0; columns < k; columns++) {
-                printf("  %d", AtAInverse[row][columns]);
+                printf("  %ld", AtAInverse[row][columns]);
             }
             printf("\n");
         }
@@ -119,7 +119,7 @@ int **projectionSd(int **A, int n, int k, int inverses[251]) {
 
         // A * (At * A)'
 
-        int **AxInverse = multiply(A, AtAInverse, n, k, k);
+        long **AxInverse = multiply(A, AtAInverse, n, k, k);
 
         freeMatrix(AtAInverse, k);
 
@@ -127,17 +127,20 @@ int **projectionSd(int **A, int n, int k, int inverses[251]) {
         printf("AxInverse matrix:\n");
         for (int row = 0; row < n; row++) {
             for (int columns = 0; columns < k; columns++) {
-                printf("  %d", AxInverse[row][columns]);
+                printf("  %ld", AxInverse[row][columns]);
             }
             printf("\n");
         }
 
         // (A * (At * A)') * At
 
-        int **proj = multiply(AxInverse, At, n, n, k);
 
-        freeMatrix(AxInverse, n);
-        freeMatrix(At, k);
+        long **proj = multiply(AxInverse, At, n, n, k);
+
+        printf("Entroooo");
+
+        //freeMatrix(AxInverse, n);
+        //freeMatrix(At, k);
 
         return proj;
     } else {
@@ -147,11 +150,11 @@ int **projectionSd(int **A, int n, int k, int inverses[251]) {
     }
 }
 
-int **remainderR(int **secretS, int **projectionSd, int n) {
+long **remainderR(long **secretS, long **projectionSd, int n) {
     return subtract(secretS, projectionSd, n);
 }
 
-int **remainderRw(int **watermarkW, int **projectionSd, int n) {
+long **remainderRw(long **watermarkW, long **projectionSd, int n) {
     return subtract(watermarkW, projectionSd, n);
 }
 

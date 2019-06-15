@@ -1,13 +1,13 @@
 #ifndef CRIPTO_TP_DISTRIBUTION_H
 #define CRIPTO_TP_DISTRIBUTION_H
 
-int **matA(int n, int k);
+long **matA(int n, int k);
 
-int **projectionSd(int **A, int n, int k, int inverses[251]);
+long **projectionSd(long **A, int n, int k, int inverses[251]);
 
-int **remainderR(int **secretS, int **projectionSd, int n);
+long **remainderR(long **secretS, long **projectionSd, int n);
 
-int **remainderRw(int **watermarkW, int **projectionSd, int n);
+long **remainderRw(long **watermarkW, long **projectionSd, int n);
 
 int *g_i_j(int **R, int initial_column, int t, int n, int k);
 

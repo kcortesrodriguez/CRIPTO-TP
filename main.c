@@ -32,10 +32,10 @@ int main(int argc, char *argv[]) {
     int *inverses = modularInverse(250, 251);
 
     // Matrix A
-    int **A = matA(n, k);
+    long **A = matA(n, k);
 
     // Matrix Sd
-    int **Sd = projectionSd(A, n, k, inverses);
+    long **Sd = projectionSd(A, n, k, inverses);
 
     printf("\n");
     printf("Sd matrix:\n");
@@ -46,8 +46,8 @@ int main(int argc, char *argv[]) {
         printf("\n");
     }
 
-    int **S = (int **) malloc(n * sizeof(int *));
-    for (int i = 0; i < n; i++) S[i] = (int *) malloc(k * sizeof(int));
+    long **S = (long **) malloc(n * sizeof(long *));
+    for (int i = 0; i < n; i++) S[i] = (long *) malloc(k * sizeof(long));
 
     // Paper case
     S[0][0] = 2;
@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
     S[3][3] = 7;
 
     // Matrix R
-    int **R = remainderR(S, Sd, n);
+    long **R = remainderR(S, Sd, n);
 
     printf("\n");
     printf("R matrix:\n");
@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Recovered Matrix S
-    int **recoveredS = add(R, Sd, n);
+    long **recoveredS = add(R, Sd, n);
     printf("\n");
     printf("S matrix:\n");
     for (int row = 0; row < n; row++) {

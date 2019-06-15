@@ -7,7 +7,7 @@
 
 // Function to get cofactor of mat[p][q] in temp[][]. n is current
 // dimension of mat[][]
-void getCofactor(int **mat, int **temp, int p, int q, int n) {
+void getCofactor(long **mat, long **temp, int p, int q, int n) {
     int i = 0, j = 0;
 
     // Looping for each element of the matrix
@@ -30,7 +30,7 @@ void getCofactor(int **mat, int **temp, int p, int q, int n) {
 
 // Recursive function for finding determinant of matrix.
 // n is current dimension of mat[][], N is the original dimension of the matrix.
-int determinantOfMatrix(int **mat, int N, int n) {
+int determinantOfMatrix(long **mat, int N, int n) {
     int D = 0; // Initialize result
 
     //  Base case : if matrix contains single element
@@ -59,12 +59,11 @@ int determinantOfMatrix(int **mat, int N, int n) {
 }
 
 // This function stores transpose of A[][] in B[][]
-int **transpose(int **A, int n, int k) {
-    int **transposeMatrix = (int **) calloc(n, sizeof(int *)); //TODO free
+long **transpose(long **A, int n, int k) {
+    long **transposeMatrix = (long **) calloc(n, sizeof(long *)); //TODO free
     for (int i = 0; i < n; i++) {
-        transposeMatrix[i] = (int *) calloc(k, sizeof(int));
+        transposeMatrix[i] = (long *) calloc(k, sizeof(long));
     }
-
 
     for (int i = 0; i < k; i++)
         for (int j = 0; j < n; j++){
@@ -79,11 +78,11 @@ int **transpose(int **A, int n, int k) {
 // n is the rows of mat1
 // m is the cols of mat2
 // k is the cols of mat1 and rows of mat2
-int **multiply(int **mat1, int **mat2, int n, int m, int k) {
+long **multiply(long **mat1, long **mat2, int n, int m, int k) {
 
-    int **res = (int **) calloc(n, sizeof(int *)); //TODO free
+    long **res = (long **) calloc(n, sizeof(long *)); //TODO free
     for (int i = 0; i < n; i++) {
-        res[i] = (int *) calloc(k, sizeof(int));
+        res[i] = (long *) calloc(k, sizeof(long));
     }
 
     int i, j, h;
@@ -100,10 +99,10 @@ int **multiply(int **mat1, int **mat2, int n, int m, int k) {
 }
 
 // Function to perform the inverse operation on the matrix.
-int **inverse(int **m, int n, int inverses[251]) {
+long **inverse(long **m, int n, int inverses[251]) {
 
-    int **mInverse = (int **) malloc(n * sizeof(int *)); //TODO free
-    for (int i = 0; i < n; i++) mInverse[i] = (int *) calloc((size_t) n * 2, sizeof(int));
+    long **mInverse = (long **) malloc(n * sizeof(long *)); //TODO free
+    for (int i = 0; i < n; i++) mInverse[i] = (long *) calloc((size_t) n * 2, sizeof(long));
 
 
     printf("\n");
@@ -176,9 +175,9 @@ int **inverse(int **m, int n, int inverses[251]) {
     return mInverse;
 }
 
-int **add(int **mat1, int **mat2, int n) {
-    int **res = (int **) malloc(n * sizeof(int *));
-    for (int i = 0; i < n; i++) res[i] = (int *) calloc((size_t) n, sizeof(int));
+long **add(long **mat1, long **mat2, int n) {
+    long **res = (long **) malloc(n * sizeof(long *));
+    for (int i = 0; i < n; i++) res[i] = (long *) calloc((size_t) n, sizeof(long));
 
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
@@ -190,10 +189,10 @@ int **add(int **mat1, int **mat2, int n) {
 
 }
 
-int **subtract(int **mat1, int **mat2, int n) {
+long **subtract(long **mat1, long **mat2, int n) {
 
-    int **res = (int **) malloc(n * sizeof(int *));
-    for (int i = 0; i < n; i++) res[i] = (int *) calloc((size_t) n, sizeof(int));
+    long **res = (long **) malloc(n * sizeof(long *));
+    for (int i = 0; i < n; i++) res[i] = (long *) calloc((size_t) n, sizeof(long));
 
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
@@ -208,7 +207,7 @@ int **subtract(int **mat1, int **mat2, int n) {
  * m is the matrix to transpose.
  * n is the number of rows of m.
  */
-void freeMatrix(int **m, int n) {
+void freeMatrix(long **m, int n) {
     for (int i = 0; i < n; i++) {
         int *currentIntPtr = m[i];
         free(currentIntPtr);
