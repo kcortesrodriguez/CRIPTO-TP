@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <math.h>
 #include "random.h"
 #include "distribution.h"
 #include "matrix.h"
@@ -21,14 +22,14 @@ long **matA(int n, int k) {
     }
 
     // Paper case
-    A[0][0] = 10;
-    A[0][1] = 1;
-    A[1][0] = 7;
-    A[1][1] = 2;
-    A[2][0] = 8;
-    A[2][1] = 4;
-    A[3][0] = 1;
-    A[3][1] = 1;
+    A[0][0] = 3;
+    A[0][1] = 7;
+    A[1][0] = 6;
+    A[1][1] = 1;
+    A[2][0] = 2;
+    A[2][1] = 5;
+    A[3][0] = 6;
+    A[3][1] = 6;
 
     printf("A matrix:\n");
     for (int row = 0; row < n; row++) {
@@ -155,5 +156,62 @@ long **remainderR(long **secretS, long **projectionSd, int n) {
 
 long **remainderRw(long **watermarkW, long **projectionSd, int n) {
     return subtract(watermarkW, projectionSd, n);
+}
 
+/*
+ * R is the remainder matrix.
+ * c is the coefficents array (from 1 to n).
+ * n is the max number of participants.
+ * k is the min number of participants.
+ * t is the current participant index.
+ */
+int *g_i_j(int **R, int initial_column, int t, int n, int k) {
+    int *res = (int *) calloc(n, sizeof(int));
+
+    for (int row = 0; row < n; row++) {
+        for (int column = initial_column; column < k + initial_column; column++) {
+            res[row] += R[row][column] * pow(t, column - initial_column);
+        }
+        res[row] = modulo(res[row], 251);
+    }
+
+    return res;
+}
+
+/*
+ * R is the remainder matrix.
+ * n is the max number of participants.
+ * k is the min number of participants.
+ * t is the current participant index.
+ */
+int **matG_t(int **R, int n, int k, int t) {
+    int max_t = (int) ceil(n / k); // TODO: code method for create matrix !
+    int **res = (int **) calloc(max_t, sizeof(int *));
+
+    for (int i = 0; i < max_t; i++) {
+        res[i] = g_i_j(R, i * 2, t, n, k);
+    }
+
+    int **resT = (int **) malloc(n * sizeof(int *));
+    for (int i = 0; i < n; i++) resT[i] = (int *) calloc(max_t, sizeof(int));
+    transpose(res, resT, max_t, n);
+
+    freeMatrix(res, max_t);
+
+    return resT;
+}
+
+/*
+ * R is the remainder matrix.
+ * n is the max number of participants.
+ * k is the min number of participants.
+ */
+int ***matG(int **R, int n, int k) {
+    int ***matG = (int ***) malloc(n * sizeof(int **));
+
+    for (int t = 0; t < n; t++) {
+        matG[t] = matG_t(R, n, k, t + 1);
+    }
+
+    return matG;
 }

@@ -51,24 +51,24 @@ int main(int argc, char *argv[]) {
 
     // Paper case
     S[0][0] = 2;
-    S[0][1] = 3;
-    S[0][2] = 1;
-    S[0][3] = 2;
+    S[0][1] = 5;
+    S[0][2] = 2;
+    S[0][3] = 3;
 
-    S[1][0] = 5;
-    S[1][1] = 4;
-    S[1][2] = 6;
-    S[1][3] = 1;
+    S[1][0] = 3;
+    S[1][1] = 6;
+    S[1][2] = 4;
+    S[1][3] = 5;
 
-    S[2][0] = 8;
-    S[2][1] = 9;
-    S[2][2] = 7;
-    S[2][3] = 2;
+    S[2][0] = 4;
+    S[2][1] = 7;
+    S[2][2] = 4;
+    S[2][3] = 6;
 
-    S[3][0] = 3;
+    S[3][0] = 1;
     S[3][1] = 4;
     S[3][2] = 1;
-    S[3][3] = 2;
+    S[3][3] = 7;
 
     // Matrix R
     long **R = remainderR(S, Sd, n);
@@ -99,28 +99,50 @@ int main(int argc, char *argv[]) {
     free(inverses);
     freeMatrix(A, n);
     freeMatrix(Sd, n);
-    freeMatrix(R, n);
 
     freeMatrix(recoveredS, n);
     freeMatrix(S, n);
 
 
     // Start testing Matrix X (Kevin)
-    k = 4;
-    n = 8;
+//    k = 4;
+//    n = 8;
 
-    long** matrix;
-    printf("\n");
-    matrix = generateMatrixX(k,n);
-    printMatrix(k,n,matrix);
-
-    long** matrixTranspose;
-    matrixTranspose = transposeV2(matrix,k,n); //n x k
-    printMatrix(n,k,matrixTranspose); // n x k
+//    long** matrix;
+//    printf("\n");
+//    matrix = generateMatrixX(k,n);
+//    printMatrix(k,n,matrix);
+//
+//    long** matrixTranspose;
+//    matrixTranspose = transposeV2(matrix,k,n); //n x k
+//    printMatrix(n,k,matrixTranspose); // n x k
 
     //long** matrixMultiply;
     //matrixMultiply = multiplyV2(matrix, matrixMultiply, k, n, k);
     //printMatrix(k, k, matrixMultiply); // k x k
+
+
+    // Matrix G
+    printf("\n");
+    printf("G matrix:\n");
+    int ***G = matG(R, n, k);
+    for (int t = 0; t < n; t++) {
+        printf("G_%d matrix:\n", t + 1);
+        for (int row = 0; row < n; row++) {
+            for (int columns = 0; columns < k; columns++) {
+                printf("  %d", G[t][row][columns]);
+            }
+            printf("\n");
+        }
+    }
+
+    freeMatrix(R, n);
+    
+    for (int t = 0; t < n; t++) {
+        freeMatrix(G[t], n);
+    }
+
+    free(G);
 
     return 0;
 }

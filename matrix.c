@@ -203,6 +203,10 @@ long **subtract(long **mat1, long **mat2, int n) {
     return res;
 }
 
+/*
+ * m is the matrix to transpose.
+ * n is the number of rows of m.
+ */
 void freeMatrix(long **m, int n) {
     for (int i = 0; i < n; i++) {
         int *currentIntPtr = m[i];
@@ -269,7 +273,6 @@ long** transposeV2(long** matrix, int n, int k){
 }
 
 long **multiplyV2(long **mat1, long **mat2, int n, int m, int k) {
-
     long **res = (long **) malloc(n * sizeof(long *)); //TODO free
     for (int i = 0; i < n; i++) {
         res[i] = (long *) malloc(k * sizeof(long));
