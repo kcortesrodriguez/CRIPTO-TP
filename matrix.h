@@ -29,4 +29,6 @@ long** transposeV2(long** matrix, int n, int k); //TODO transpose MIGRATE TO THI
 
 long** multiplyV2(long **mat1, long **mat2, int n, int m, int k); //TODO multiply MIGRATE TO THIS
 
+long** concat(long *vec, long **mat, int n, int k);
+
 #endif //CRIPTO_TP_MATRIX_H

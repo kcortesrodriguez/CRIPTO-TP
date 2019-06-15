@@ -210,10 +210,20 @@ long ***matG(long **R, int n, int k) {
     return matG;
 }
 
-long **matV(long **A, long **X, int n, int k){
-    long** matrixMultiply;
+long **matV(long **A, long **X, int n, int k) {
+    long **matrixMultiply;
     printf("\n");
     matrixMultiply = multiplyV2(A, X, n, n, k);
 
     return matrixMultiply;
+}
+
+long ***matSh(long ***G, long **V, int n, int k) {
+    long ***Sh = (long ***) malloc(n * sizeof(long **));
+
+    for (int i = 0; i < n; i++) {
+        Sh[i] = concat(V[i], G[i], n, k);
+    }
+
+    return Sh;
 }

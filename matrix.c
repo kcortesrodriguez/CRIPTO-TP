@@ -66,7 +66,7 @@ long **transpose(long **A, int n, int k) {
     }
 
     for (int i = 0; i < k; i++)
-        for (int j = 0; j < n; j++){
+        for (int j = 0; j < n; j++) {
             transposeMatrix[i][j] = A[j][i];
         }
 
@@ -274,7 +274,6 @@ long **transposeV2(long **matrix, int n, int k) {
 }
 
 long **multiplyV2(long **mat1, long **mat2, int n, int m, int k) {
-
     long **res = (long **) calloc(n, sizeof(long *)); //TODO free
     for (int i = 0; i < n; i++) {
         res[i] = (long *) calloc(m, sizeof(long));
@@ -287,6 +286,27 @@ long **multiplyV2(long **mat1, long **mat2, int n, int m, int k) {
             for (h = 0; h < k; h++)
                 res[i][j] += mat1[i][h] * mat2[h][j];
             res[i][j] = modulo(res[i][j], 251);
+        }
+    }
+
+    return res;
+}
+
+long **concat(long *vec, long **mat, int n, int k) {
+    long **res = (long **) calloc(n, sizeof(long *)); //TODO free
+    for (int i = 0; i < n; i++) {
+        res[i] = (long *) calloc(k + 1, sizeof(long));
+    }
+
+    // Fill vec in res
+    for (int i = 0; i < n; i++) {
+        res[i][0] = vec[i];
+    }
+
+    // Fill mat in res
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < k; j++) {
+            res[i][j + 1] = mat[i][j];
         }
     }
 
