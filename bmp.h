@@ -1,20 +1,60 @@
-#ifndef STEGOBMP_BMP_H
-#define STEGOBMP_BMP_H
+#ifndef BMP_BMP_H
+#define BMP_BMP_H
 
 #include <stdint.h>
+#include <stdio.h>
+#include <stdbool.h>
 
-typedef struct bmp_image bmp_image_t;
+#define BMP_TYPE 0x4D42
 
-bmp_image_t *bmp_from_path(const char *path);
+#pragma pack(push,1)
+typedef struct {             // Total: 54 bytes
+    uint16_t  type;             // Magic identifier: 0x4d42
+    uint32_t  size;             // File size in bytes
+    uint16_t  reserved1;        // Not used
+    uint16_t  reserved2;        // Not used
+    uint32_t  offset;           // Offset to image data in bytes from beginning of file (54 bytes)
+    uint32_t  dib_header_size;  // DIB Header size in bytes (40 bytes)
+    int32_t   width_px;         // Width of the image
+    int32_t   height_px;        // Height of image
+    uint16_t  num_planes;       // Number of color planes
+    uint16_t  bits_per_pixel;   // Bits per pixel
+    uint32_t  compression;      // Compression type
+    uint32_t  image_size_bytes; // Image size in bytes
+    int32_t   x_resolution_ppm; // Pixels per meter
+    int32_t   y_resolution_ppm; // Pixels per meter
+    uint32_t  num_colors;       // Number of colors
+    uint32_t  important_colors; // Important colors
+} BMPHeader;
+#pragma pack(pop)
 
-int bmp_save(const bmp_image_t *image, const char *path);
+typedef struct {
+    FILE * fd;
+    BMPHeader header;
+    uint8_t * data;
+    uint8_t * extra_header;
+} BMPImage;
 
-void bmp_free(bmp_image_t *image);
+/* Read a BMP Image from the file descriptor fd */
+BMPImage * read_bmp(FILE * fd);
 
-uint8_t *bmp_get_data_buffer(bmp_image_t *image);
+/* Write a BMP Image into the file descriptor fd */
+int write_bmp(BMPImage * image, FILE * fd);
 
-uint32_t bmp_get_image_size(bmp_image_t *image);
+/* Free a BMP Image */
+void free_bmp(BMPImage * image);
 
-int bmp_check_size(bmp_image_t *image, long size);
+/* Copy a BMP Image */
+BMPImage * copy_bmp(BMPImage * src);
 
-#endif //STEGOBMP_BMP_H
+/* Checks if BMP Image has valid header */
+bool bmp_valid_header(BMPHeader * header);
+
+/* Creates a new BMP Image */
+BMPImage * new_bmp_image();
+
+BMPImage * create_bmp(const uint8_t* values, uint32_t h, uint32_t w, uint8_t * extraHeader);
+
+
+
+#endif //BMP_BMP_H
