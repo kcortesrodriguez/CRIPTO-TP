@@ -312,3 +312,18 @@ long **concat(long *vec, long **mat, int n, int k) {
 
     return res;
 }
+
+uint8_t **convertMatrixFromLongToUint8(long **mat, int n, int k) {
+    uint8_t **res = (uint8_t **) malloc(n * sizeof(uint8_t *)); //TODO free
+    for (int i = 0; i < n; i++) {
+        res[i] = (uint8_t *) calloc(k, sizeof(uint8_t));
+    }
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < k; j++) {
+            res[i][j] = (uint8_t) mat[i][j];
+        }
+    }
+
+    return res;
+}

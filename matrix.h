@@ -17,18 +17,20 @@ void freeMatrix(long **m, int n);
 
 //Kevin's
 
-long* generateVector(int k, int initialValue);
+long *generateVector(int k, int initialValue);
 
-void printVector(int k, long* array);
+void printVector(int k, long *array);
 
-long** matX(int k, int n);
+long **matX(int k, int n);
 
-void printMatrix(int k, int n, long** matrix);
+void printMatrix(int k, int n, long **matrix);
 
-long** transposeV2(long** matrix, int n, int k); //TODO transpose MIGRATE TO THIS
+long **transposeV2(long **matrix, int n, int k); //TODO transpose MIGRATE TO THIS
 
-long** multiplyV2(long **mat1, long **mat2, int n, int m, int k); //TODO multiply MIGRATE TO THIS
+long **multiplyV2(long **mat1, long **mat2, int n, int m, int k); //TODO multiply MIGRATE TO THIS
 
-long** concat(long *vec, long **mat, int n, int k);
+long **concat(long *vec, long **mat, int n, int k);
+
+uint8_t **convertMatrixFromLongToUint8(long **mat, int n, int k);
 
 #endif //CRIPTO_TP_MATRIX_H

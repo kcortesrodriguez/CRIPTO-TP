@@ -6,6 +6,7 @@
 #include "io.h"
 #include "distribution.h"
 #include "matrix.h"
+#include "bmp.h"
 
 #define MAX_LEN 100
 
@@ -69,6 +70,10 @@ int main(int argc, char *argv[]) {
     S[3][1] = 4L;
     S[3][2] = 1L;
     S[3][3] = 7L;
+
+    // Fetch secret bmp
+    FILE *fd = fopen(secretImage, "rb");
+    BMPImage *secret = read_bmp(fd);
 
     // Matrix R
     long **R = remainderR(S, Sd, n);
@@ -170,8 +175,6 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    freeMatrix(R, n);
-
     // Matrix Sh
     printf("\n");
     printf("Sh matrix:\n");
@@ -186,11 +189,35 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    freeMatrix(R, n);
     for (int t = 0; t < n; t++) {
         freeMatrix(G[t], n);
     }
     free(G);
     free(Sh);
+
+    printf("\n");
+    printf("Sh4_int8 matrix:\n");
+    uint8_t ** Sh4_int8 = convertMatrixFromLongToUint8(Sh[3], n, k + 1);
+    for (int row = 0; row < n; row++) {
+        for (int columns = 0; columns < k + 1; columns++) {
+            printf("  %d", Sh4_int8[row][columns]);
+        }
+        printf("\n");
+    }
+
+    FILE *fdw = fopen(watermarkImage, "rb");
+    BMPImage *watermark = read_bmp(fdw);
+
+    // Agarrar una share (peli 1) y el Sh correspondiente (Sh 1)
+    FILE *fd_share_1 = fopen("./pruebas/shares/backtofutureshare.bmp", "rb");
+    BMPImage *peli1 = read_bmp(fd_share_1);
+
+    // Recorremos la peli un byte a la vez
+
+    // Recorremos Sh 1 un bit a la vez por cada byte de la peli pisamos el último bit
+    // por el siguiente bit de Sh 1
+    // Repetir mientras queden bits en Sh 1
 
     return 0;
 }

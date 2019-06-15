@@ -1,9 +1,8 @@
-#include "../include/bmp/bmp.h"
+#include "bmp.h"
 
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <mod_matrix/mod_matrix.h>
 
 #define ERROR -1
 #define OK 1
