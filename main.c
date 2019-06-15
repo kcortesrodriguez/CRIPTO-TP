@@ -97,7 +97,7 @@ int main(int argc, char *argv[]) {
 //    long **Rw = remainderRw(W, Sd, n); //todo: replace W with watermark
 
     free(inverses);
-    freeMatrix(A, n);
+    //freeMatrix(A, n);
     freeMatrix(Sd, n);
 
     freeMatrix(recoveredS, n);
