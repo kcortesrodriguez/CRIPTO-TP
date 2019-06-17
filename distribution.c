@@ -22,22 +22,14 @@ long **matA(int n, int k) {
     }
 
     // Paper case
-    A[0][0] = 3;
-    A[0][1] = 7;
-    A[1][0] = 6;
-    A[1][1] = 1;
-    A[2][0] = 2;
-    A[2][1] = 5;
-    A[3][0] = 6;
-    A[3][1] = 6;
-
-    printf("A matrix:\n");
-    for (int row = 0; row < n; row++) {
-        for (int columns = 0; columns < k; columns++) {
-            printf("  %ld", A[row][columns]);
-        }
-        printf("\n");
-    }
+//    A[0][0] = 3;
+//    A[0][1] = 7;
+//    A[1][0] = 6;
+//    A[1][1] = 1;
+//    A[2][0] = 2;
+//    A[2][1] = 5;
+//    A[3][0] = 6;
+//    A[3][1] = 6;
 
     return A;
 }
@@ -58,24 +50,7 @@ long **projectionSd(long **A, int n, int k, int inverses[251]) {
 
     long **AtA = multiply(At, A, k, k, n);
 
-    printf("\n");
-    printf("pre AtA matrix:\n");
-    for (int row = 0; row < k; row++) {
-        for (int columns = 0; columns < k; columns++) {
-            printf("  %ld", AtA[row][columns]);
-        }
-        printf("\n");
-    }
-
     long det = determinantOfMatrix(AtA, k, k);
-
-    printf("post AtA matrix:\n");
-    for (int row = 0; row < k; row++) {
-        for (int columns = 0; columns < k; columns++) {
-            printf("  %ld", AtA[row][columns]);
-        }
-        printf("\n");
-    }
 
     printf("\n");
     printf("det: %ld\n", det);
@@ -166,7 +141,7 @@ long *g_i_j(long **R, int initial_column, int t, int n, int k) {
 
     for (int row = 0; row < n; row++) {
         for (int column = initial_column; column < k + initial_column; column++) {
-            res[row] += R[row][column] * pow(t, column - initial_column);
+            res[row] += R[row][column] * pow((double) t, (double) (column - initial_column));
         }
         res[row] = modulo(res[row], 251);
     }
@@ -181,8 +156,8 @@ long *g_i_j(long **R, int initial_column, int t, int n, int k) {
  * t is the current participant index.
  */
 long **matG_t(long **R, int n, int k, int t) {
-    int max_t = (int) ceil(n / k); // TODO: code method for create matrix !
-    long **res = (long **) calloc((size_t) max_t, sizeof(long *));
+    int max_t = (int) ceil((double) n / k); // TODO: code method for create matrix !
+    long **res = (long **) calloc(max_t, sizeof(long *));
 
     for (int i = 0; i < max_t; i++) {
         res[i] = g_i_j(R, i * 2, t, n, k);
