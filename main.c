@@ -185,5 +185,5 @@ int main(int argc, char *argv[]) {
 
     printMatrix(n,n,newSd, "Reconstruction Sd Matrix from B Matrix:");
 
-    return 0;
+    return EXIT_SUCCESS;
 }
