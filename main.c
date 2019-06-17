@@ -61,27 +61,6 @@ int main(int argc, char *argv[]) {
     printMatrix(n, n, Sd);
 
     // Matrix S
-    // Paper case
-//    S[0][0] = 2L;
-//    S[0][1] = 5L;
-//    S[0][2] = 2L;
-//    S[0][3] = 3L;
-//
-//    S[1][0] = 3L;
-//    S[1][1] = 6L;
-//    S[1][2] = 4L;
-//    S[1][3] = 5L;
-//
-//    S[2][0] = 4L;
-//    S[2][1] = 7L;
-//    S[2][2] = 4L;
-//    S[2][3] = 6L;
-//
-//    S[3][0] = 1L;
-//    S[3][1] = 4L;
-//    S[3][2] = 1L;
-//    S[3][3] = 7L;
-
     // Load secret bmp
     BITMAP_FILE *secret_bmp = load_BMP(secretImage);
 
@@ -150,13 +129,8 @@ int main(int argc, char *argv[]) {
     // Matrix X
     printf("\n");
     printf("X matrix:\n");
-    long **matrix = matX(k, n); // filas x columnas --> n filas x k columnas
+    long **matrix = matX(k, n);
     printMatrix(n, k, matrix);
-
-    //  Tenemos que hacer A x X para tener V
-    //      A --> n x k
-    //      MI X --> n x k, entonces lo hago con la Xt --> k x n
-    //      A x Xt --> n x n
 
     // Matrix V
     long **V = matV(A, matrix, n, k);
@@ -164,30 +138,6 @@ int main(int argc, char *argv[]) {
     printf("\n");
     printf("V matrix:\n");
     printMatrix(n, n, V); // k x k
-
-    // Paper case
-//    long **VDemo = (long **) malloc(n * sizeof(long *));
-//    for (int i = 0; i < n; i++) VDemo[i] = (long *) calloc(n, sizeof(long));
-
-//    VDemo[0][0] = 62L;
-//    VDemo[0][1] = 59L;
-//    VDemo[0][2] = 43L;
-//    VDemo[0][3] = 84L;
-//
-//    VDemo[1][0] = 40L;
-//    VDemo[1][1] = 28L;
-//    VDemo[1][2] = 28L;
-//    VDemo[1][3] = 48L;
-//
-//    VDemo[2][0] = 83L;
-//    VDemo[2][1] = 62L;
-//    VDemo[2][2] = 58L;
-//    VDemo[2][3] = 102L;
-//
-//    VDemo[3][0] = 23L;
-//    VDemo[3][1] = 20L;
-//    VDemo[3][2] = 16L;
-//    VDemo[3][3] = 30L;
 
     // Matrix G
     printf("\n");
