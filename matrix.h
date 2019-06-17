@@ -31,4 +31,8 @@ long** multiplyV2(long **mat1, long **mat2, int n, int m, int k); //TODO multipl
 
 long** concat(long *vec, long **mat, int n, int k);
 
+long** deconcatG(long **mat, int n, int k);
+
+long* deconcatV(long **mat, int n);
+
 #endif //CRIPTO_TP_MATRIX_H

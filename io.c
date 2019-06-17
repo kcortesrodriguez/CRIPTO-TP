@@ -4,6 +4,7 @@
 #include <memory.h>
 #include <stdlib.h>
 #include <err.h>
+#include "global.h"
 
 void parseParameters(int argc, char *argv[],
                      size_t size,
@@ -25,8 +26,11 @@ void parseParameters(int argc, char *argv[],
 
     printf("Started parsing parameters:\n");
 
-    while ((opt = getopt_long(argc, argv, "drs:m:k:n:i:", longopts, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, "drs:m:k:n:i:v", longopts, NULL)) != -1) {
         switch (opt) {
+            case 'v':
+                VERBOSE = TRUE;
+                break;
             case 'd':
                 distribute = true;
                 printf("\tParsed distribute mode.\n");

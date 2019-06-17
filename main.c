@@ -6,8 +6,9 @@
 #include "io.h"
 #include "distribution.h"
 #include "matrix.h"
+#include "global.h"
 
-#define MAX_LEN 100
+int VERBOSE = FALSE;
 
 int main(int argc, char *argv[]) {
 
@@ -187,7 +188,27 @@ int main(int argc, char *argv[]) {
         freeMatrix(G[t], n);
     }
     free(G);
-    free(Sh);
+//    free(Sh);
+
+
+    // 4.3.2
+    // Por cada Sh desconcatenamos V_t y G_t
+    long** recoveredG;
+    long* recoveredV;
+    for (int l = 0; l < n; ++l) {
+        recoveredG = deconcatG(Sh[l], n, k);
+        recoveredV = deconcatV(Sh[l], n);
+
+        printf("Reocovered G_%d matrix\n",l+1);
+        printMatrix(k,n,recoveredG);
+        printf("Reocovered V_%d vector\n",l+1);
+        for (int j = 0; j < n ; ++j) {
+            printf("%ld\n", recoveredV[j]);
+        }
+
+        // Luego de cada G_t sacamos la R_t
+    }
+
 
     return 0;
 }
