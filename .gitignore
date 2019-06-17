@@ -247,3 +247,10 @@ $RECYCLE.BIN/
 
 .idea
 *.iml
+
+.svn
+
+.DC*
+__MACOSX
+
+# ./pruebas //TODO remove pruebas from repo and from git cache with git cache rm
