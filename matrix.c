@@ -217,6 +217,7 @@ void freeMatrix(long **m, int n) {
 
 //From now on, these functions are from Kevin
 
+/*
 long *generateVector(int k, int initialValue) {
     int i;
 
@@ -230,6 +231,7 @@ long *generateVector(int k, int initialValue) {
 
     return array;
 }
+*/
 
 void printVector(int k, long *array) {
     for (int i = 0; i < k; i++) {
@@ -237,6 +239,7 @@ void printVector(int k, long *array) {
     }
 }
 
+/*
 long **matX(int k, int n) {
     long **temp = (long **) malloc(n * sizeof(long *)); //TODO free
     int *randoms = generateRandoms(n);
@@ -249,6 +252,7 @@ long **matX(int k, int n) {
     //return temp;
     return transposeV2(temp, k, n);
 }
+*/
 
 void printMatrix(int k, int n, long **matrix) {
     for (int i = 0; i < n; i++) {

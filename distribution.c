@@ -227,3 +227,31 @@ long ***matSh(long ***G, long **V, int n, int k) {
 
     return Sh;
 }
+
+long *generateVector(int k, int initialValue) {
+    int i;
+
+    long *array;
+    array = (long *) malloc(sizeof(long) * k);
+
+    for (i = 0; i < k; i++) {
+        //TODO: CHECK IF IT HAS TO BE Z 251
+        array[i] = ((long) pow(initialValue, i)) % 251;
+    }
+
+    return array;
+}
+
+long **matX(int k, int n) {
+    long **temp = (long **) malloc(n * sizeof(long *)); //TODO free
+    int *randoms = generateRandoms(n);
+
+    for (int i = 0; i < n; i++) {
+        temp[i] = generateVector(k, randoms[i]);
+    }
+
+    //transposeV2(matrix,k,n)
+    //return temp;
+    return transposeV2(temp, k, n);
+}
+

@@ -17,11 +17,11 @@ void freeMatrix(long **m, int n);
 
 //Kevin's
 
-long* generateVector(int k, int initialValue);
-
 void printVector(int k, long* array);
 
-long** matX(int k, int n);
+//long* generateVector(int k, int initialValue);
+
+//long** matX(int k, int n);
 
 void printMatrix(int k, int n, long** matrix);
 

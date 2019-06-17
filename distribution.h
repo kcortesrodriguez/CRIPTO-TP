@@ -19,4 +19,9 @@ long **matV(long **A, long **X, int n, int k);
 
 long ***matSh(long ***G, long **V, int n, int k);
 
+long* generateVector(int k, int initialValue);
+
+long** matX(int k, int n);
+
+
 #endif //CRIPTO_TP_DISTRIBUTION_H
