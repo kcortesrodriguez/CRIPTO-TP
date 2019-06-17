@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include "random.h"
+#include "modular.h"
 
 #define TRUE 0
 #define FALSE 1
@@ -44,23 +45,20 @@ int containsValue(const int *array, int sizeArray, int value) {
 
 //genera un vector de n randoms en Z 251 que no se repiten
 int *generateRandoms(int n) {
-    int *array;
-    array = (int *) malloc(sizeof(int) * n);
+    int *array = (int *) malloc(sizeof(int) * n);
 
     for (int i = 0; i < n; i++) {
 
-        int randomNumber = (int) (urandom() % 251);
+        int randomNumber = (int) modulo(urandom(), 251);
 
         if (i != 0) {
             do {
-                randomNumber = (int) (urandom() % 251);
+                randomNumber = (int) modulo(urandom(), 251);
             } while (containsValue(array, i, randomNumber) == TRUE);
         }
 
         array[i] = randomNumber;
-
     }
 
     return array;
-
 }
