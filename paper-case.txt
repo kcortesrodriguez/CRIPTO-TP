@@ -1,3 +1,6 @@
+// Parse parameters
+// e.g.: -d -s Albert.bmp -m Paris.bmp -k 4 -n 8 --dir color280x440/
+
 // Matrix A
 //    A[0][0] = 3;
 //    A[0][1] = 7;
