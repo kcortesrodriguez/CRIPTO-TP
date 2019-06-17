@@ -4,6 +4,9 @@
 #include <memory.h>
 #include <stdlib.h>
 #include <err.h>
+#include <fts.h>
+
+#define MAX_STRING 260
 
 void parseParameters(int argc, char *argv[],
                      size_t size,
@@ -120,4 +123,49 @@ void parseParameters(int argc, char *argv[],
     printf("Finished parsing parameters!\n");
 }
 
+char **get_shadow_files(char *directory, int n) {
 
+    // Initialize shadow_files
+    char **shadow_files = malloc(sizeof(char *) * n);
+    if (!shadow_files)
+        return NULL;
+    for (int i = 0; i < n; i++) {
+        shadow_files[i] = malloc(MAX_STRING + 1);
+        if (!shadow_files[i]) {
+            free(shadow_files);
+            return NULL;
+        }
+    }
+
+    // Prepare array for fts_open
+    char *path_to_shadows[2] = {directory, NULL};
+
+    // Initialize fts_open arguments
+    FTS *ftsp;
+    FTSENT *p, *chp;
+    int fts_options = FTS_COMFOLLOW | FTS_LOGICAL | FTS_NOCHDIR;
+    if ((ftsp = fts_open(path_to_shadows, fts_options, NULL)) == NULL) {
+        warn("fts_open");
+        abort();
+    }
+    chp = fts_children(ftsp, 0);
+    if (chp == NULL) {
+        return NULL;    /* no files to traverse */
+    }
+
+    // Traverse directory
+    while ((p = fts_read(ftsp)) != NULL) {
+        switch (p->fts_info) {
+            case FTS_F:
+                if (p->fts_level == 1) // no file at subfolders, only at present level
+                    strncpy(shadow_files[--n], p->fts_path, MAX_STRING);
+                break;
+            default:
+                break;
+        }
+    }
+
+    fts_close(ftsp);
+
+    return shadow_files;
+}
