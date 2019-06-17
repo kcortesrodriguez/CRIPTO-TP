@@ -63,7 +63,7 @@ long determinantOfMatrix(long **mat, int N, int n) {
 long **transpose(long **mat, int n, int k) {
     long **transposeMatrix = (long **) malloc(k * sizeof(long *));
     for (int i = 0; i < k; i++) {
-        transposeMatrix[i] = (long *) calloc(n, sizeof(long));
+        transposeMatrix[i] = (long *) calloc((size_t) n, sizeof(long));
     }
 
     for (int i = 0; i < k; i++)
@@ -218,18 +218,19 @@ void printVectorUint8(int k, uint8_t *array) {
 
 /*
  * Generate matrix X.
+ * N vector of dimensions k x 1, linearly independant.
  * k columns
  * n rows
  */
 long **matX(int k, int n) {
-    long **temp = (long **) malloc(n * sizeof(long *)); //TODO free
+    long **temp = (long **) malloc(n * sizeof(long *));
     int *randoms = generateRandoms(n);
 
     for (int i = 0; i < n; i++) {
         temp[i] = generateVector(k, randoms[i]);
     }
 
-    return transpose(temp, k, n);
+    return transpose(temp, n, k);
 }
 
 void printMatrix(int k, int n, long **matrix) {
@@ -247,9 +248,9 @@ void printMatrixUint8(int k, int n, uint8_t **matrix) {
 }
 
 long **concat(long *vec, long **mat, int n, int k) {
-    long **res = (long **) malloc(n * sizeof(long *)); //TODO free
+    long **res = (long **) malloc(n * sizeof(long *));
     for (int i = 0; i < n; i++) {
-        res[i] = (long *) calloc(k + 1, sizeof(long));
+        res[i] = (long *) calloc((size_t) (k + 1), sizeof(long));
     }
 
     // Fill vec in res
@@ -268,9 +269,9 @@ long **concat(long *vec, long **mat, int n, int k) {
 }
 
 uint8_t **convertMatrixFromLongToUint8(long **mat, int n, int k) {
-    uint8_t **res = (uint8_t **) malloc(n * sizeof(uint8_t *)); //TODO free
+    uint8_t **res = (uint8_t **) malloc(n * sizeof(uint8_t *));
     for (int i = 0; i < n; i++) {
-        res[i] = (uint8_t *) calloc(k, sizeof(uint8_t));
+        res[i] = (uint8_t *) calloc((size_t) k, sizeof(uint8_t));
     }
 
     for (int i = 0; i < n; i++) {
@@ -283,9 +284,9 @@ uint8_t **convertMatrixFromLongToUint8(long **mat, int n, int k) {
 }
 
 long **convertUint8StreamToLongMatrix(uint8_t *stream, int n, int k) {
-    long **res = (long **) malloc(n * sizeof(long *)); //TODO free
+    long **res = (long **) malloc(n * sizeof(long *));
     for (int i = 0; i < n; i++) {
-        res[i] = (long *) calloc(k, sizeof(long));
+        res[i] = (long *) calloc((size_t) k, sizeof(long));
     }
     for (int i = 0; i < n * k; i++) res[i / n][i % k] = stream[i];
     return res;

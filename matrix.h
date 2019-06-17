@@ -21,10 +21,6 @@ void printMatrix(int k, int n, long **matrix);
 
 void printMatrixUint8(int k, int n, uint8_t **matrix);
 
-//TODO transpose MIGRATE TO THIS
-
-//TODO multiply MIGRATE TO THIS
-
 long **concat(long *vec, long **mat, int n, int k);
 
 uint8_t **convertMatrixFromLongToUint8(long **mat, int n, int k);
