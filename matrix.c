@@ -4,6 +4,7 @@
 #include "matrix.h"
 #include "modular.h"
 #include "random.h"
+#include "distribution.h"
 
 // Function to get cofactor of mat[p][q] in temp[][]. n is current
 // dimension of mat[][]
@@ -59,15 +60,15 @@ long determinantOfMatrix(long **mat, int N, int n) {
 }
 
 // This function stores transpose of A[][] in B[][]
-long **transpose(long **A, int n, int k) {
-    long **transposeMatrix = (long **) calloc(k, sizeof(long *)); //TODO free
+long **transpose(long **mat, int n, int k) {
+    long **transposeMatrix = (long **) malloc(k * sizeof(long *));
     for (int i = 0; i < k; i++) {
         transposeMatrix[i] = (long *) calloc(n, sizeof(long));
     }
 
     for (int i = 0; i < k; i++)
         for (int j = 0; j < n; j++) {
-            transposeMatrix[i][j] = A[j][i];
+            transposeMatrix[i][j] = mat[j][i];
         }
 
     return transposeMatrix;
@@ -101,7 +102,7 @@ long **multiply(long **mat1, long **mat2, int n, int m, int k) {
 // Function to perform the inverse operation on the matrix.
 long **inverse(long **m, int n, int inverses[251]) {
 
-    long **mInverse = (long **) malloc(n * sizeof(long *)); //TODO free
+    long **mInverse = (long **) malloc(n * sizeof(long *));
     for (int i = 0; i < n; i++) mInverse[i] = (long *) calloc((size_t) n * 2, sizeof(long));
 
     // Create the augmented matrix
@@ -217,6 +218,22 @@ void printVectorUint8(int k, uint8_t *array) {
     }
 }
 
+/*
+ * Generate matrix X.
+ * k columns
+ * n rows
+ */
+long **matX(int k, int n) {
+    long **temp = (long **) malloc(n * sizeof(long *)); //TODO free
+    int *randoms = generateRandoms(n);
+
+    for (int i = 0; i < n; i++) {
+        temp[i] = generateVector(k, randoms[i]);
+    }
+
+    return transpose(temp, k, n);
+}
+
 void printMatrix(int k, int n, long **matrix) {
     for (int i = 0; i < n; i++) {
         printVector(k, matrix[i]);
@@ -229,22 +246,6 @@ void printMatrixUint8(int k, int n, uint8_t **matrix) {
         printVectorUint8(k, matrix[i]);
         printf("\n");
     }
-}
-
-long **transposeV2(long **matrix, int n, int k) {
-    long **transposeMatrix = (long **) malloc(n * sizeof(long *)); //TODO free
-    for (int i = 0; i < n; i++) {
-        transposeMatrix[i] = (long *) malloc(k * sizeof(long));
-    }
-
-
-    for (int i = 0; i < k; i++)
-        for (int j = 0; j < n; j++) {
-            transposeMatrix[j][i] = matrix[i][j];
-        }
-
-    return transposeMatrix;
-
 }
 
 long **multiplyV2(long **mat1, long **mat2, int n, int m, int k) {
