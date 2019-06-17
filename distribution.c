@@ -17,26 +17,8 @@ long **matA(int n, int k) {
 
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < k; j++) {
-            A[i][j] = (long) (urandom() % 251); // 251 because A must have values in [0, 251)
+            A[i][j] = modulo(urandom(), 251); // 251 because A must have values in [0, 251)
         }
-    }
-
-    // Paper case
-    A[0][0] = 3;
-    A[0][1] = 7;
-    A[1][0] = 6;
-    A[1][1] = 1;
-    A[2][0] = 2;
-    A[2][1] = 5;
-    A[3][0] = 6;
-    A[3][1] = 6;
-
-    printf("A matrix:\n");
-    for (int row = 0; row < n; row++) {
-        for (int columns = 0; columns < k; columns++) {
-            printf("  %ld", A[row][columns]);
-        }
-        printf("\n");
     }
 
     return A;
@@ -46,55 +28,18 @@ long **projectionSd(long **A, int n, int k, int inverses[251]) {
 
     long **At = transpose(A, n, k);
 
-    printf("\n");
-
-    printf("At matrix:\n");
-    for (int row = 0; row < k; row++) {
-        for (int columns = 0; columns < n; columns++) {
-            printf("  %ld", At[row][columns]);
-        }
-        printf("\n");
-    }
+//    printf("\nAt matrix:\n");
+//    printMatrix(n, k, At);
 
     long **AtA = multiply(At, A, k, k, n);
 
-    printf("\n");
-    printf("pre AtA matrix:\n");
-    for (int row = 0; row < k; row++) {
-        for (int columns = 0; columns < k; columns++) {
-            printf("  %ld", AtA[row][columns]);
-        }
-        printf("\n");
-    }
-
     long det = determinantOfMatrix(AtA, k, k);
 
-    printf("post AtA matrix:\n");
-    for (int row = 0; row < k; row++) {
-        for (int columns = 0; columns < k; columns++) {
-            printf("  %ld", AtA[row][columns]);
-        }
-        printf("\n");
-    }
-
-    printf("\n");
-    printf("det: %ld\n", det);
-
     if (det != 0) {
-        printf("%s", "Inverse exists!\n");
-
         long **AugmentedAtaInverse = inverse(AtA, k, inverses);
 
-        freeMatrix(AtA, k);
-
-        printf("\n");
-        printf("AugmentedAtaInverse matrix:\n");
-        for (int row = 0; row < k; row++) {
-            for (int columns = 0; columns < k * 2; columns++) {
-                printf("  %ld", AugmentedAtaInverse[row][columns]);
-            }
-            printf("\n");
-        }
+//        printf("\nAugmentedAtaInverse matrix:\n");
+//        printMatrix(k * 2, k, AugmentedAtaInverse);
 
         long **AtAInverse = (long **) malloc(k * sizeof(long *));
         for (int i = 0; i < k; i++) AtAInverse[i] = (long *) calloc((size_t) k, sizeof(long));
@@ -106,42 +51,27 @@ long **projectionSd(long **A, int n, int k, int inverses[251]) {
             }
         }
 
-        printf("\n");
-        printf("AtAInverse matrix:\n");
-        for (int row = 0; row < k; row++) {
-            for (int columns = 0; columns < k; columns++) {
-                printf("  %ld", AtAInverse[row][columns]);
-            }
-            printf("\n");
-        }
-
-        freeMatrix(AugmentedAtaInverse, k);
+//        printf("\nAtAInverse matrix:\n");
+//        printMatrix(k, k, AtAInverse);
 
         // A * (At * A)'
-
         long **AxInverse = multiply(A, AtAInverse, n, k, k);
 
-        freeMatrix(AtAInverse, k);
-
-        printf("\n");
-        printf("AxInverse matrix:\n");
-        for (int row = 0; row < n; row++) {
-            for (int columns = 0; columns < k; columns++) {
-                printf("  %ld", AxInverse[row][columns]);
-            }
-            printf("\n");
-        }
+//        printf("\nAxInverse matrix:\n");
+//        printMatrix(k, n, AxInverse);
 
         // (A * (At * A)') * At
         long **proj = multiply(AxInverse, At, n, n, k);
 
+        freeMatrix(AugmentedAtaInverse, k);
+        freeMatrix(AtA, k);
+        freeMatrix(AtAInverse, k);
         freeMatrix(AxInverse, n);
         freeMatrix(At, k);
 
         return proj;
     } else {
         printf("%s", "Inverse does not exist!");
-
         return NULL;
     }
 }
@@ -166,7 +96,7 @@ long *g_i_j(long **R, int initial_column, int t, int n, int k) {
 
     for (int row = 0; row < n; row++) {
         for (int column = initial_column; column < k + initial_column; column++) {
-            res[row] += R[row][column] * pow(t, column - initial_column);
+            res[row] += R[row][column] * pow((double) t, (double) (column - initial_column));
         }
         res[row] = modulo(res[row], 251);
     }
@@ -181,8 +111,8 @@ long *g_i_j(long **R, int initial_column, int t, int n, int k) {
  * t is the current participant index.
  */
 long **matG_t(long **R, int n, int k, int t) {
-    int max_t = (int) ceil(n / k); // TODO: code method for create matrix !
-    long **res = (long **) calloc((size_t) max_t, sizeof(long *));
+    int max_t = (int) ceil((double) n / k); // TODO: code method for create matrix !
+    long **res = (long **) calloc(max_t, sizeof(long *));
 
     for (int i = 0; i < max_t; i++) {
         res[i] = g_i_j(R, i * 2, t, n, k);
@@ -213,7 +143,7 @@ long ***matG(long **R, int n, int k) {
 long **matV(long **A, long **X, int n, int k) {
     long **matrixMultiply;
     printf("\n");
-    matrixMultiply = multiplyV2(A, X, n, n, k);
+    matrixMultiply = multiply(A, X, n, n, k);
 
     return matrixMultiply;
 }
@@ -229,29 +159,29 @@ long ***matSh(long ***G, long **V, int n, int k) {
 }
 
 long *generateVector(int k, int initialValue) {
-    int i;
+    long *array = (long *) malloc(sizeof(long) * k);
 
-    long *array;
-    array = (long *) malloc(sizeof(long) * k);
-
-    for (i = 0; i < k; i++) {
-        //TODO: CHECK IF IT HAS TO BE Z 251
-        array[i] = ((long) pow(initialValue, i)) % 251;
+    for (int i = 0; i < k; i++) {
+        array[i] = modulo((long) pow((double) initialValue, (double) i), 251);
     }
 
     return array;
 }
 
+/*
+ * Generate matrix X.
+ * N vector of dimensions k x 1, linearly independent.
+ * k columns
+ * n rows
+ */
 long **matX(int k, int n) {
-    long **temp = (long **) malloc(n * sizeof(long *)); //TODO free
+    long **temp = (long **) malloc(n * sizeof(long *));
     int *randoms = generateRandoms(n);
 
     for (int i = 0; i < n; i++) {
         temp[i] = generateVector(k, randoms[i]);
     }
 
-    //transposeV2(matrix,k,n)
-    //return temp;
-    return transposeV2(temp, k, n);
+    return transpose(temp, n, k);
 }
 

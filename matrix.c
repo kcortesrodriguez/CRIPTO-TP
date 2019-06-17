@@ -4,6 +4,7 @@
 #include "matrix.h"
 #include "modular.h"
 #include "random.h"
+#include "distribution.h"
 
 // Function to get cofactor of mat[p][q] in temp[][]. n is current
 // dimension of mat[][]
@@ -59,15 +60,15 @@ long determinantOfMatrix(long **mat, int N, int n) {
 }
 
 // This function stores transpose of A[][] in B[][]
-long **transpose(long **A, int n, int k) {
-    long **transposeMatrix = (long **) calloc(k, sizeof(long *)); //TODO free
+long **transpose(long **mat, int n, int k) {
+    long **transposeMatrix = (long **) malloc(k * sizeof(long *));
     for (int i = 0; i < k; i++) {
-        transposeMatrix[i] = (long *) calloc(n, sizeof(long));
+        transposeMatrix[i] = (long *) calloc((size_t) n, sizeof(long));
     }
 
     for (int i = 0; i < k; i++)
         for (int j = 0; j < n; j++) {
-            transposeMatrix[i][j] = A[j][i];
+            transposeMatrix[i][j] = mat[j][i];
         }
 
     return transposeMatrix;
@@ -79,17 +80,15 @@ long **transpose(long **A, int n, int k) {
 // m is the cols of mat2
 // k is the cols of mat1 and rows of mat2
 long **multiply(long **mat1, long **mat2, int n, int m, int k) {
-
-    long **res = (long **) calloc((size_t) n, sizeof(long *)); //TODO free
+    long **res = (long **) malloc((size_t) n * sizeof(long *));
     for (int i = 0; i < n; i++) {
         res[i] = (long *) calloc((size_t) m, sizeof(long));
     }
 
-    int i, j, h;
-    for (i = 0; i < n; i++) {
-        for (j = 0; j < m; j++) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
             res[i][j] = 0L;
-            for (h = 0; h < k; h++)
+            for (int h = 0; h < k; h++)
                 res[i][j] += mat1[i][h] * mat2[h][j];
             res[i][j] = modulo(res[i][j], 251);
         }
@@ -101,18 +100,8 @@ long **multiply(long **mat1, long **mat2, int n, int m, int k) {
 // Function to perform the inverse operation on the matrix.
 long **inverse(long **m, int n, int inverses[251]) {
 
-    long **mInverse = (long **) malloc(n * sizeof(long *)); //TODO free
+    long **mInverse = (long **) malloc(n * sizeof(long *));
     for (int i = 0; i < n; i++) mInverse[i] = (long *) calloc((size_t) n * 2, sizeof(long));
-
-
-    printf("\n");
-    printf("m matrix:\n");
-    for (int row = 0; row < n; row++) {
-        for (int columns = 0; columns < n; columns++) {
-            printf("  %ld", m[row][columns]);
-        }
-        printf("\n");
-    }
 
     // Create the augmented matrix
     // Add the identity matrix
@@ -128,14 +117,8 @@ long **inverse(long **m, int n, int inverses[251]) {
         }
     }
 
-    printf("\n");
-    printf("Aug plus id matrix:\n");
-    for (int row = 0; row < n; row++) {
-        for (int columns = 0; columns < 2 * n; columns++) {
-            printf("  %ld", mInverse[row][columns]);
-        }
-        printf("\n");
-    }
+//    printf("\nAug plus id matrix:\n");
+//    printMatrix(2 * n, n, mInverse);
 
     // Interchange the row of matrix, starting from the last row
     for (int i = n - 1; i > 0; i--) {
@@ -215,44 +198,17 @@ void freeMatrix(long **m, int n) {
     free(m);
 }
 
-//From now on, these functions are from Kevin
-
-/*
-long *generateVector(int k, int initialValue) {
-    int i;
-
-    long *array;
-    array = (long *) malloc(sizeof(long) * k);
-
-    for (i = 0; i < k; i++) {
-        //TODO: CHECK IF IT HAS TO BE Z 251
-        array[i] = ((long) pow(initialValue, i)) % 251;
-    }
-
-    return array;
-}
-*/
-
 void printVector(int k, long *array) {
     for (int i = 0; i < k; i++) {
-        printf("%ld ", array[i]);
+        printf("\t%ld", array[i]);
     }
 }
 
-/*
-long **matX(int k, int n) {
-    long **temp = (long **) malloc(n * sizeof(long *)); //TODO free
-    int *randoms = generateRandoms(n);
-
-    for (int i = 0; i < n; i++) {
-        temp[i] = generateVector(k, randoms[i]);
+void printVectorUint8(int k, uint8_t *array) {
+    for (int i = 0; i < k; i++) {
+        printf("\t%d", array[i]);
     }
-
-    //transposeV2(matrix,k,n)
-    //return temp;
-    return transposeV2(temp, k, n);
 }
-*/
 
 void printMatrix(int k, int n, long **matrix) {
     for (int i = 0; i < n; i++) {
@@ -261,45 +217,17 @@ void printMatrix(int k, int n, long **matrix) {
     }
 }
 
-long **transposeV2(long **matrix, int n, int k) {
-    long **transposeMatrix = (long **) malloc(n * sizeof(long *)); //TODO free
+void printMatrixUint8(int k, int n, uint8_t **matrix) {
     for (int i = 0; i < n; i++) {
-        transposeMatrix[i] = (long *) malloc(k * sizeof(long));
+        printVectorUint8(k, matrix[i]);
+        printf("\n");
     }
-
-
-    for (int i = 0; i < k; i++)
-        for (int j = 0; j < n; j++) {
-            transposeMatrix[j][i] = matrix[i][j];
-        }
-
-    return transposeMatrix;
-
-}
-
-long **multiplyV2(long **mat1, long **mat2, int n, int m, int k) {
-    long **res = (long **) calloc(n, sizeof(long *)); //TODO free
-    for (int i = 0; i < n; i++) {
-        res[i] = (long *) calloc(m, sizeof(long));
-    }
-
-    int i, j, h;
-    for (i = 0; i < n; i++) {
-        for (j = 0; j < m; j++) {
-            res[i][j] = 0;
-            for (h = 0; h < k; h++)
-                res[i][j] += mat1[i][h] * mat2[h][j];
-            res[i][j] = modulo(res[i][j], 251);
-        }
-    }
-
-    return res;
 }
 
 long **concat(long *vec, long **mat, int n, int k) {
-    long **res = (long **) calloc(n, sizeof(long *)); //TODO free
+    long **res = (long **) malloc(n * sizeof(long *));
     for (int i = 0; i < n; i++) {
-        res[i] = (long *) calloc(k + 1, sizeof(long));
+        res[i] = (long *) calloc(((size_t) k + 1), sizeof(long));
     }
 
     // Fill vec in res
@@ -314,5 +242,29 @@ long **concat(long *vec, long **mat, int n, int k) {
         }
     }
 
+    return res;
+}
+
+uint8_t **convertMatrixFromLongToUint8(long **mat, int n, int k) {
+    uint8_t **res = (uint8_t **) malloc(n * sizeof(uint8_t *));
+    for (int i = 0; i < n; i++) {
+        res[i] = (uint8_t *) calloc((size_t) k, sizeof(uint8_t));
+    }
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < k; j++) {
+            res[i][j] = (uint8_t) mat[i][j];
+        }
+    }
+
+    return res;
+}
+
+long **convertUint8StreamToLongMatrix(uint8_t *stream, int n, int k) {
+    long **res = (long **) malloc(n * sizeof(long *));
+    for (int i = 0; i < n; i++) {
+        res[i] = (long *) calloc((size_t) k, sizeof(long));
+    }
+    for (int i = 0; i < n * k; i++) res[i / n][i % k] = stream[i];
     return res;
 }

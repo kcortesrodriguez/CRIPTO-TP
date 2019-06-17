@@ -4,6 +4,11 @@
 #include <memory.h>
 #include <stdlib.h>
 #include <err.h>
+#include <fts.h>
+#include <sys/stat.h>
+#include <libgen.h>
+
+#define MAX_STRING 260
 
 void parseParameters(int argc, char *argv[],
                      size_t size,
@@ -120,4 +125,67 @@ void parseParameters(int argc, char *argv[],
     printf("Finished parsing parameters!\n");
 }
 
+const char *get_filename_ext(const char *filename) {
+    const char *dot = strrchr(filename, '.');
+    if (!dot || dot == filename) return "";
+    return dot + 1;
+}
+
+char **get_shadow_files(char *directory, int n) {
+
+    // Initialize shadow_files
+    char **shadow_files = malloc(sizeof(char *) * n);
+    if (!shadow_files)
+        return NULL;
+    for (int i = 0; i < n; i++) {
+        shadow_files[i] = malloc(MAX_STRING + 1);
+        if (!shadow_files[i]) {
+            free(shadow_files);
+            return NULL;
+        }
+    }
+
+    // Prepare array for fts_open
+    char *path_to_shadows[2] = {directory, NULL};
+
+    // Initialize fts_open arguments
+    FTS *ftsp;
+    FTSENT *p, *chp;
+    int fts_options = FTS_COMFOLLOW | FTS_LOGICAL | FTS_NOCHDIR;
+    if ((ftsp = fts_open(path_to_shadows, fts_options, NULL)) == NULL) {
+        warn("fts_open");
+        abort();
+    }
+    chp = fts_children(ftsp, 0);
+    if (chp == NULL) {
+        return NULL;    /* no files to traverse */
+    }
+
+    // Traverse directory
+    int shadow_index = n - 1;
+    while ((p = fts_read(ftsp)) != NULL) {
+        switch (p->fts_info) {
+            case FTS_F:
+                // No file at subfolders, only at present level
+                if (p->fts_level == 1 && (strcmp("bmp", get_filename_ext(basename(p->fts_path))) == 0)) {
+                    strncpy(shadow_files[shadow_index--], p->fts_path, MAX_STRING);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    fts_close(ftsp);
+
+    return shadow_files;
+}
+
+void createDirectory(char *path) {
+    struct stat st = {0};
+
+    if (stat(path, &st) == -1) {
+        mkdir(path, 0700);
+    }
+}
 

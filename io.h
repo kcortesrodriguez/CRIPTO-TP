@@ -8,4 +8,10 @@ void parseParameters(int argc, char *argv[],
                      char *directory,
                      int *k, int *n);
 
+char **get_shadow_files(char *dir, int n);
+
+void createDirectory(char *path);
+
+const char *get_filename_ext(const char *filename);
+
 #endif //CRIPTO_TP_IO_H
