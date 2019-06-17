@@ -23,7 +23,7 @@ void printMatrixUint8(int k, int n, uint8_t **matrix);
 
 //TODO transpose MIGRATE TO THIS
 
-long **multiplyV2(long **mat1, long **mat2, int n, int m, int k); //TODO multiply MIGRATE TO THIS
+//TODO multiply MIGRATE TO THIS
 
 long **concat(long *vec, long **mat, int n, int k);
 

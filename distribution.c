@@ -178,7 +178,7 @@ long ***matG(long **R, int n, int k) {
 long **matV(long **A, long **X, int n, int k) {
     long **matrixMultiply;
     printf("\n");
-    matrixMultiply = multiplyV2(A, X, n, n, k);
+    matrixMultiply = multiply(A, X, n, n, k);
 
     return matrixMultiply;
 }

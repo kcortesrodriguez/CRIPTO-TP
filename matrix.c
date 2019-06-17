@@ -80,17 +80,15 @@ long **transpose(long **mat, int n, int k) {
 // m is the cols of mat2
 // k is the cols of mat1 and rows of mat2
 long **multiply(long **mat1, long **mat2, int n, int m, int k) {
-
-    long **res = (long **) calloc((size_t) n, sizeof(long *)); //TODO free
+    long **res = (long **) malloc((size_t) n * sizeof(long *));
     for (int i = 0; i < n; i++) {
         res[i] = (long *) calloc((size_t) m, sizeof(long));
     }
 
-    int i, j, h;
-    for (i = 0; i < n; i++) {
-        for (j = 0; j < m; j++) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
             res[i][j] = 0L;
-            for (h = 0; h < k; h++)
+            for (int h = 0; h < k; h++)
                 res[i][j] += mat1[i][h] * mat2[h][j];
             res[i][j] = modulo(res[i][j], 251);
         }
@@ -246,25 +244,6 @@ void printMatrixUint8(int k, int n, uint8_t **matrix) {
         printVectorUint8(k, matrix[i]);
         printf("\n");
     }
-}
-
-long **multiplyV2(long **mat1, long **mat2, int n, int m, int k) {
-    long **res = (long **) calloc(n, sizeof(long *)); //TODO free
-    for (int i = 0; i < n; i++) {
-        res[i] = (long *) calloc(m, sizeof(long));
-    }
-
-    int i, j, h;
-    for (i = 0; i < n; i++) {
-        for (j = 0; j < m; j++) {
-            res[i][j] = 0;
-            for (h = 0; h < k; h++)
-                res[i][j] += mat1[i][h] * mat2[h][j];
-            res[i][j] = modulo(res[i][j], 251);
-        }
-    }
-
-    return res;
 }
 
 long **concat(long *vec, long **mat, int n, int k) {
