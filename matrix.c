@@ -117,14 +117,8 @@ long **inverse(long **m, int n, int inverses[251]) {
         }
     }
 
-    printf("\n");
-    printf("Aug plus id matrix:\n");
-    for (int row = 0; row < n; row++) {
-        for (int columns = 0; columns < 2 * n; columns++) {
-            printf("  %ld", mInverse[row][columns]);
-        }
-        printf("\n");
-    }
+//    printf("\nAug plus id matrix:\n");
+//    printMatrix(2 * n, n, mInverse);
 
     // Interchange the row of matrix, starting from the last row
     for (int i = n - 1; i > 0; i--) {
@@ -218,7 +212,7 @@ void printVectorUint8(int k, uint8_t *array) {
 
 /*
  * Generate matrix X.
- * N vector of dimensions k x 1, linearly independant.
+ * N vector of dimensions k x 1, linearly independent.
  * k columns
  * n rows
  */
@@ -250,7 +244,7 @@ void printMatrixUint8(int k, int n, uint8_t **matrix) {
 long **concat(long *vec, long **mat, int n, int k) {
     long **res = (long **) malloc(n * sizeof(long *));
     for (int i = 0; i < n; i++) {
-        res[i] = (long *) calloc((size_t) (k + 1), sizeof(long));
+        res[i] = (long *) calloc(((size_t) k + 1), sizeof(long));
     }
 
     // Fill vec in res
