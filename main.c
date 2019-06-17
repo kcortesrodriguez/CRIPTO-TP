@@ -199,9 +199,9 @@ int main(int argc, char *argv[]) {
         recoveredG = deconcatG(Sh[l], n, k);
         recoveredV = deconcatV(Sh[l], n);
 
-        printf("Reocovered G_%d matrix\n",l+1);
+        printf("Recovered G_%d matrix\n",l+1);
         printMatrix(k,n,recoveredG);
-        printf("Reocovered V_%d vector\n",l+1);
+        printf("Recovered V_%d vector\n",l+1);
         for (int j = 0; j < n ; ++j) {
             printf("%ld\n", recoveredV[j]);
         }
