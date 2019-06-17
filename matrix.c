@@ -316,3 +316,44 @@ long **concat(long *vec, long **mat, int n, int k) {
 
     return res;
 }
+
+/**
+ * Receives an nX(k+1) matrix and returns an nXk matrix by removing the first column
+ *
+ * @param mat the Sh_t matrix
+ * @param n rows on G
+ * @param k columns on G
+ * @return the G_t matrix
+ */
+long** deconcatG(long **mat, int n, int k) {
+    long **res = (long **) calloc(n, sizeof(long *)); //TODO free
+    for (int i = 0; i < n; i++)
+        res[i] = (long *) calloc(k, sizeof(long));
+
+    for (int j = 0; j < n; ++j) {
+        for (int i = 1; i < k+1 ; ++i) {
+            res[j][i-1] = mat[j][i];
+        }
+    }
+
+    return res;
+}
+
+/**
+ * Receives an nX* matrix and returns a vector with the first column
+ *
+ * @param mat the Sh_t matrix
+ * @param n rows on G
+ * @return the G_t matrix
+ */
+long* deconcatV(long **mat, int n) {
+    long* res = (long *) calloc(n, sizeof(long)); //TODO free
+
+    for (int j = 0; j < n; ++j) {
+        res[j] = mat[j][0];
+    }
+
+    return res;
+}
+
+
