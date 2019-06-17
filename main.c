@@ -2,6 +2,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
 #include "modular.h"
 #include "io.h"
 #include "distribution.h"
@@ -38,9 +39,7 @@ int main(int argc, char *argv[]) {
     // Matrix Sd
     long **Sd = projectionSd(A, n, k, inverses);
 
-    printf("\n");
-    printf("Sd matrix:\n");
-    printMatrix(n,n, Sd);
+    printMatrix(n,n, Sd, "Sd matrix");
 
     long **S = (long **) malloc(n * sizeof(long *));
     for (int i = 0; i < n; i++) S[i] = (long *) calloc(n, sizeof(long));
@@ -69,15 +68,11 @@ int main(int argc, char *argv[]) {
     // Matrix R
     long **R = remainderR(S, Sd, n);
 
-    printf("\n");
-    printf("R matrix:\n");
-    printMatrix(n,n,R); //TODO write in report that R matrix from paper is wrong.q
+    printMatrix(n,n,R, "R matrix"); //TODO write in report that R matrix from paper is wrong.q
 
     // Recovered Matrix S
     long **recoveredS = add(R, Sd, n);
-    printf("\n");
-    printf("S matrix:\n");
-    printMatrix(n,n,recoveredS);
+    printMatrix(n,n,recoveredS, "S matrix");
 
     // Matrix Rw
 //    long **Rw = remainderRw(W, Sd, n); //todo: replace W with watermark
@@ -98,12 +93,10 @@ int main(int argc, char *argv[]) {
     n = 4;
 
     long **matrix;
-    printf("\nX matrix:\n");
     matrix = matX(k, n); //filas x columnas --> n filas x k columnas
-    printMatrix(n, k, matrix);
+    printMatrix(n, k, matrix, "X matrix");
 
-    printf("\n");
-    printMatrix(k, n, A);
+    printMatrix(k, n, A, "A matrix");
 
 
     //Tenemos que hacer A x X para tener V
@@ -112,8 +105,7 @@ int main(int argc, char *argv[]) {
     // A x Xt --> n x n
 
     long **V = matV(A, matrix, n, k);
-    printf("\nV matrix:\n");
-    printMatrix(n, n, V); // k x k
+    printMatrix(n, n, V, "V matrix:"); // k x k
 
     long **VDemo = (long **) malloc(n * sizeof(long *));
     for (int i = 0; i < n; i++) VDemo[i] = (long *) calloc(n, sizeof(long));
@@ -140,23 +132,17 @@ int main(int argc, char *argv[]) {
     VDemo[3][3] = 30L;
 
     // Matrix G
-    printf("\n");
-    printf("G matrix:\n");
     long ***G = matG(R, n, k);
     for (int t = 0; t < n; t++) {
-        printf("\nG_%d matrix:\n", t + 1);
-        printMatrix(k,n,G[t]);
+        printMatrix(k,n,G[t], "G_ matrix");
     }
 
     freeMatrix(R, n);
 
     // Matrix Sh
-    printf("\n");
-    printf("Sh matrix:\n");
     long ***Sh = matSh(G, VDemo, n, k);
     for (int t = 0; t < n; t++) {
-        printf("\n Sh_%d matrix:\n", t + 1);
-        printMatrix(k+1,n,Sh[t]);
+        printMatrix(k+1,n,Sh[t], "Sh_ matrix");
     }
 
     for (int t = 0; t < n; t++) {
@@ -173,11 +159,8 @@ int main(int argc, char *argv[]) {
     for (int l = 0; l < n; ++l) {
         recoveredG = deconcatG(Sh[l], n, k);
         recoveredV = deconcatV(Sh[l], n);
-
-        printf("Recovered G_%d matrix\n",l+1);
-        printMatrix(k,n,recoveredG);
-        printf("Recovered V_%d vector\n",l+1);
-        printVector(n,recoveredV);
+        printMatrix(k,n,recoveredG, "Recovered G");
+        printVector(n,recoveredV,"Recovered V");
         // Luego de cada G_t sacamos la R_t
     }
 
@@ -196,14 +179,11 @@ int main(int argc, char *argv[]) {
     B[3][0] = 84;
     B[3][1] = 48;
 
-    printf("\nB Matrix:\n");
-    printMatrix(k,n,B);
+    printMatrix(k,n,B, "B Matrix");
 
     long ** newSd = projectionSd(B, n, k, inverses);
 
-    printf("\nReconstruction Sd Matrix from B Matrix: \n");
-
-    printMatrix(n,n,newSd);
+    printMatrix(n,n,newSd, "Reconstruction Sd Matrix from B Matrix:");
 
     return 0;
 }

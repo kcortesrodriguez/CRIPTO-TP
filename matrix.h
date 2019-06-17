@@ -17,13 +17,13 @@ void freeMatrix(long **m, int n);
 
 //Kevin's
 
-void printVector(int k, long* array);
+void printVector(int k, long* array, char* title);
 
 //long* generateVector(int k, int initialValue);
 
 //long** matX(int k, int n);
 
-void printMatrix(int k, int n, long** matrix);
+void printMatrix(int k, int n, long** matrix, char* title);
 
 long** transposeV2(long** matrix, int n, int k); //TODO transpose MIGRATE TO THIS
 

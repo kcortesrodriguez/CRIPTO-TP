@@ -7,6 +7,7 @@
 #include "distribution.h"
 #include "matrix.h"
 #include "modular.h"
+#include "global.h"
 
 // rank k
 // det != 0
@@ -31,13 +32,7 @@ long **matA(int n, int k) {
     A[3][0] = 6;
     A[3][1] = 6;
 
-    printf("A matrix:\n");
-    for (int row = 0; row < n; row++) {
-        for (int columns = 0; columns < k; columns++) {
-            printf("  %ld", A[row][columns]);
-        }
-        printf("\n");
-    }
+    printMatrix(k,n,A, "A matrix");
 
     return A;
 }
@@ -46,55 +41,27 @@ long **projectionSd(long **A, int n, int k, int inverses[251]) {
 
     long **At = transpose(A, n, k);
 
-    printf("\n");
-
-    printf("At matrix:\n");
-    for (int row = 0; row < k; row++) {
-        for (int columns = 0; columns < n; columns++) {
-            printf("  %ld", At[row][columns]);
-        }
-        printf("\n");
-    }
+    printMatrix(n,k,At, "At matrix");
 
     long **AtA = multiply(At, A, k, k, n);
 
-    printf("\n");
-    printf("pre AtA matrix:\n");
-    for (int row = 0; row < k; row++) {
-        for (int columns = 0; columns < k; columns++) {
-            printf("  %ld", AtA[row][columns]);
-        }
-        printf("\n");
-    }
+    printMatrix(k,k,AtA, "pre AtA matrix");
 
     long det = determinantOfMatrix(AtA, k, k);
 
-    printf("post AtA matrix:\n");
-    for (int row = 0; row < k; row++) {
-        for (int columns = 0; columns < k; columns++) {
-            printf("  %ld", AtA[row][columns]);
-        }
-        printf("\n");
-    }
+    printMatrix(k,k,AtA, "post AtA matrix");
 
-    printf("\n");
-    printf("det: %ld\n", det);
+    if(VERBOSE) printf("det: %ld\n", det);
+
 
     if (det != 0) {
-        printf("%s", "Inverse exists!\n");
+        if(VERBOSE) printf("%s", "Inverse exists!\n");
 
         long **AugmentedAtaInverse = inverse(AtA, k, inverses);
 
         freeMatrix(AtA, k);
 
-        printf("\n");
-        printf("AugmentedAtaInverse matrix:\n");
-        for (int row = 0; row < k; row++) {
-            for (int columns = 0; columns < k * 2; columns++) {
-                printf("  %ld", AugmentedAtaInverse[row][columns]);
-            }
-            printf("\n");
-        }
+        printMatrix(k*2,k, AugmentedAtaInverse, "AugmentedAtaInverse matrix");
 
         long **AtAInverse = (long **) malloc(k * sizeof(long *));
         for (int i = 0; i < k; i++) AtAInverse[i] = (long *) calloc((size_t) k, sizeof(long));
@@ -106,14 +73,7 @@ long **projectionSd(long **A, int n, int k, int inverses[251]) {
             }
         }
 
-        printf("\n");
-        printf("AtAInverse matrix:\n");
-        for (int row = 0; row < k; row++) {
-            for (int columns = 0; columns < k; columns++) {
-                printf("  %ld", AtAInverse[row][columns]);
-            }
-            printf("\n");
-        }
+        printMatrix(k,k,AtAInverse, "AtAInverse matrix");
 
         freeMatrix(AugmentedAtaInverse, k);
 
@@ -123,14 +83,7 @@ long **projectionSd(long **A, int n, int k, int inverses[251]) {
 
         freeMatrix(AtAInverse, k);
 
-        printf("\n");
-        printf("AxInverse matrix:\n");
-        for (int row = 0; row < n; row++) {
-            for (int columns = 0; columns < k; columns++) {
-                printf("  %ld", AxInverse[row][columns]);
-            }
-            printf("\n");
-        }
+        printMatrix(k,n,AxInverse, "AxInverse matrix");
 
         // (A * (At * A)') * At
         long **proj = multiply(AxInverse, At, n, n, k);
@@ -140,7 +93,7 @@ long **projectionSd(long **A, int n, int k, int inverses[251]) {
 
         return proj;
     } else {
-        printf("%s", "Inverse does not exist!");
+        if(VERBOSE) printf("%s", "Inverse does not exist!");
 
         return NULL;
     }
@@ -212,9 +165,7 @@ long ***matG(long **R, int n, int k) {
 
 long **matV(long **A, long **X, int n, int k) {
     long **matrixMultiply;
-    printf("\n");
     matrixMultiply = multiplyV2(A, X, n, n, k);
-
     return matrixMultiply;
 }
 

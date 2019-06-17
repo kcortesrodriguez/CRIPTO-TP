@@ -106,14 +106,7 @@ long **inverse(long **m, int n, int inverses[251]) {
     for (int i = 0; i < n; i++) mInverse[i] = (long *) calloc((size_t) n * 2, sizeof(long));
 
 
-    printf("\n");
-    printf("m matrix:\n");
-    for (int row = 0; row < n; row++) {
-        for (int columns = 0; columns < n; columns++) {
-            printf("  %ld", m[row][columns]);
-        }
-        printf("\n");
-    }
+    printMatrix(n,n, m, "m matrix");
 
     // Create the augmented matrix
     // Add the identity matrix
@@ -129,14 +122,7 @@ long **inverse(long **m, int n, int inverses[251]) {
         }
     }
 
-    printf("\n");
-    printf("Aug plus id matrix:\n");
-    for (int row = 0; row < n; row++) {
-        for (int columns = 0; columns < 2 * n; columns++) {
-            printf("  %ld", mInverse[row][columns]);
-        }
-        printf("\n");
-    }
+    printMatrix(2*n,n, mInverse, "Aug plus id matrix");
 
     // Interchange the row of matrix, starting from the last row
     for (int i = n - 1; i > 0; i--) {
@@ -234,8 +220,9 @@ long *generateVector(int k, int initialValue) {
 }
 */
 
-void printVector(int k, long *array) {
+void printVector(int k, long *array, char* title) {
     if(!VERBOSE) return;
+    printf("\n%s\n", title);
     for (int i = 0; i < k; i++) {
         printf("%ld ", array[i]);
     }
@@ -257,10 +244,13 @@ long **matX(int k, int n) {
 }
 */
 
-void printMatrix(int k, int n, long **matrix) {
+void printMatrix(int k, int n, long **matrix, char* title) {
     if(!VERBOSE) return;
+    printf("\n%s\n", title);
     for (int i = 0; i < n; i++) {
-        printVector(k, matrix[i]);
+        for (int j = 0; j < k; j++) {
+            printf("%ld ", matrix[i][j]);
+        }
         printf("\n");
     }
 }
