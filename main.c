@@ -16,14 +16,6 @@
 
 #define MAX_LEN 260
 
-void createDirectory(char *path) {
-    struct stat st = {0};
-
-    if (stat(path, &st) == -1) {
-        mkdir(path, 0700);
-    }
-}
-
 int main(int argc, char *argv[]) {
 
     char secretImage[MAX_LEN];
@@ -137,7 +129,7 @@ int main(int argc, char *argv[]) {
 
     printf("\n");
     printf("V matrix:\n");
-    printMatrix(n, n, V); // k x k
+    printMatrix(n, n, V);
 
     // Matrix G
     printf("\n");

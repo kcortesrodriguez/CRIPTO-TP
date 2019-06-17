@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <err.h>
 #include <fts.h>
+#include <sys/stat.h>
 
 #define MAX_STRING 260
 
@@ -168,4 +169,12 @@ char **get_shadow_files(char *directory, int n) {
     fts_close(ftsp);
 
     return shadow_files;
+}
+
+void createDirectory(char *path) {
+    struct stat st = {0};
+
+    if (stat(path, &st) == -1) {
+        mkdir(path, 0700);
+    }
 }
