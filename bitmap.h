@@ -55,6 +55,7 @@ typedef struct BITMAP_INFO_HEADER {
 typedef struct BITMAP {
     BITMAP_HEADER file;
     BITMAP_INFO info;
+    char RGBQUAD[1024];
 } BITMAP;
 #pragma pack(pop)
 
@@ -153,7 +154,6 @@ static BITMAP_FILE *load_BMP(const char *filename) {
     fread(&bmp->header.info.num_imp, 4, 1, fp);
 
     image_size = bmp->header.info.image_size;
-//    file_size = image_size + sizeof(BITMAP);
     file_size = image_size + bmp->header.file.offset;
 
     if (bmp->header.file.header == 0x4D42 &&
@@ -182,7 +182,7 @@ static BITMAP_FILE *load_BMP(const char *filename) {
 }
 
 /* write_BMP:  write BMP out to file */
-static int write_BMP(BITMAP_FILE *bmp, unsigned char data_only) {
+static int write_BMP(BITMAP_FILE *bmp) {
     FILE *fp;
 
     if (bmp) {
@@ -191,14 +191,14 @@ static int write_BMP(BITMAP_FILE *bmp, unsigned char data_only) {
             bmp->error = BITMAP_OPEN_ERROR;
             return 1;
         }
-        if (!data_only) {
-            if (fwrite(&bmp->header, 1, sizeof(BITMAP), fp) !=
-                sizeof(BITMAP)) {
-                bmp->error = BITMAP_WRITE_ERROR;
-                return 1;
-            }
-        } else
-            fseek(fp, bmp->header.file.offset, SEEK_SET);
+
+        if (fwrite(&bmp->header, 1, sizeof(BITMAP), fp) !=
+            sizeof(BITMAP)) {
+            bmp->error = BITMAP_WRITE_ERROR;
+            return 1;
+        }
+
+        fseek(fp, bmp->header.file.offset, SEEK_SET);
         if (fwrite(bmp->data, 1, bmp->header.info.image_size, fp) !=
             bmp->header.info.image_size) {
             bmp->error = BITMAP_WRITE_ERROR;
@@ -214,8 +214,7 @@ static BITMAP_FILE *create_BMP(const char *filename, unsigned int w,
                                unsigned int h, unsigned short bpp) {
     BITMAP_FILE *bmp;
     const int pixel_byte_size = h * w * bpp / 8;
-    const int file_size = pixel_byte_size + 1024 + sizeof(BITMAP);
-//    const int file_size = sizeof(BITMAP) + pixel_byte_size;
+    const int file_size = sizeof(BITMAP) + pixel_byte_size;
 
     bmp = (BITMAP_FILE *) calloc(1, sizeof(BITMAP_FILE));
     if (!bmp) {
@@ -236,8 +235,7 @@ static BITMAP_FILE *create_BMP(const char *filename, unsigned int w,
     bmp->header.file.size = file_size;
     bmp->header.file.res1 = 0;
     bmp->header.file.res2 = 0;
-//    bmp->header.file.offset = sizeof(BITMAP);
-    bmp->header.file.offset = sizeof(BITMAP) + 1024;
+    bmp->header.file.offset = sizeof(BITMAP);
 
     /* setup bitmap info header */
     bmp->header.info.size = sizeof(BITMAP_INFO);
@@ -247,13 +245,26 @@ static BITMAP_FILE *create_BMP(const char *filename, unsigned int w,
     bmp->header.info.bpp = bpp;
     bmp->header.info.compression = 0;
     bmp->header.info.image_size = pixel_byte_size;
-    bmp->header.info.h_res = 0x130B;
-    bmp->header.info.v_res = 0x130B;
-    bmp->header.info.num_cols = 0;
+    bmp->header.info.num_cols = 256;
     bmp->header.info.h_res = 0;
     bmp->header.info.v_res = 0;
-    bmp->header.info.num_cols = 256;
     bmp->header.info.num_imp = 0;
+
+
+    // RGBQUAD aColors[256]
+    int RGBQUAD_index = 0;
+    for (int i = 0; i < 256; i++) {
+        // 3 times i
+        bmp->header.RGBQUAD[RGBQUAD_index] = (uint8_t) i;
+        bmp->header.RGBQUAD[RGBQUAD_index + 1] = (uint8_t) i;
+        bmp->header.RGBQUAD[RGBQUAD_index + 2] = (uint8_t) i;
+
+        // 00
+        bmp->header.RGBQUAD[RGBQUAD_index + 3] = 0x00;
+
+        RGBQUAD_index = RGBQUAD_index + 4;
+    }
+
     return bmp;
 }
 
@@ -280,6 +291,29 @@ static void put_pixel_BMP(BITMAP_FILE *bmp, int x, int y,
         bmp->data[x + y * rowsize] = b;
         bmp->data[x + 1 + y * rowsize] = g;
         bmp->data[x + 2 + y * rowsize] = r;
+    }
+}
+
+/* display_info_BMP:  display info about the bitmap file */
+static void display_info_BMP(BITMAP_FILE *bmp) {
+    if (bmp) {
+        printf("***INFO BELOW ***\n"
+               "***********************************\n"
+               "BITMAP HEADER            : %u\n"
+               "BITMAP SIZE              : %u\n"
+               "BITMAP OFFSET            : %u\n"
+               "BITMAP WIDTH             : %u\n"
+               "BITMAP HEIGHT            : %u\n"
+               "BITMAP BITS PER PIXEL    : %u\n"
+               "***********************************\n",
+               bmp->header.file.header, bmp->header.file.size,
+               bmp->header.file.offset, bmp->header.info.width,
+               bmp->header.info.height, bmp->header.info.bpp);
+/*		printf("*** Data Below ***\n"
+			"***********************************\n"
+			"%s\n"
+			"***********************************\n",
+			bmp->data); */
     }
 }
 
