@@ -210,23 +210,6 @@ void printVectorUint8(int k, uint8_t *array) {
     }
 }
 
-/*
- * Generate matrix X.
- * N vector of dimensions k x 1, linearly independent.
- * k columns
- * n rows
- */
-long **matX(int k, int n) {
-    long **temp = (long **) malloc(n * sizeof(long *));
-    int *randoms = generateRandoms(n);
-
-    for (int i = 0; i < n; i++) {
-        temp[i] = generateVector(k, randoms[i]);
-    }
-
-    return transpose(temp, n, k);
-}
-
 void printMatrix(int k, int n, long **matrix) {
     for (int i = 0; i < n; i++) {
         printVector(k, matrix[i]);

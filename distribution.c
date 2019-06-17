@@ -159,29 +159,29 @@ long ***matSh(long ***G, long **V, int n, int k) {
 }
 
 long *generateVector(int k, int initialValue) {
-    int i;
+    long *array = (long *) malloc(sizeof(long) * k);
 
-    long *array;
-    array = (long *) malloc(sizeof(long) * k);
-
-    for (i = 0; i < k; i++) {
-        //TODO: CHECK IF IT HAS TO BE Z 251
-        array[i] = ((long) pow(initialValue, i)) % 251;
+    for (int i = 0; i < k; i++) {
+        array[i] = modulo((long) pow((double) initialValue, (double) i), 251);
     }
 
     return array;
 }
 
+/*
+ * Generate matrix X.
+ * N vector of dimensions k x 1, linearly independent.
+ * k columns
+ * n rows
+ */
 long **matX(int k, int n) {
-    long **temp = (long **) malloc(n * sizeof(long *)); //TODO free
+    long **temp = (long **) malloc(n * sizeof(long *));
     int *randoms = generateRandoms(n);
 
     for (int i = 0; i < n; i++) {
         temp[i] = generateVector(k, randoms[i]);
     }
 
-    //transposeV2(matrix,k,n)
-    //return temp;
-    return transposeV2(temp, k, n);
+    return transpose(temp, n, k);
 }
 

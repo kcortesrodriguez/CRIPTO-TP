@@ -7,7 +7,6 @@
 #include "io.h"
 #include "distribution.h"
 #include "matrix.h"
-#include "bmp.h"
 #include "bitmap.h"
 #include "random.h"
 #include <sys/types.h>
