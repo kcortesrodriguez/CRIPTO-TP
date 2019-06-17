@@ -96,7 +96,7 @@ int main(int argc, char *argv[]) {
     // Matrix Rw
 //    long **Rw = remainderRw(W, Sd, n); //todo: replace W with watermark
 
-    free(inverses);
+    //free(inverses);
     //freeMatrix(A, n);
     freeMatrix(Sd, n);
 
@@ -188,6 +188,40 @@ int main(int argc, char *argv[]) {
     }
     free(G);
     free(Sh);
+
+    //Start desencryption example from paper
+
+    long **B = (long **) malloc(n * sizeof(long *));
+    for (int i = 0; i < n; i++) B[i] = (long *) calloc(k, sizeof(long));
+
+    B[0][0] = 62;
+    B[0][1] = 40;
+    B[1][0] = 59;
+    B[1][1] = 28;
+    B[2][0] = 43;
+    B[2][1] = 28;
+    B[3][0] = 84;
+    B[3][1] = 48;
+
+    printf("\nB Matrix:\n");
+
+    for (int row = 0; row < n; row++) {
+        for (int columns = 0; columns < k; columns++) {
+            printf("  %ld", B[row][columns]);
+        }
+        printf("\n");
+    }
+
+    long ** newSd = projectionSd(B, n, k, inverses);
+
+    printf("\nReconstruction Sd Matrix from B Matrix: \n");
+
+    for (int row = 0; row < n; row++) {
+        for (int columns = 0; columns < n; columns++) {
+            printf("  %ld", newSd[row][columns]);
+        }
+        printf("\n");
+    }
 
     return 0;
 }
