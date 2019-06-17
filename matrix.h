@@ -19,6 +19,8 @@ void printVector(int k, long* array);
 
 void printMatrix(int k, int n, long **matrix);
 
+void printMatrixUint8(int k, int n, uint8_t **matrix);
+
 long **transposeV2(long **matrix, int n, int k); //TODO transpose MIGRATE TO THIS
 
 long **multiplyV2(long **mat1, long **mat2, int n, int m, int k); //TODO multiply MIGRATE TO THIS
@@ -26,5 +28,7 @@ long **multiplyV2(long **mat1, long **mat2, int n, int m, int k); //TODO multipl
 long **concat(long *vec, long **mat, int n, int k);
 
 uint8_t **convertMatrixFromLongToUint8(long **mat, int n, int k);
+
+long **convertUint8StreamToLongMatrix(uint8_t *stream, int n, int k);
 
 #endif //CRIPTO_TP_MATRIX_H

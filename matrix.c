@@ -104,16 +104,6 @@ long **inverse(long **m, int n, int inverses[251]) {
     long **mInverse = (long **) malloc(n * sizeof(long *)); //TODO free
     for (int i = 0; i < n; i++) mInverse[i] = (long *) calloc((size_t) n * 2, sizeof(long));
 
-
-    printf("\n");
-    printf("m matrix:\n");
-    for (int row = 0; row < n; row++) {
-        for (int columns = 0; columns < n; columns++) {
-            printf("  %ld", m[row][columns]);
-        }
-        printf("\n");
-    }
-
     // Create the augmented matrix
     // Add the identity matrix
     for (int i = 0; i < n; i++) {
@@ -217,13 +207,26 @@ void freeMatrix(long **m, int n) {
 
 void printVector(int k, long *array) {
     for (int i = 0; i < k; i++) {
-        printf("%ld ", array[i]);
+        printf("\t%ld", array[i]);
+    }
+}
+
+void printVectorUint8(int k, uint8_t *array) {
+    for (int i = 0; i < k; i++) {
+        printf("\t%d", array[i]);
     }
 }
 
 void printMatrix(int k, int n, long **matrix) {
     for (int i = 0; i < n; i++) {
         printVector(k, matrix[i]);
+        printf("\n");
+    }
+}
+
+void printMatrixUint8(int k, int n, uint8_t **matrix) {
+    for (int i = 0; i < n; i++) {
+        printVectorUint8(k, matrix[i]);
         printf("\n");
     }
 }
@@ -264,7 +267,7 @@ long **multiplyV2(long **mat1, long **mat2, int n, int m, int k) {
 }
 
 long **concat(long *vec, long **mat, int n, int k) {
-    long **res = (long **) calloc(n, sizeof(long *)); //TODO free
+    long **res = (long **) malloc(n * sizeof(long *)); //TODO free
     for (int i = 0; i < n; i++) {
         res[i] = (long *) calloc(k + 1, sizeof(long));
     }
@@ -296,5 +299,14 @@ uint8_t **convertMatrixFromLongToUint8(long **mat, int n, int k) {
         }
     }
 
+    return res;
+}
+
+long **convertUint8StreamToLongMatrix(uint8_t *stream, int n, int k) {
+    long **res = (long **) malloc(n * sizeof(long *)); //TODO free
+    for (int i = 0; i < n; i++) {
+        res[i] = (long *) calloc(k, sizeof(long));
+    }
+    for (int i = 0; i < n * k; i++) res[i / n][i % k] = stream[i];
     return res;
 }
