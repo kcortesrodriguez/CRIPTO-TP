@@ -15,13 +15,7 @@ long **subtract(long **mat1, long **mat2, int n);
 
 void freeMatrix(long **m, int n);
 
-//Kevin's
-
-long *generateVector(int k, int initialValue);
-
-void printVector(int k, long *array);
-
-long **matX(int k, int n);
+void printVector(int k, long* array);
 
 void printMatrix(int k, int n, long **matrix);
 

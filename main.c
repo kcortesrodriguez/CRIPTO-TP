@@ -117,7 +117,7 @@ int main(int argc, char *argv[]) {
     n = 4;
 
     long **matrix;
-    printf("\n");
+    printf("\nX matrix:\n");
     matrix = matX(k, n); //filas x columnas --> n filas x k columnas
     printMatrix(n, k, matrix);
 
@@ -130,11 +130,8 @@ int main(int argc, char *argv[]) {
     // MI X --> n x k, entonces lo hago con la Xt --> k x n
     // A x Xt --> n x n
 
-    printf("\n");
     long **V = matV(A, matrix, n, k);
-
-    printf("\n");
-    printf("V matrix:\n");
+    printf("\nV matrix:\n");
     printMatrix(n, n, V); // k x k
 
     long **VDemo = (long **) malloc(n * sizeof(long *));
