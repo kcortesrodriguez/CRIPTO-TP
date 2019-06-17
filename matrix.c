@@ -4,6 +4,7 @@
 #include "matrix.h"
 #include "modular.h"
 #include "random.h"
+#include "global.h"
 
 // Function to get cofactor of mat[p][q] in temp[][]. n is current
 // dimension of mat[][]
@@ -234,9 +235,11 @@ long *generateVector(int k, int initialValue) {
 */
 
 void printVector(int k, long *array) {
+    if(!VERBOSE) return;
     for (int i = 0; i < k; i++) {
         printf("%ld ", array[i]);
     }
+    printf("\n");
 }
 
 /*
@@ -255,6 +258,7 @@ long **matX(int k, int n) {
 */
 
 void printMatrix(int k, int n, long **matrix) {
+    if(!VERBOSE) return;
     for (int i = 0; i < n; i++) {
         printVector(k, matrix[i]);
         printf("\n");
