@@ -6,6 +6,7 @@
 #include <err.h>
 #include <fts.h>
 #include <sys/stat.h>
+#include <libgen.h>
 
 #define MAX_STRING 260
 
@@ -124,6 +125,12 @@ void parseParameters(int argc, char *argv[],
     printf("Finished parsing parameters!\n");
 }
 
+const char *get_filename_ext(const char *filename) {
+    const char *dot = strrchr(filename, '.');
+    if (!dot || dot == filename) return "";
+    return dot + 1;
+}
+
 char **get_shadow_files(char *directory, int n) {
 
     // Initialize shadow_files
@@ -155,11 +162,14 @@ char **get_shadow_files(char *directory, int n) {
     }
 
     // Traverse directory
+    int shadow_index = n - 1;
     while ((p = fts_read(ftsp)) != NULL) {
         switch (p->fts_info) {
             case FTS_F:
-                if (p->fts_level == 1) // no file at subfolders, only at present level
-                    strncpy(shadow_files[--n], p->fts_path, MAX_STRING);
+                // No file at subfolders, only at present level
+                if (p->fts_level == 1 && (strcmp("bmp", get_filename_ext(basename(p->fts_path))) == 0)) {
+                    strncpy(shadow_files[shadow_index--], p->fts_path, MAX_STRING);
+                }
                 break;
             default:
                 break;
@@ -178,3 +188,4 @@ void createDirectory(char *path) {
         mkdir(path, 0700);
     }
 }
+
