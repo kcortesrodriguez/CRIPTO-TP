@@ -4,6 +4,7 @@
 #include "matrix.h"
 #include "modular.h"
 #include "random.h"
+#include "global.h"
 #include "distribution.h"
 
 // Function to get cofactor of mat[p][q] in temp[][]. n is current
@@ -54,7 +55,7 @@ long determinantOfMatrix(long **mat, int N, int n) {
         sign = -sign;
     }
 
-    freeMatrix(temp, n);
+    freeLongMatrix(temp, N);
 
     return D;
 }
@@ -66,10 +67,11 @@ long **transpose(long **mat, int n, int k) {
         transposeMatrix[i] = (long *) calloc((size_t) n, sizeof(long));
     }
 
-    for (int i = 0; i < k; i++)
+    for (int i = 0; i < k; i++) {
         for (int j = 0; j < n; j++) {
             transposeMatrix[i][j] = mat[j][i];
         }
+    }
 
     return transposeMatrix;
 }
@@ -117,8 +119,7 @@ long **inverse(long **m, int n, int inverses[251]) {
         }
     }
 
-//    printf("\nAug plus id matrix:\n");
-//    printMatrix(2 * n, n, mInverse);
+    printMatrix(2 * n, n, mInverse, "Aug plus id matrix");
 
     // Interchange the row of matrix, starting from the last row
     for (int i = n - 1; i > 0; i--) {
@@ -186,22 +187,28 @@ long **subtract(long **mat1, long **mat2, int n) {
     return res;
 }
 
-/*
- * m is the matrix to transpose.
- * n is the number of rows of m.
- */
-void freeMatrix(long **m, int n) {
+void freeLongMatrix(long **m, int n) {
     for (int i = 0; i < n; i++) {
-        long *currentIntPtr = m[i];
-        free(currentIntPtr);
+        long *current_ptr = m[i];
+        free(current_ptr);
     }
     free(m);
 }
 
-void printVector(int k, long *array) {
-    for (int i = 0; i < k; i++) {
-        printf("\t%ld", array[i]);
+void freeCharMatrix(char **m, int n) {
+    for (int i = 0; i < n; i++) {
+        free(m[i]);
     }
+    free(m);
+}
+
+void printVector(int k, long *array, char *title) {
+    if (!VERBOSE) return;
+    printf("\n%s\n", title);
+    for (int i = 0; i < k; i++) {
+        printf("%ld ", array[i]);
+    }
+    printf("\n");
 }
 
 void printVectorUint8(int k, uint8_t *array) {
@@ -210,9 +217,13 @@ void printVectorUint8(int k, uint8_t *array) {
     }
 }
 
-void printMatrix(int k, int n, long **matrix) {
+void printMatrix(int k, int n, long **matrix, char *title) {
+    if (!VERBOSE) return;
+    printf("\n%s\n", title);
     for (int i = 0; i < n; i++) {
-        printVector(k, matrix[i]);
+        for (int j = 0; j < k; j++) {
+            printf("%ld ", matrix[i][j]);
+        }
         printf("\n");
     }
 }
@@ -224,10 +235,10 @@ void printMatrixUint8(int k, int n, uint8_t **matrix) {
     }
 }
 
-long **concat(long *vec, long **mat, int n, int k) {
+long **concat(long *vec, long **mat, int n, int m) {
     long **res = (long **) malloc(n * sizeof(long *));
     for (int i = 0; i < n; i++) {
-        res[i] = (long *) calloc(((size_t) k + 1), sizeof(long));
+        res[i] = (long *) calloc(((size_t) m + 1), sizeof(long));
     }
 
     // Fill vec in res
@@ -237,7 +248,7 @@ long **concat(long *vec, long **mat, int n, int k) {
 
     // Fill mat in res
     for (int i = 0; i < n; i++) {
-        for (int j = 0; j < k; j++) {
+        for (int j = 0; j < m; j++) {
             res[i][j + 1] = mat[i][j];
         }
     }
@@ -268,3 +279,44 @@ long **convertUint8StreamToLongMatrix(uint8_t *stream, int n, int k) {
     for (int i = 0; i < n * k; i++) res[i / n][i % k] = stream[i];
     return res;
 }
+
+/**
+ * Receives an nX(k+1) matrix and returns an nXk matrix by removing the first column
+ *
+ * @param mat the Sh_t matrix
+ * @param n rows on G
+ * @param k columns on G
+ * @return the G_t matrix
+ */
+long **deconcatG(long **mat, int n, int k) {
+    long **res = (long **) calloc(n, sizeof(long *)); //TODO free
+    for (int i = 0; i < n; i++)
+        res[i] = (long *) calloc(k, sizeof(long));
+
+    for (int j = 0; j < n; ++j) {
+        for (int i = 1; i < k + 1; ++i) {
+            res[j][i - 1] = mat[j][i];
+        }
+    }
+
+    return res;
+}
+
+/**
+ * Receives an nX* matrix and returns a vector with the first column
+ *
+ * @param mat the Sh_t matrix
+ * @param n rows on G
+ * @return the G_t matrix
+ */
+long *deconcatV(long **mat, int n) {
+    long *res = (long *) calloc(n, sizeof(long)); //TODO free
+
+    for (int j = 0; j < n; ++j) {
+        res[j] = mat[j][0];
+    }
+
+    return res;
+}
+
+

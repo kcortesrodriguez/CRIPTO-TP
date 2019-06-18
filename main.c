@@ -2,6 +2,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include "modular.h"
 #include "io.h"
@@ -13,8 +14,9 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <libgen.h>
+#include "global.h"
 
-#define MAX_LEN 260
+int VERBOSE = FALSE;
 
 int main(int argc, char *argv[]) {
 
@@ -22,7 +24,7 @@ int main(int argc, char *argv[]) {
     char retrievedImage[MAX_LEN];
     char watermarkImage[MAX_LEN];
     char watermarkTransformationImage[MAX_LEN];
-    char directory[MAX_LEN];
+    char shadowDirectory[MAX_LEN];
     int k;
     int n;
 
@@ -42,44 +44,28 @@ int main(int argc, char *argv[]) {
                     sizeof secretImage / sizeof *secretImage,
                     secretImage, retrievedImage,
                     watermarkImage, watermarkTransformationImage,
-                    directory,
+                    shadowDirectory,
                     &k, &n);
-
-    // Get shadow files at directory
-    char **shadow_files = get_shadow_files(directory, n);
-
-    // Shadow bmp array
-    BITMAP_FILE *shadow_bmps[n];
-
-    // Shadow bmp index array
-    int shadow_bmps_index[n];
-    memset(shadow_bmps_index, 0, n * sizeof(int));
-
-    for (int t = 0; t < n; t++) {
-        char *shadow_bmp_path = shadow_files[t];
-
-        BITMAP_FILE *shadow_bmp = load_BMP(shadow_bmp_path);
-
-        char lsb_shadow_bmp_name[MAX_PATH];
-        memset(lsb_shadow_bmp_name, 0, strlen(lsb_shadow_bmp_name));
-        strcat(lsb_shadow_bmp_name, output_lsb_dir);
-        strcat(lsb_shadow_bmp_name, basename(shadow_bmp_path));
-
-        memset(shadow_bmp->fname, 0, sizeof shadow_bmp->fname);
-        strcpy(shadow_bmp->fname, lsb_shadow_bmp_name);
-
-        shadow_bmp->header.file.res1 = (unsigned short) (t + 1);
-
-        shadow_bmps[t] = shadow_bmp;
-    }
 
     // Populate multiplicative inverses mod 251
     int *inverses = modularInverse(250, 251);
 
+    // Shadow bmp array
+    BITMAP_FILE *shadow_bmps[n];
+
+    // Get shadow files at directory
+    char **shadow_files = get_shadow_files(shadowDirectory, n);
+
+    // Initialize shadow bmp files
+    initialize_shadow_bmp_files(n, shadow_files, shadow_bmps, output_lsb_dir);
+
+    // Initialize shadow bmp index array
+    int shadow_bmps_index[n];
+    memset(shadow_bmps_index, 0, n * sizeof(int));
+
     // Load secret bmp
     BITMAP_FILE *secret_bmp = load_BMP(secretImage);
 
-    // Matrix W
     // Load watermark bmp
     BITMAP_FILE *watermark_bmp = load_BMP(watermarkImage);
 
@@ -90,133 +76,9 @@ int main(int argc, char *argv[]) {
     strcat(rw_bmp_name, "RW.bmp");
     BITMAP_FILE *rw_bmp = create_BMP(rw_bmp_name, watermark_bmp->header.info.width, watermark_bmp->header.info.height,
                                      8);
-    check_BMP(rw_bmp);
-    int current_rw_byte_index = 0;
 
-    // Traverse 8 bpp secret image n x n bytes at a time
-    int s_matrices = secret_bmp->header.info.image_size / (n * n);
-    for (int i = 0; i < s_matrices; i++) {
-
-        // Matrix S
-        // Convert secret stream to n x n matrix
-        long **S = convertUint8StreamToLongMatrix(secret_bmp->data + (i * n * n), n, n);
-
-        printf("\n");
-        printf("S matrix:\n");
-        printMatrix(n, n, S);
-
-        // Matrix A
-        long **A = matA(n, k);
-
-//        printf("\nA matrix:\n");
-//        printMatrix(k, n, A);
-
-        // Matrix Sd
-        long **Sd = projectionSd(A, n, k, inverses);
-
-//        printf("\nSd matrix:\n");
-//        printMatrix(n, n, Sd);
-
-        // Matrix R
-        long **R = remainderR(S, Sd, n);
-
-//        printf("\nR matrix:\n");
-//        printMatrix(n, n, R);
-
-        // Recovered Matrix S
-//        long **recoveredS = add(R, Sd, n);
-//        printf("\n");
-//        printf("Recovered S matrix:\n");
-//        printMatrix(n, n, recoveredS);
-
-        // Convert watermark stream to n x n matrix
-        long **W = convertUint8StreamToLongMatrix(watermark_bmp->data + (i * n * n), n, n);
-
-        // Matrix Rw
-        long **Rw = remainderRw(W, Sd, n);
-        printf("\nRw matrix:\n");
-        printMatrix(n, n, Rw);
-
-        // Fill Rw
-        for (int p = 0; p < n; p++) {
-            for (int q = 0; q < n; q++) {
-                // Set bit on rw_bmp->data
-                rw_bmp->data[current_rw_byte_index] = (uint8_t) Rw[p][q];
-                current_rw_byte_index++;
-            }
-        }
-
-        // Matrix X
-        long **X = matX(k, n);
-//    printf("\nX matrix:\n");
-//    printMatrix(n, k, matrix);
-//
-        // Matrix V
-        long **V = matV(A, X, n, k);
-//    printf("\nV matrix:\n");
-//    printMatrix(n, n, V);
-
-        // Matrix G
-        long ***G = matG(R, n, k);
-//        printf("\nG matrix:\n");
-//        for (int t = 0; t < n; t++) {
-//            printf("G_%d matrix:\n", t + 1);
-//            printMatrix((int) ceil((double) n / k), n, G[t]);
-//        }
-
-        // Matrix Sh
-//        printf("\nSh matrix:\n");
-        long ***Sh = matSh(G, V, n, k);
-        uint8_t ***uint8_Sh = (uint8_t ***) malloc(n * sizeof(uint8_t **));
-        for (int t = 0; t < n; t++) {
-//            printf("Sh_%d matrix:\n", t + 1);
-//            printMatrix((int) (ceil((double) n / k) + 1), n, Sh[t]);
-            uint8_Sh[t] = convertMatrixFromLongToUint8(Sh[t], n, (int) (ceil((double) n / k) + 1));
-        }
-
-        for (int t = 0; t < n; t++) {
-
-            // Recorremos la peli un byte a la vez
-            int current_movie_byte_index = shadow_bmps_index[t];
-
-            if (t == 0)
-                printf("current_movie_byte_index:\t%d\n", current_movie_byte_index);
-
-            // Recorremos Sh 1 un byte a la vez, agarrando para cada uno cada bit (0 a 7)
-            for (int a = 0; a < n; a++) {
-                for (int b = 0; b < (int) (ceil((double) n / k) + 1); b++) {
-                    uint8_t current_byte = uint8_Sh[t][a][b];
-
-                    // Bit por bit, cada byte de Sh1
-                    for (int l = 0; l < 8; l++) {
-                        uint8_t one_or_zero = (uint8_t) ((current_byte >> l) & 0x01);
-
-                        // Set bit on movie
-                        uint8_t current_movie_byte = (uint8_t) shadow_bmps[t]->data[current_movie_byte_index];
-                        shadow_bmps[t]->data[current_movie_byte_index] =
-                                (uint8_t) (current_movie_byte & ~1) | one_or_zero;
-                        current_movie_byte_index++;
-                    }
-                }
-            }
-
-            shadow_bmps_index[t] = current_movie_byte_index;
-
-//            freeMatrix(uint8_Sh[t], n);
-        }
-
-        freeMatrix(A, n);
-        freeMatrix(Sd, n);
-        freeMatrix(S, n);
-        freeMatrix(R, n);
-        for (int t = 0; t < n; t++) {
-            freeMatrix(G[t], n);
-        }
-        free(G);
-//        freeMatrix(recoveredS, n);
-        //            freeMatrix(Sh[t], n);
-        //            freeMatrix(Sh, n);
-    }
+    // Distribute secret in shadows and Rw
+    distribute(n, k, inverses, secret_bmp, watermark_bmp, rw_bmp, shadow_bmps_index, shadow_bmps);
 
     // Save shadow bmps
     for (int t = 0; t < n; t++) {
@@ -227,7 +89,55 @@ int main(int argc, char *argv[]) {
     write_BMP(rw_bmp);
 
     // Destroy resources
+    destroy_BMP(rw_bmp);
+    destroy_BMP(watermark_bmp);
+    destroy_BMP(secret_bmp);
+    freeCharMatrix(shadow_files, n);
+    for (int t = 0; t < n; t++) {
+        destroy_BMP(shadow_bmps[t]);
+    }
+
+    // 4.3.2
+    // Por cada Sh desconcatenamos V_t y G_t
+//    long **recoveredG;
+//    long *recoveredV;
+//    for (int l = 0; l < n; ++l) {
+//        recoveredG = deconcatG(Sh[l], n, k);
+//        recoveredV = deconcatV(Sh[l], n);
+//        printMatrix(k, n, recoveredG, "Recovered G");
+//        printVector(n, recoveredV, "Recovered V");
+//        // Luego de cada G_t sacamos la R_t
+//    }
+
+
+    //Start desencryption example from paper
+
+//    k = 2;
+//    n = 4;
+//
+//    long **B = (long **) malloc(n * sizeof(long *));
+//    for (int i = 0; i < n; i++)
+//        B[i] = (long *) calloc((size_t) k, sizeof(long));
+//
+//    B[0][0] = 62L;
+//    B[0][1] = 40L;
+//    B[1][0] = 59L;
+//    B[1][1] = 28L;
+//    B[2][0] = 43L;
+//    B[2][1] = 28L;
+//    B[3][0] = 84L;
+//    B[3][1] = 48L;
+//
+//    printMatrix(k, n, B, "B Matrix");
+//
+//    long **newSd = projectionSd(B, n, k, inverses);
+//
+//    printMatrix(n, n, newSd, "Reconstruction Sd Matrix from B Matrix:");
+//
+    // Destroy resources
+//    freeLongMatrix(newSd, n);
+//    freeLongMatrix(B, n);
     free(inverses);
 
-    return 0;
+    return EXIT_SUCCESS;
 }
