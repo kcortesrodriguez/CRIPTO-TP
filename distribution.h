@@ -1,6 +1,8 @@
 #ifndef CRIPTO_TP_DISTRIBUTION_H
 #define CRIPTO_TP_DISTRIBUTION_H
 
+#include "bitmap.h"
+
 long **matA(int n, int k);
 
 long **projectionSd(long **A, int n, int k, int inverses[251]);
@@ -22,5 +24,19 @@ long ***matSh(long ***G, long **V, int n, int k);
 long *generateVector(int k, int initialValue);
 
 long **matX(int k, int n);
+
+void initialize_shadow_bmp_files(int n,
+                                 char **shadow_files,
+                                 BITMAP_FILE **shadow_bmps,
+                                 char *output_lsb_dir);
+
+void distribute(int n,
+                int k,
+                int *inverses,
+                BITMAP_FILE *secret_bmp,
+                BITMAP_FILE *watermark_bmp,
+                BITMAP_FILE *rw_bmp,
+                int *shadow_bmps_index,
+                BITMAP_FILE **shadow_bmps);
 
 #endif //CRIPTO_TP_DISTRIBUTION_H

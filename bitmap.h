@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "global.h"
 
 #ifndef MAX_PATH
 #define MAX_PATH 260
@@ -162,7 +163,7 @@ static BITMAP_FILE *load_BMP(const char *filename) {
         bmp->data = malloc(sizeof(unsigned char) * image_size);
         if (bmp->data) {
             fread(bmp->data, 1, image_size, fp);
-            printf("\nValid image loaded.\n");
+            if (VERBOSE) printf("\nValid image loaded.\n");
             fclose(fp);
             bmp->error = BITMAP_NO_ERROR;
         } else {
@@ -266,32 +267,6 @@ static BITMAP_FILE *create_BMP(const char *filename, unsigned int w,
     }
 
     return bmp;
-}
-
-/* get_pixel_BMP:  gets (r/g/b) values of pixel */
-static void get_pixel_BMP(BITMAP_FILE *bmp, int x, int y,
-                          unsigned char *r, unsigned char *g, unsigned char *b) {
-    int rowsize;
-
-    if (bmp) {
-        rowsize = bmp->header.info.width * 3;
-        *b = bmp->data[x + y * rowsize];
-        *g = bmp->data[x + 1 + y * rowsize];
-        *r = bmp->data[x + 2 + y * rowsize];
-    }
-}
-
-/* put_pixel_BMP:  plot a pixel at given x and y with given r/g/b values */
-static void put_pixel_BMP(BITMAP_FILE *bmp, int x, int y,
-                          unsigned char r, unsigned char g, unsigned char b) {
-    int rowsize;
-
-    if (bmp) {
-        rowsize = bmp->header.info.width * 3;
-        bmp->data[x + y * rowsize] = b;
-        bmp->data[x + 1 + y * rowsize] = g;
-        bmp->data[x + 2 + y * rowsize] = r;
-    }
 }
 
 /* display_info_BMP:  display info about the bitmap file */
