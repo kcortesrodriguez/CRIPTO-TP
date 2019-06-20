@@ -87,9 +87,9 @@ dkms.conf
 # When using Gradle or Maven with auto-import, you should exclude module files,
 # since they will be recreated, and may cause churn.  Uncomment if using
 # auto-import.
-# .idea/modules.xml
-# .idea/*.iml
-# .idea/modules
+.idea/modules.xml
+.idea/*.iml
+.idea/modules
 
 # CMake
 cmake-build-*/
@@ -154,9 +154,9 @@ fabric.properties
 # When using Gradle or Maven with auto-import, you should exclude module files,
 # since they will be recreated, and may cause churn.  Uncomment if using
 # auto-import.
-# .idea/modules.xml
-# .idea/*.iml
-# .idea/modules
+.idea/modules.xml
+.idea/*.iml
+.idea/modules
 
 # CMake
 
@@ -245,7 +245,7 @@ $RECYCLE.BIN/
 
 # End of https://www.gitignore.io/api/c,macos,clion,windows,intellij
 
-.idea
+.idea/*
 *.iml
 
 .svn
@@ -254,3 +254,4 @@ $RECYCLE.BIN/
 __MACOSX
 
 # ./pruebas //TODO remove pruebas from repo and from git cache with git cache rm
+output/
