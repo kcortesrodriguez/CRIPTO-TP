@@ -67,20 +67,19 @@ int main(int argc, char *argv[]) {
     BITMAP_FILE *secret_bmp = load_BMP(secretImage);
 
     // Load watermark bmp
-    BITMAP_FILE *watermark_bmp = load_BMP(watermarkImage);
+    BITMAP_FILE *w_bmp = load_BMP(watermarkImage);
 
     // Create Rw bmp
     char rw_bmp_name[MAX_PATH];
     memset(rw_bmp_name, 0, strlen(rw_bmp_name));
     strcat(rw_bmp_name, output_dir);
     strcat(rw_bmp_name, "RW.bmp");
-    BITMAP_FILE *rw_bmp = create_BMP(rw_bmp_name, watermark_bmp->header.info.width, watermark_bmp->header.info.height,
-                                     8);
+    BITMAP_FILE *rw_bmp = create_BMP(rw_bmp_name, w_bmp->header.info.width, w_bmp->header.info.height, 8);
 
     // Distribute secret in shadows and Rw
-    distribute(n, k, inverses, secret_bmp, watermark_bmp, rw_bmp, shadow_bmps_index, shadow_bmps);
+    distribute(n, k, inverses, secret_bmp, w_bmp, rw_bmp, shadow_bmps_index, shadow_bmps);
 
-    // Save shadow bmps
+    // Save shadow bmp
     for (int t = 0; t < n; t++) {
         write_BMP(shadow_bmps[t]);
     }
@@ -90,24 +89,43 @@ int main(int argc, char *argv[]) {
 
     // Destroy resources
     destroy_BMP(rw_bmp);
-    destroy_BMP(watermark_bmp);
+    destroy_BMP(w_bmp);
     destroy_BMP(secret_bmp);
-    freeCharMatrix(shadow_files, n);
+//    freeCharMatrix(shadow_files, n); // Free for distribution
     for (int t = 0; t < n; t++) {
         destroy_BMP(shadow_bmps[t]);
     }
 
-    // 4.3.2
-    // Por cada Sh desconcatenamos V_t y G_t
-//    long **recoveredG;
-//    long *recoveredV;
-//    for (int l = 0; l < n; ++l) {
-//        recoveredG = deconcatG(Sh[l], n, k);
-//        recoveredV = deconcatV(Sh[l], n);
-//        printMatrix(k, n, recoveredG, "Recovered G");
-//        printVector(n, recoveredV, "Recovered V");
-//        // Luego de cada G_t sacamos la R_t
-//    }
+    // Recover shadow bmps
+    for (int t = 0; t < n; t++) {
+        shadow_bmps[t] = load_BMP(shadow_files[t]);
+    }
+
+    // Traverse 8 bpp shadow image n x n bytes at a time
+    int sh_matrices = shadow_bmps[0]->header.info.image_size / (n * n);
+    for (int i = 0; i < sh_matrices; i++) {
+
+        // Traverse each participant image
+        for (int t = 0; t < n; t++) {
+            // Matrix Sh
+            // Convert shadow stream to n x n matrix
+            long **Sh = convertUint8StreamToLongMatrix(shadow_bmps[t]->data + (i * n * n), n, n);
+            if (t == 0)
+                printMatrix(n, n, Sh, shadow_files[t]);
+
+            // 4.3.2
+            // Por cada Sh desconcatenamos V_t y G_t
+            long **recoveredG = deconcatG(Sh, n, k);
+            long *recoveredV = deconcatV(Sh, n);
+            if (t == 0) {
+                printMatrix((int) ceil((double) n / k), n, recoveredG, "Recovered G");
+                printVector(n, recoveredV, "Recovered V");
+            }
+
+            // Luego de cada G_t sacamos la R_t
+        }
+
+    }
 
 
     //Start desencryption example from paper
@@ -138,6 +156,7 @@ int main(int argc, char *argv[]) {
 //    freeLongMatrix(newSd, n);
 //    freeLongMatrix(B, n);
     free(inverses);
+    freeCharMatrix(shadow_files, n); // Free from recovery
 
     return EXIT_SUCCESS;
 }

@@ -280,7 +280,7 @@ void distribute(int n,
 
         // Matrix G
         long ***G = matG(R, n, k);
-        for (int t = 0; t < n; t++) {
+        for (int t = 0; t < n && VERBOSE; t++) {
             printMatrix((int) ceil((double) n / k), n, G[t], "G_ matrix");
         }
 
