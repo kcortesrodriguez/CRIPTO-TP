@@ -222,7 +222,7 @@ void printMatrix(int k, int n, long **matrix, char *title) {
     printf("\n%s\n", title);
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < k; j++) {
-            printf("%ld ", matrix[i][j]);
+            printf("%ld\t", matrix[i][j]);
         }
         printf("\n");
     }
@@ -316,9 +316,9 @@ long **convertUint8StreamToLongMatrix(uint8_t *stream, int n, int k) {
  * @return the G_t matrix
  */
 long **deconcatG(long **mat, int n, int k) {
-    long **res = (long **) calloc(n, sizeof(long *)); //TODO free
+    long **res = (long **) calloc((size_t) n, sizeof(long *)); //TODO free
     for (int i = 0; i < n; i++)
-        res[i] = (long *) calloc(k, sizeof(long));
+        res[i] = (long *) calloc((size_t) k, sizeof(long));
 
     for (int j = 0; j < n; ++j) {
         for (int i = 1; i < k + 1; ++i) {
@@ -337,9 +337,9 @@ long **deconcatG(long **mat, int n, int k) {
  * @return the G_t matrix
  */
 long *deconcatV(long **mat, int n) {
-    long *res = (long *) calloc(n, sizeof(long)); //TODO free
+    long *res = (long *) calloc((size_t) n, sizeof(long)); //TODO free
 
-    for (int j = 0; j < n; ++j) {
+    for (int j = 0; j < n; j++) {
         res[j] = mat[j][0];
     }
 
