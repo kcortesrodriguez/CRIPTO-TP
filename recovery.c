@@ -16,49 +16,39 @@ uint8_t reverse(uint8_t b) {
 long *gaussJordan(int n, long **matrix, int inverses[251]) {
 
     //Genero una copia de la matriz matrix, pero en floats para operar sobre esta
-    float **a = (float **) malloc(n * sizeof(float *));
+    long **a = (long **) malloc(n * sizeof(long *));
     for (int i = 0; i < n; i++)
-        a[i] = (float *) calloc(n + 1, sizeof(float));
+        a[i] = (long *) calloc(((size_t) n + 1), sizeof(long));
 
     for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n + 1; j++) {
-            a[i][j] = matrix[i][j] * 1.0;
+        for (int j = 0; j < (n + 1); j++) {
+            a[i][j] = matrix[i][j];
         }
     }
 
-//    for(int i = 0 ; i < n ; i++){
-//        for(int j = 0 ; j < n + 1 ; j++){
-//            printf("%f", a[i][j]);
-//        }
-//        printf("\n");
-//    }
-
     int kprime = n + 1;
-    float t;
-    int i, j, k;
+    long t;
 
-    for (i = 0; i < n; i++) {
-        for (j = 0; j < n; j++) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
             if (i != j) {
-                t = modulo(a[j][i] * inverses[(long) a[i][i]], 251);
-                for (k = 0; k < kprime; k++)
+                t = modulo(a[j][i] * inverses[a[i][i]], 251);
+                for (int k = 0; k < kprime; k++)
                     a[j][k] = modulo(a[j][k] - modulo(a[i][k] * t, 251), 251);
             }
         }
     }
 
     //Hago un vector para devolver los valores en long!
-    long *solutionVector = calloc(n, sizeof(long));
+    long *solutionVector = calloc((size_t) n, sizeof(long));
 
-    for (i = 0; i < n; i++) {
-        solutionVector[i] = modulo(a[i][n] * inverses[(long) a[i][i]],
+    for (int i = 0; i < n; i++) {
+        solutionVector[i] = modulo(a[i][n] * inverses[a[i][i]],
                                    251); //TODO: like inverses in matrix., receive inverses
-        //printf("%f \n", a[i][n] / a[i][i]);
-        //printf("%ld \n", solutionVector[i]);
+        printf("\nsolutionVector[i]:\t%ld \n", solutionVector[i]);
     }
 
     return solutionVector;
-
 }
 
 //devuelve una matriz de j x 2
@@ -95,9 +85,9 @@ long **matrixCjV2(int j, int k) {
         a[i] = (long *) calloc(k, sizeof(long));
 
     for (int i = 0; i < j; i++) {
-        for ( int m = 0 ; m < k ; m++){
+        for (int m = 0; m < k; m++) {
             //a[i][m] = (i+1)**m
-            a[i][m] = modulo((long) pow((double) (i+1), (double) m), 251);
+            a[i][m] = modulo((long) pow((double) (i + 1), (double) m), 251);
         }
     }
 
