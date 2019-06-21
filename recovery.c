@@ -62,6 +62,7 @@ long *gaussJordan(int n, long **matrix, int inverses[251]) {
 }
 
 //devuelve una matriz de j x 2
+//DEPRECATED
 long **matrixCj(int j) {
 
     long **a = (long **) malloc(j * sizeof(long *));
@@ -81,6 +82,24 @@ long **matrixCj(int j) {
         printf("\n");
     }
      */
+
+    return a;
+
+}
+
+//devuelve la matriz de j x k
+long **matrixCjV2(int j, int k) {
+
+    long **a = (long **) malloc(j * sizeof(long *));
+    for (int i = 0; i < j; i++)
+        a[i] = (long *) calloc(k, sizeof(long));
+
+    for (int i = 0; i < j; i++) {
+        for ( int m = 0 ; m < k ; m++){
+            //a[i][m] = (i+1)**m
+            a[i][m] = modulo((long) pow((double) (i+1), (double) m), 251);
+        }
+    }
 
     return a;
 

@@ -9,6 +9,8 @@ long *gaussJordan(int n, long **matrix, int inverses[251]);
 
 long **matrixCj(int j);
 
+long **matrixCjV2(int j, int k);
+
 long **resultG(int x, int y, long ***allGs, int totalGs);
 
 void recover(int n,
