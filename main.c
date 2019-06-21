@@ -149,6 +149,9 @@ int main(int argc, char *argv[]) {
         // Initialize G vector of k matrices Gj
         long ***matG = (long ***) malloc(k * sizeof(long **)); //TODO: free
 
+        // Initialize B vector of k vectors vj
+        long **matB = (long **) malloc(k * sizeof(long *)); //TODO: free
+
         // Iterate for each shadow bmp file
         for (int shadow_bmp_index = 0; shadow_bmp_index < k; shadow_bmp_index++) {
 
@@ -181,19 +184,19 @@ int main(int argc, char *argv[]) {
 
             long **Sh = matSh[shadow_bmp_index];
 
+            printMatrix(Shj_cols, n, Sh, "Recov Sh_");
+
             // Por cada Sh desconcatenamos V_t y G_t
             long **recoveredG = deconcatG(Sh, n, k);
             long *recoveredV = deconcatV(Sh, n);
 
             matG[shadow_bmp_index] = recoveredG;
+            matB[shadow_bmp_index] = recoveredV;
         }
 
         // Matrix with 1s at first column and cjs at second column
-        //long **matCj = matrixCj(k); //DEPRECATED
-        long **matCj = matrixCjV2(k,k); //NEW
-
-        printMatrix(k,k,matCj, "matCj:");
-
+        long **matCj = matrixCjV2(k, k); //NEW
+        printMatrix(k, k, matCj, "matCj:");
 
         // Initialize recovered R
         long **recoveredR = (long **) malloc(n * sizeof(long *));
@@ -201,13 +204,12 @@ int main(int argc, char *argv[]) {
             recoveredR[i] = (long *) calloc((size_t) n, sizeof(long));
 
         // Initialize Gxy matrix (but it's really a vector)
-        long **Gxy = (long **) malloc(n * sizeof(long *));
-        for (int i = 0; i < n; i++)
+        long **Gxy = (long **) malloc(k * sizeof(long *));
+        for (int i = 0; i < k; i++)
             Gxy[i] = (long *) calloc(1, sizeof(long));
 
         // Traverse all positions of G matrices
         for (int x = 0; x < n; x++) {
-            //for (int y = 0; y < 4; y++) {
             for (int y = 0; y < (int) ceil((double) n / k); y++) {
                 // Get current G for x and y
                 Gxy = resultG(x, y, matG, k);
@@ -220,19 +222,32 @@ int main(int argc, char *argv[]) {
                 // Calculate solution vector
                 //long **concatCjGs = concatMatMat(matCj, Gxy, k, k, (int) ceil((double) n / k)); //ORIGINAL
                 long **concatCjGs = concatMatMat(matCj, Gxy, k, k, 1);
-                printMatrix(k + 1, k, concatCjGs, "la concatCjGs:"); //TODO: CHEQUEAR porque es -1
+                printMatrix(k + 1, k, concatCjGs, "la concatCjGs:");
 
                 long *solutionVector = gaussJordan(k, concatCjGs, inverses);
 
-                printVector(2, solutionVector, "solutionVector:");
+                printVector(4, solutionVector, "solutionVector:");
 
                 // Save solution vector at recovered R
-                recoveredR[x][y * 2] = solutionVector[0];
-                recoveredR[x][y * 2 + 1] = solutionVector[1];
+                recoveredR[x][0 + k * y] = solutionVector[0];
+                recoveredR[x][1 + k * y] = solutionVector[1];
+                recoveredR[x][2 + k * y] = solutionVector[2];
+                recoveredR[x][3 + k * y] = solutionVector[3];
+
+                printMatrix(n, n, recoveredR, "Recovered R:");
+
+                free(solutionVector);
             }
         }
 
-        printMatrix(n, n, recoveredR, "Recovered R:");
+        matB = transpose(matB, k, n);
+        printMatrix(k, n, matB, "Recovered V (B):");
+
+        // Matrix Sd
+        long **Sd = projectionSd(matB, n, k, inverses);
+        printMatrix(n, n, Sd, "Recovered Sd");
+
+        printMatrix(n, n, add(Sd, recoveredR, n), "Recovered S:");
     }
 
 
