@@ -43,9 +43,7 @@ long *gaussJordan(int n, long **matrix, int inverses[251]) {
     long *solutionVector = calloc((size_t) n, sizeof(long));
 
     for (int i = 0; i < n; i++) {
-        solutionVector[i] = modulo(a[i][n] * inverses[a[i][i]],
-                                   251); //TODO: like inverses in matrix., receive inverses
-        printf("\nsolutionVector[i]:\t%ld \n", solutionVector[i]);
+        solutionVector[i] = modulo(a[i][n] * inverses[a[i][i]], 251);
     }
 
     return solutionVector;
@@ -87,6 +85,7 @@ long **matrixCjV2(int j, int k) {
     for (int i = 0; i < j; i++) {
         for (int m = 0; m < k; m++) {
             //a[i][m] = (i+1)**m
+//            a[i][m] = (long) pow((double) (i + 1), (double) m);
             a[i][m] = modulo((long) pow((double) (i + 1), (double) m), 251);
         }
     }
