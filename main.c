@@ -207,6 +207,7 @@ int main(int argc, char *argv[]) {
 
         // Traverse all positions of G matrices
         for (int x = 0; x < n; x++) {
+            //for (int y = 0; y < 4; y++) {
             for (int y = 0; y < (int) ceil((double) n / k); y++) {
                 // Get current G for x and y
                 Gxy = resultG(x, y, matG, k);
@@ -217,7 +218,9 @@ int main(int argc, char *argv[]) {
                 printf("***\n");
 
                 // Calculate solution vector
-                long **concatCjGs = concatMatMat(matCj, Gxy, k, k, (int) ceil((double) n / k));
+                //long **concatCjGs = concatMatMat(matCj, Gxy, k, k, (int) ceil((double) n / k)); //ORIGINAL
+                long **concatCjGs = concatMatMat(matCj, Gxy, k, k, 1);
+                printMatrix(k + 1, k, concatCjGs, "la concatCjGs:"); //TODO: CHEQUEAR porque es -1
 
                 long *solutionVector = gaussJordan(k, concatCjGs, inverses);
 
