@@ -155,7 +155,7 @@ long ***matSh(long ***G, long **V, int n, int k) {
     long ***Sh = (long ***) malloc(n * sizeof(long **));
 
     for (int i = 0; i < n; i++) {
-        Sh[i] = concatVecMat(V[i], G[i], n, (int) (ceil((double) n / k)));
+        Sh[i] = concatVecMat(transpose(V, n, n)[i], G[i], n, (int) (ceil((double) n / k)));
     }
 
     return Sh;
@@ -277,7 +277,7 @@ void distribute(int n,
 
         // Matrix V
         long **V = matV(A, X, n, k);
-        printMatrix(k, n, V, "V matrix");
+        printMatrix(n, n, V, "V matrix");
 
         // Matrix G
         long ***G = matG(R, n, k);
