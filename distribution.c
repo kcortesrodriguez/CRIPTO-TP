@@ -24,7 +24,7 @@ long **matA(int n, int k) {
         }
     }
 
-    printMatrix(k, n, A, "A matrix");
+//    printMatrix(k, n, A, "A matrix");
 
     return A;
 }
@@ -32,18 +32,18 @@ long **matA(int n, int k) {
 long **projectionSd(long **A, int n, int k, int inverses[251]) {
 
     long **At = transpose(A, n, k);
-    printMatrix(n, k, At, "At matrix");
+//    printMatrix(n, k, At, "At matrix");
 
     long **AtA = multiply(At, A, k, k, n);
-    printMatrix(k, k, AtA, "AtA matrix");
+//    printMatrix(k, k, AtA, "AtA matrix");
 
     long det = determinantOfMatrix(AtA, k, k);
 
     if (det != 0) {
-        if (VERBOSE) printf("\n%s\n", "Inverse exists!");
+//        if (VERBOSE) printf("\n%s\n", "Inverse exists!");
 
         long **AugmentedAtaInverse = inverse(AtA, k, inverses);
-        printMatrix(k * 2, k, AugmentedAtaInverse, "AugmentedAtaInverse matrix");
+//        printMatrix(k * 2, k, AugmentedAtaInverse, "AugmentedAtaInverse matrix");
 
         long **AtAInverse = (long **) malloc(k * sizeof(long *));
         for (int i = 0; i < k; i++) AtAInverse[i] = (long *) calloc((size_t) k, sizeof(long));
@@ -55,11 +55,11 @@ long **projectionSd(long **A, int n, int k, int inverses[251]) {
             }
         }
 
-        printMatrix(k, k, AtAInverse, "AtAInverse matrix");
+//        printMatrix(k, k, AtAInverse, "AtAInverse matrix");
 
         // A * (At * A)'
         long **AxInverse = multiply(A, AtAInverse, n, k, k);
-        printMatrix(k, n, AxInverse, "AxInverse matrix");
+//        printMatrix(k, n, AxInverse, "AxInverse matrix");
 
         // (A * (At * A)') * At
         long **proj = multiply(AxInverse, At, n, n, k);
@@ -91,17 +91,17 @@ long **remainderRw(long **watermarkW, long **projectionSd, int n) {
 
 /*
  * R is the remainder matrix.
- * c is the coefficents array (from 1 to n).
+ * c is the coefficients array (from 1 to n).
  * n is the max number of participants.
  * k is the min number of participants.
  * t is the current participant index.
  */
-long *g_i_j(long **R, int initial_column, int t, int n, int k) {
-    long *res = (long *) calloc(n, sizeof(long));
+long *g_i_j(long **R, int initial_column, int cj, int n, int k) {
+    long *res = (long *) calloc((size_t) n, sizeof(long));
 
     for (int row = 0; row < n; row++) {
         for (int column = initial_column; column < k + initial_column; column++) {
-            res[row] += R[row][column] * pow((double) t, (double) (column - initial_column));
+            res[row] += modulo((long) (R[row][column] * pow((double) cj, (double) (column - initial_column))), 251);
         }
         res[row] = modulo(res[row], 251);
     }
@@ -116,16 +116,16 @@ long *g_i_j(long **R, int initial_column, int t, int n, int k) {
  * t is the current participant index.
  */
 long **matG_t(long **R, int n, int k, int t) {
-    int max_t = (int) ceil((double) n / k); // TODO: code method for create matrix !
-    long **res = (long **) calloc(max_t, sizeof(long *));
+    int G_t_cols = (int) ceil((double) n / k); // TODO: code method for create matrix !
+    long **res = (long **) calloc((size_t) G_t_cols, sizeof(long *));
 
-    for (int i = 0; i < max_t; i++) {
-        res[i] = g_i_j(R, i * 2, t, n, k);
+    for (int i = 0; i < G_t_cols; i++) {
+        res[i] = g_i_j(R, i * k, t, n, k);
     }
 
-    long **resT = transpose(res, max_t, n);
+    long **resT = transpose(res, G_t_cols, n);
 
-    freeLongMatrix(res, max_t);
+    freeLongMatrix(res, G_t_cols);
 
     return resT;
 }
@@ -235,13 +235,12 @@ void distribute(int n,
 
     // Traverse 8 bpp secret image n x n bytes at a time
     int s_matrices = secret_bmp->header.info.image_size / (n * n);
-    s_matrices = 1;
     for (int i = 0; i < s_matrices; i++) {
 
         // Matrix S
         // Convert secret stream to n x n matrix
         long **S = convertUint8StreamToLongMatrix(secret_bmp->data + (i * n * n), n, n);
-        printMatrix(n, n, S, "S matrix:");
+//        printMatrix(n, n, S, "S matrix:");
 
         // Matrix A
         long **A = matA(n, k);
@@ -252,7 +251,7 @@ void distribute(int n,
 
         // Matrix R
         long **R = remainderR(S, Sd, n);
-        printMatrix(n, n, R, "R matrix"); //TODO write in report that R matrix from paper is wrong.
+//        printMatrix(n, n, R, "R matrix"); //TODO write in report that R matrix from paper is wrong.
 
         // Matrix W
         // Convert watermark stream to n x n matrix
@@ -260,7 +259,7 @@ void distribute(int n,
 
         // Matrix Rw
         long **Rw = remainderRw(W, Sd, n);
-        printMatrix(n, n, Rw, "Rw matrix:");
+//        printMatrix(n, n, Rw, "Rw matrix:");
 
         // Fill Rw
         for (int p = 0; p < n; p++) {
@@ -273,7 +272,7 @@ void distribute(int n,
 
         // Matrix X
         long **X = matX(k, n);
-        printMatrix(n, k, X, "X matrix");
+//        printMatrix(n, k, X, "X matrix");
 
         // Matrix V
         long **V = matV(A, X, n, k);
@@ -282,14 +281,14 @@ void distribute(int n,
         // Matrix G
         long ***G = matG(R, n, k);
         for (int t = 0; t < n && VERBOSE; t++) {
-            printMatrix((int) ceil((double) n / k), n, G[t], "G_ matrix");
+//            printMatrix((int) ceil((double) n / k), n, G[t], "G_ matrix");
         }
 
         // Matrix Sh
         long ***Sh = matSh(G, V, n, k);
         uint8_t ***uint8_Sh = (uint8_t ***) malloc(n * sizeof(uint8_t **));
         for (int t = 0; t < n; t++) {
-            printMatrix((int) (ceil((double) n / k) + 1), n, Sh[t], "Sh_ matrix");
+//            printMatrix((int) (ceil((double) n / k) + 1), n, Sh[t], "Sh_ matrix");
             uint8_Sh[t] = convertMatrixFromLongToUint8(Sh[t], n, (int) (ceil((double) n / k) + 1));
         }
 
