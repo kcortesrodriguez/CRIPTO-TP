@@ -140,7 +140,7 @@ long **inverse(long **m, int n, int inverses[251]) {
         for (int j = 0; j < n; j++) {
             if (j != i) {
                 temp = modulo(mInverse[j][i] * inverses[mInverse[i][i]], 251);
-                for (int k = 0; k < 2 * n; k++) {
+                for (int k = 0; k < 2 * n; k++) { // TODO: watchout 2 * n vs. n + 1 (kprime)
                     mInverse[j][k] = modulo(mInverse[j][k] - modulo(mInverse[i][k] * temp, 251), 251);
                 }
             }
@@ -235,7 +235,7 @@ void printMatrixUint8(int k, int n, uint8_t **matrix) {
     }
 }
 
-long **concat(long *vec, long **mat, int n, int m) {
+long **concatVecMat(long *vec, long **mat, int n, int m) {
     long **res = (long **) malloc(n * sizeof(long *));
     for (int i = 0; i < n; i++) {
         res[i] = (long *) calloc(((size_t) m + 1), sizeof(long));
@@ -255,6 +255,33 @@ long **concat(long *vec, long **mat, int n, int m) {
 
     return res;
 }
+
+/*
+ * mat1 and mat2 must have the same number of rows
+ */
+long **concatMatMat(long **mat1, long **mat2, int rows, int cols1, int cols2) {
+    long **res = (long **) malloc(rows * sizeof(long *));
+    for (int i = 0; i < rows; i++) {
+        res[i] = (long *) calloc(((size_t) (cols1 + cols2)), sizeof(long));
+    }
+
+    // Fill mat1 in res
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols1; j++) {
+            res[i][j] = mat1[i][j];
+        }
+    }
+
+    // Fill mat2 in res
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols2; j++) {
+            res[i][j + cols1] = mat2[i][j];
+        }
+    }
+
+    return res;
+}
+
 
 uint8_t **convertMatrixFromLongToUint8(long **mat, int n, int k) {
     uint8_t **res = (uint8_t **) malloc(n * sizeof(uint8_t *));

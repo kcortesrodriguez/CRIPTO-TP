@@ -23,7 +23,9 @@ void printMatrix(int k, int n, long **matrix, char *title);
 
 void printMatrixUint8(int k, int n, uint8_t **matrix);
 
-long **concat(long *vec, long **mat, int n, int k);
+long **concatVecMat(long *vec, long **mat, int n, int k);
+
+long **concatMatMat(long **mat1, long **mat2, int rows, int cols1, int cols2);
 
 uint8_t **convertMatrixFromLongToUint8(long **mat, int n, int k);
 

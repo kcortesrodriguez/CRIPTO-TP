@@ -155,7 +155,7 @@ long ***matSh(long ***G, long **V, int n, int k) {
     long ***Sh = (long ***) malloc(n * sizeof(long **));
 
     for (int i = 0; i < n; i++) {
-        Sh[i] = concat(V[i], G[i], n, (int) (ceil((double) n / k)));
+        Sh[i] = concatVecMat(V[i], G[i], n, (int) (ceil((double) n / k)));
     }
 
     return Sh;
@@ -235,6 +235,7 @@ void distribute(int n,
 
     // Traverse 8 bpp secret image n x n bytes at a time
     int s_matrices = secret_bmp->header.info.image_size / (n * n);
+    s_matrices = 1;
     for (int i = 0; i < s_matrices; i++) {
 
         // Matrix S
