@@ -189,7 +189,11 @@ int main(int argc, char *argv[]) {
         }
 
         // Matrix with 1s at first column and cjs at second column
-        long **matCj = matrixCj(k);
+        //long **matCj = matrixCj(k); //DEPRECATED
+        long **matCj = matrixCjV2(k,k); //NEW
+
+        printMatrix(k,k,matCj, "matCj:");
+
 
         // Initialize recovered R
         long **recoveredR = (long **) malloc(n * sizeof(long *));
@@ -207,8 +211,14 @@ int main(int argc, char *argv[]) {
                 // Get current G for x and y
                 Gxy = resultG(x, y, matG, k);
 
+                printf("\n***");
+                printf("\nGxy con x:%d | y:%d", x, y);
+                printMatrix(1, k, Gxy, "");
+                printf("***\n");
+
                 // Calculate solution vector
-                long **concatCjGs = concatMatMat(matCj, Gxy, k, 2, (int) ceil((double) n / k));
+                long **concatCjGs = concatMatMat(matCj, Gxy, k, k, (int) ceil((double) n / k));
+
                 long *solutionVector = gaussJordan(k, concatCjGs, inverses);
 
                 printVector(2, solutionVector, "solutionVector:");
