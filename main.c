@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
     // Destroy resources
     destroy_BMP(rw_bmp);
     destroy_BMP(w_bmp);
-    destroy_BMP(secret_bmp);
+//    destroy_BMP(secret_bmp);
 //    freeCharMatrix(shadow_files, n); // Free for distribution
     for (int t = 0; t < n; t++) {
         destroy_BMP(shadow_bmps[t]);
@@ -140,7 +140,15 @@ int main(int argc, char *argv[]) {
     int divisor = Sh_size * 8; // 8 bytes from preSh are need for each byte of Sh_i
     int divisor_bytes_segments = shadow_bmps[0]->header.info.image_size / divisor;
 
-    divisor_bytes_segments = 1; //TODO: remove
+    // Create Recovered Secret bmp
+    char recovered_secret_bmp_name[MAX_PATH];
+    memset(recovered_secret_bmp_name, 0, strlen(recovered_secret_bmp_name));
+    strcat(recovered_secret_bmp_name, output_dir);
+    strcat(recovered_secret_bmp_name, "Recovered_Secret.bmp");
+    BITMAP_FILE *recovered_secret_bmp = create_BMP(recovered_secret_bmp_name, secret_bmp->header.info.width,
+                                                   secret_bmp->header.info.height, 8);
+
+    int current_recovered_secret_byte_index = 0;
 
     // Iterate for divisor bytes segments
     for (int segment_of_divisor_bytes = 0;
@@ -163,6 +171,7 @@ int main(int argc, char *argv[]) {
                 uint8_t curr_shadow_lsb_byte = (uint8_t) (shadow_bmps_recovery[shadow_bmp_index]->data[b +
                                                                                                        (segment_of_divisor_bytes *
                                                                                                         divisor)]);
+
                 uint8_t one_or_zero = (uint8_t) (curr_shadow_lsb_byte & 0x01);
 
                 matSh[shadow_bmp_index][row][col] = (uint8_t) ((matSh[shadow_bmp_index][row][col] << 1) | one_or_zero);
@@ -184,7 +193,7 @@ int main(int argc, char *argv[]) {
 
             long **Sh = matSh[shadow_bmp_index];
 
-            printMatrix(Shj_cols, n, Sh, "Recov Sh_");
+//            printMatrix(Shj_cols, n, Sh, "Recov Sh_");
 
             // Por cada Sh desconcatenamos V_t y G_t
             long **recoveredG = deconcatG(Sh, n, k);
@@ -196,7 +205,7 @@ int main(int argc, char *argv[]) {
 
         // Matrix with 1s at first column and cjs at second column
         long **matCj = matrixCjV2(k, k); //NEW
-        printMatrix(k, k, matCj, "matCj:");
+//        printMatrix(k, k, matCj, "matCj:");
 
         // Initialize recovered R
         long **recoveredR = (long **) malloc(n * sizeof(long *));
@@ -214,19 +223,19 @@ int main(int argc, char *argv[]) {
                 // Get current G for x and y
                 Gxy = resultG(x, y, matG, k);
 
-                printf("\n***");
-                printf("\nGxy con x:%d | y:%d", x, y);
-                printMatrix(1, k, Gxy, "");
-                printf("***\n");
+//                printf("\n***");
+//                printf("\nGxy con x:%d | y:%d", x, y);
+//                printMatrix(1, k, Gxy, "");
+//                printf("***\n");
 
                 // Calculate solution vector
                 //long **concatCjGs = concatMatMat(matCj, Gxy, k, k, (int) ceil((double) n / k)); //ORIGINAL
                 long **concatCjGs = concatMatMat(matCj, Gxy, k, k, 1);
-                printMatrix(k + 1, k, concatCjGs, "la concatCjGs:");
+//                printMatrix(k + 1, k, concatCjGs, "la concatCjGs:");
 
                 long *solutionVector = gaussJordan(k, concatCjGs, inverses);
 
-                printVector(4, solutionVector, "solutionVector:");
+//                printVector(k, solutionVector, "solutionVector:");
 
                 // Save solution vector at recovered R
                 recoveredR[x][0 + k * y] = solutionVector[0];
@@ -234,134 +243,45 @@ int main(int argc, char *argv[]) {
                 recoveredR[x][2 + k * y] = solutionVector[2];
                 recoveredR[x][3 + k * y] = solutionVector[3];
 
-                printMatrix(n, n, recoveredR, "Recovered R:");
-
                 free(solutionVector);
             }
         }
 
+//        printMatrix(n, n, recoveredR, "Recovered R:");
+
+        // Matrix Recovered V
         matB = transpose(matB, k, n);
         printMatrix(k, n, matB, "Recovered V (B):");
 
-        // Matrix Sd
+        // Matrix Recovered Sd
         long **Sd = projectionSd(matB, n, k, inverses);
         printMatrix(n, n, Sd, "Recovered Sd");
 
-        printMatrix(n, n, add(Sd, recoveredR, n), "Recovered S:");
-    }
+        // Matrix Recovered S
+        long **recoveredS = add(Sd, recoveredR, n);
+//        printMatrix(n, n, recoveredS, "Recovered S:");
 
+        // Fill recovered S to bmp
+        for (int p = 0; p < n; p++) {
+            for (int q = 0; q < n; q++) {
+                // Set bit on rw_bmp->data
+                recovered_secret_bmp->data[current_recovered_secret_byte_index] = (uint8_t) recoveredS[p][q];
 
+                if (recovered_secret_bmp->data[current_recovered_secret_byte_index] !=
+                    secret_bmp->data[current_recovered_secret_byte_index]) {
+                    int estamos_en_problemas = 1;
+                }
 
-
-
-
-
-//    for (int i = 0; i < sh_matrices; i++) {
-//
-//        // Initialize G vector of k matrices Gj
-//        long ***matG = (long ***) malloc(k * sizeof(long **)); //TODO: free
-//
-//        // Traverse each participant image
-//        for (int t = 0; t < k; t++) {
-//
-//            int row = shadow_bmps_recover_index[t] / Shj_cols;
-//            int col = shadow_bmps_recover_index[t] % Shj_cols;
-//
-//            for (int b = 0; b < divisor; b++) {
-//                uint8_t curr_shadow_lsb_byte = (uint8_t) (shadow_bmps[t]->data[b + (i * divisor)]);
-//                uint8_t one_or_zero = (uint8_t) (curr_shadow_lsb_byte & 0x01);
-//
-//                matSh[t][row][col] = (uint8_t) ((matSh[t][row][col] << 1) | one_or_zero);
-//
-//                if ((b + 1) % 8 == 0) {
-//                    col++; // Advance to next Shj col
-//                    if ((col % Shj_cols) == 0) {
-//                        col = 0;
-//                        row++; // Advance to next Shj row
-//                    }
-//                    if ((row % n) == 0) // Advance to next Shj
-//                        break;
-//                }
-//            }
-//
-//            shadow_bmps_recover_index[t]++;
-//
-//            long **Sh = matSh[t];
-//
-//            if (t == 0)
-//                printMatrix(Shj_cols, n, Sh, "Sh matrix");
-//
-//            // Por cada Sh desconcatenamos V_t y G_t
-////            long **recoveredG = deconcatG(Sh, n, k);
-////            long *recoveredV = deconcatV(Sh, n);
-////
-////            matG[t] = recoveredG;
-//        }
-
-
-    /*
-
-        // Matrix with 1s at first column and cjs at second column
-        long **matCj = matrixCj(k);
-
-        // Initialize recovered R
-        long **recoveredR = (long **) malloc(n * sizeof(long *));
-        for (i = 0; i < n; i++)
-            recoveredR[i] = (long *) calloc((size_t) n, sizeof(long));
-
-        // Initialize Gxy matrix (but it's really a vector)
-        long **Gxy = (long **) malloc(n * sizeof(long *));
-        for (i = 0; i < n; i++)
-            Gxy[i] = (long *) calloc(1, sizeof(long));
-
-        // Traverse all positions of G matrices
-        for (int x = 0; x < n; x++) {
-            for (int y = 0; y < (int) ceil((double) n / k); y++) {
-                // Get current G for x and y
-                Gxy = resultG(x, y, matG, k);
-
-                // Calculate solution vector
-                long **concatCjGs = concatMatMat(matCj, Gxy, k, 2, (int) ceil((double) n / k));
-                long *solutionVector = gaussJordan(k, concatCjGs, inverses);
-
-//                printVector(2, solutionVector, "solutionVector:");
-
-                // Save solution vector at recovered R
-                recoveredR[x][y * 2] = solutionVector[0];
-                recoveredR[x][y * 2 + 1] = solutionVector[1];
+                current_recovered_secret_byte_index++;
             }
         }
-
-//        printMatrix(n, n, recoveredR, "Recovered R:");
     }
 
-     */
+    // Save Recovered_Secret.bmp
+    write_BMP(recovered_secret_bmp);
 
+    // Load watermark bmp
 
-    //Start desencryption example from paper
-
-//    k = 2;
-//    n = 4;
-//
-//    long **B = (long **) malloc(n * sizeof(long *));
-//    for (int i = 0; i < n; i++)
-//        B[i] = (long *) calloc((size_t) k, sizeof(long));
-//
-//    B[0][0] = 62L;
-//    B[0][1] = 40L;
-//    B[1][0] = 59L;
-//    B[1][1] = 28L;
-//    B[2][0] = 43L;
-//    B[2][1] = 28L;
-//    B[3][0] = 84L;
-//    B[3][1] = 48L;
-//
-//    printMatrix(k, n, B, "B Matrix");
-//
-//    long **newSd = projectionSd(B, n, k, inverses);
-//
-//    printMatrix(n, n, newSd, "Reconstruction Sd Matrix from B Matrix:");
-//
     // Destroy resources
 //    freeLongMatrix(newSd, n);
 //    freeLongMatrix(B, n);

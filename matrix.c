@@ -119,7 +119,7 @@ long **inverse(long **m, int n, int inverses[251]) {
         }
     }
 
-    printMatrix(2 * n, n, mInverse, "Aug plus id matrix");
+//    printMatrix(2 * n, n, mInverse, "Aug plus id matrix");
 
     // Interchange the row of matrix, starting from the last row
     for (int i = n - 1; i > 0; i--) {
