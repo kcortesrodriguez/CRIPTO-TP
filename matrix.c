@@ -210,12 +210,6 @@ void printVector(int k, long *array, char *title) {
     printf("\n");
 }
 
-void printVectorUint8(int k, uint8_t *array) {
-    for (int i = 0; i < k; i++) {
-        printf("\t%d", array[i]);
-    }
-}
-
 void printMatrix(int k, int n, long **matrix, char *title) {
     if (!VERBOSE) return;
     printf("\n%s\n", title);
@@ -223,13 +217,6 @@ void printMatrix(int k, int n, long **matrix, char *title) {
         for (int j = 0; j < k; j++) {
             printf("%ld\t", matrix[i][j]);
         }
-        printf("\n");
-    }
-}
-
-void printMatrixUint8(int k, int n, uint8_t **matrix) {
-    for (int i = 0; i < n; i++) {
-        printVectorUint8(k, matrix[i]);
         printf("\n");
     }
 }

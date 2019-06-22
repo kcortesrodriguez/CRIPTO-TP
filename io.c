@@ -112,6 +112,11 @@ void parseParameters(int argc, char *argv[],
         }
     }
 
+    // Check 2 =< k <= n
+    if (*k < 2 || *k > *n) {
+        errx(EXIT_FAILURE, "2 =< k <= n");
+    }
+
     // Check exclusive option: either distribute or recover
     if (distribute && recover) {
         errx(EXIT_FAILURE, "-d and -r cannot be used together");
