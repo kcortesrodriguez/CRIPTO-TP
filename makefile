@@ -4,7 +4,7 @@ default:
 	@rm -rf build
 	@echo "\\"
 	@mkdir build
-	@cd build && cmake ../src >/dev/null && @echo "|" && make >/dev/null
+	@cd build && cmake .. >/dev/null && echo "|" >/dev/null && make >/dev/null
 	@echo "/"
 	@echo "Cleaning"
 	@echo "-"
