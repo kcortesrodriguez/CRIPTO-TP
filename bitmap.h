@@ -26,8 +26,7 @@ enum {
     BITMAP_NO_ERROR,
     BITMAP_CREATE_ERROR,
     BITMAP_OPEN_ERROR,
-    BITMAP_WRITE_ERROR,
-    BITMAP_UNKNOWN_ERROR
+    BITMAP_WRITE_ERROR
 };
 
 #pragma pack(push, 1)
@@ -214,7 +213,6 @@ static BITMAP_FILE *create_BMP(const char *filename, unsigned int w,
     bmp->header.info.num_imp = 0;
 
 
-    // RGBQUAD aColors[256]
     int RGBQUAD_index = 0;
     for (int i = 0; i < 256; i++) {
         // 3 times i
