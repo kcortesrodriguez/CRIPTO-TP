@@ -1,3 +1,5 @@
+#include "global.h"
+
 #ifndef CRIPTO_TP_MATRIX_H
 #define CRIPTO_TP_MATRIX_H
 
