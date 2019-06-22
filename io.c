@@ -16,7 +16,9 @@ void parseParameters(int argc, char *argv[],
                      char *secretImage, char *retrievedImage,
                      char *watermarkImage, char *watermarkTransformationImage,
                      char *directory,
-                     int *k, int *n) {
+                     int *k,
+                     int *n,
+                     bool *isDistribute) {
 
     struct option longopts[] = {
             {"dir", required_argument, NULL, 'i'},
@@ -26,7 +28,7 @@ void parseParameters(int argc, char *argv[],
     const char *usageFormat = "Usage: %s [-d | -r] -s filename.bmp -m filename.bmp -k -n --dir directory\n";
 
     bool distribute = false;
-    bool retrieve = false;
+    bool recover = false;
     int opt;
 
     while ((opt = getopt_long(argc, argv, "drs:m:k:n:i:v", longopts, NULL)) != -1) {
@@ -38,7 +40,7 @@ void parseParameters(int argc, char *argv[],
                 distribute = true;
                 break;
             case 'r':
-                retrieve = true;
+                recover = true;
                 break;
             case 's':
                 if (distribute) {
@@ -53,7 +55,7 @@ void parseParameters(int argc, char *argv[],
                         exit(EXIT_FAILURE);
                     }
 
-                } else if (retrieve) {
+                } else if (recover) {
                     strncpy(retrievedImage, optarg, size - 1);
                     retrievedImage[size - 1] = 0;
 
@@ -64,7 +66,6 @@ void parseParameters(int argc, char *argv[],
                         fprintf(stderr, usageFormat, argv[0]);
                         exit(EXIT_FAILURE);
                     }
-
                 }
                 break;
             case 'm':
@@ -80,7 +81,7 @@ void parseParameters(int argc, char *argv[],
                         exit(EXIT_FAILURE);
                     }
 
-                } else if (retrieve) {
+                } else if (recover) {
                     strncpy(watermarkTransformationImage, optarg, size - 1);
                     watermarkTransformationImage[size - 1] = 0;
 
@@ -91,7 +92,6 @@ void parseParameters(int argc, char *argv[],
                         fprintf(stderr, usageFormat, argv[0]);
                         exit(EXIT_FAILURE);
                     }
-
                 }
                 break;
             case 'k':
@@ -110,11 +110,13 @@ void parseParameters(int argc, char *argv[],
         }
     }
 
-    // Check exclusive option: either distribute or retrieve
-    if (distribute && retrieve) {
+    // Check exclusive option: either distribute or recover
+    if (distribute && recover) {
         errx(EXIT_FAILURE, "-d and -r cannot be used together");
     }
 
+    // If distribute is true, isDistribute = true, otherwise the program will recover
+    *isDistribute = distribute;
 }
 
 const char *get_filename_ext(const char *filename) {
