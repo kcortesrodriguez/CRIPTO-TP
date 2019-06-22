@@ -7,6 +7,7 @@
 #include <fts.h>
 #include <sys/stat.h>
 #include <libgen.h>
+#include <dirent.h>
 #include "global.h"
 
 #define MAX_STRING 260
@@ -183,9 +184,8 @@ char **get_shadow_files(char *directory, int n) {
 }
 
 void createDirectory(char *path) {
-    struct stat st = {0};
 
-    if (stat(path, &st) == -1) {
+    if ((int) opendir(path) != 0 ) {
         mkdir(path, 0700);
     }
 }
