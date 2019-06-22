@@ -11,6 +11,7 @@
 #include "modular.h"
 #include "global.h"
 #include "io.h"
+#include "recovery.h"
 
 // rank k
 // det != 0
@@ -316,15 +317,33 @@ static void run(int n,
                 for (int b = 0; b < (int) (ceil((double) n / k) + 1); b++) {
                     uint8_t current_byte = uint8_Sh[t][a][b];
 
-                    // Traverse bits of current byte
-                    for (int l = 0; l < 8; l++) {
-                        uint8_t one_or_zero = (uint8_t) ((current_byte >> l) & 0x01);
+                    if (k == 4 && n == 8) {
+                        // Traverse bits of current byte
+                        for (int l = 0; l < 8; l++) {
+                            uint8_t one_or_zero = (uint8_t) ((current_byte >> l) & 0x01);
 
-                        // Set bit on shadow
-                        uint8_t current_movie_byte = (uint8_t) shadow_bmps[t]->data[current_shadow_byte_index];
-                        shadow_bmps[t]->data[current_shadow_byte_index] =
-                                (uint8_t) (current_movie_byte & ~1) | one_or_zero;
-                        current_shadow_byte_index++;
+                            // Set bit on shadow
+                            uint8_t current_movie_byte = (uint8_t) shadow_bmps[t]->data[current_shadow_byte_index];
+                            shadow_bmps[t]->data[current_shadow_byte_index] =
+                                    (uint8_t) (current_movie_byte & ~1) | one_or_zero;
+                            current_shadow_byte_index++;
+                        }
+                    } else if (k == 2 && n == 4) {
+                        // Traverse bits of current byte
+                        for (int l = 0; l < 8; l = l + 2) {
+                            uint8_t first_one_or_zero = (uint8_t) ((current_byte >> l) & 0x01);
+                            uint8_t second_one_or_zero = (uint8_t) ((current_byte >> (l + 1)) & 0x01);
+
+                            uint8_t last_two_bits = (uint8_t) (2 * first_one_or_zero + 1 * second_one_or_zero);
+                            // Set bit on shadow
+                            uint8_t current_movie_byte = (uint8_t) shadow_bmps[t]->data[current_shadow_byte_index];
+                            shadow_bmps[t]->data[current_shadow_byte_index] =
+                                    (uint8_t) (current_movie_byte & ~3) | last_two_bits;
+                            current_shadow_byte_index++;
+                        }
+
+                    } else {
+                        errx(EXIT_FAILURE, "k and n not (2,4) or (4,8) for LSB.");
                     }
                 }
             }

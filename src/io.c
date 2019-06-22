@@ -164,12 +164,13 @@ char **get_shadow_files(char *directory, int n) {
 
     // Traverse directory
     int shadow_index = n - 1;
-    while ((p = fts_read(ftsp)) != NULL) {
+    while ((p = fts_read(ftsp)) != NULL && (shadow_index + 1)) {
         switch (p->fts_info) {
             case FTS_F:
                 // No file at subfolders, only at present level
                 if (p->fts_level == 1 && (strcmp("bmp", get_filename_ext(basename(p->fts_path))) == 0)) {
-                    strncpy(shadow_files[shadow_index--], p->fts_path, MAX_STRING);
+                    strncpy(shadow_files[shadow_index], p->fts_path, MAX_STRING);
+                    shadow_index = shadow_index - 1;
                 }
                 break;
             default:
