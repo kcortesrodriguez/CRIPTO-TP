@@ -18,8 +18,7 @@ uint8_t reverse(uint8_t b) {
 }
 
 long *gaussJordan(int n, long **matrix, int inverses[251]) {
-
-    //Genero una copia de la matriz matrix, pero en floats para operar sobre esta
+    // Genero una copia de la matriz matrix
     long **a = (long **) malloc(n * sizeof(long *));
     for (int i = 0; i < n; i++)
         a[i] = (long *) calloc(((size_t) n + 1), sizeof(long));
@@ -43,9 +42,8 @@ long *gaussJordan(int n, long **matrix, int inverses[251]) {
         }
     }
 
-    //Hago un vector para devolver los valores en long!
+    // Hago un vector para devolver los valores en long!
     long *solutionVector = calloc((size_t) n, sizeof(long));
-
     for (int i = 0; i < n; i++) {
         solutionVector[i] = modulo(a[i][n] * inverses[a[i][i]], 251);
     }
