@@ -174,9 +174,8 @@ long **add(long **mat1, long **mat2, int n) {
 }
 
 long **subtract(long **mat1, long **mat2, int n) {
-
     long **res = (long **) malloc(n * sizeof(long *));
-    for (int i = 0; i < n; i++) res[i] = (long *) calloc(n, sizeof(long));
+    for (int i = 0; i < n; i++) res[i] = (long *) calloc((size_t) n, sizeof(long));
 
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {

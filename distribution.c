@@ -24,8 +24,6 @@ long **matA(int n, int k) {
         }
     }
 
-//    printMatrix(k, n, A, "A matrix");
-
     return A;
 }
 
@@ -240,10 +238,12 @@ void distribute(int n,
         // Matrix S
         // Convert secret stream to n x n matrix
         long **S = convertUint8StreamToLongMatrix(secret_bmp->data + (i * n * n), n, n);
+        truncateBytesTo250(S, n);
 //        printMatrix(n, n, S, "S matrix:");
 
         // Matrix A
         long **A = matA(n, k);
+//        printMatrix(k, n, A, "A matrix");
 
         // Matrix Sd
         long **Sd = projectionSd(A, n, k, inverses);
@@ -276,7 +276,7 @@ void distribute(int n,
 
         // Matrix V
         long **V = matV(A, X, n, k);
-        printMatrix(n, n, V, "V matrix");
+//        printMatrix(n, n, V, "V matrix");
 
         // Matrix G
         long ***G = matG(R, n, k);
@@ -288,7 +288,8 @@ void distribute(int n,
         long ***Sh = matSh(G, V, n, k);
         uint8_t ***uint8_Sh = (uint8_t ***) malloc(n * sizeof(uint8_t **));
         for (int t = 0; t < n; t++) {
-//            printMatrix((int) (ceil((double) n / k) + 1), n, Sh[t], "Sh_ matrix");
+//            if (t == 0)
+//                printMatrix((int) (ceil((double) n / k) + 1), n, Sh[t], "Sh_ matrix");
             uint8_Sh[t] = convertMatrixFromLongToUint8(Sh[t], n, (int) (ceil((double) n / k) + 1));
         }
 
@@ -340,5 +341,15 @@ void distribute(int n,
             freeCharMatrix((char **) uint8_Sh[t], n);
         }
         free(uint8_Sh);
+    }
+}
+
+void truncateBytesTo250(long **S, int n) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (((uint8_t) S[i][j]) > 250) {
+                S[i][j] = 250L;
+            }
+        }
     }
 }

@@ -30,6 +30,8 @@ void initialize_shadow_bmp_files(int n,
                                  BITMAP_FILE **shadow_bmps,
                                  char *output_lsb_dir);
 
+void truncateBytesTo250(long **S, int n);
+
 void distribute(int n,
                 int k,
                 int *inverses,

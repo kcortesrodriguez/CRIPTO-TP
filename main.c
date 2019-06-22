@@ -90,8 +90,8 @@ int main(int argc, char *argv[]) {
     write_BMP(rw_bmp);
 
     // Destroy resources
-    destroy_BMP(rw_bmp);
-    destroy_BMP(w_bmp);
+//    destroy_BMP(rw_bmp);
+//    destroy_BMP(w_bmp);
 //    destroy_BMP(secret_bmp);
 //    freeCharMatrix(shadow_files, n); // Free for distribution
     for (int t = 0; t < n; t++) {
@@ -140,6 +140,14 @@ int main(int argc, char *argv[]) {
     int divisor = Sh_size * 8; // 8 bytes from preSh are need for each byte of Sh_i
     int divisor_bytes_segments = shadow_bmps[0]->header.info.image_size / divisor;
 
+    // Create Recovered Watermark bmp
+    char recovered_wm_bmp_name[MAX_PATH];
+    memset(recovered_wm_bmp_name, 0, strlen(recovered_wm_bmp_name));
+    strcat(recovered_wm_bmp_name, output_dir);
+    strcat(recovered_wm_bmp_name, "Recovered_Watermark.bmp");
+    BITMAP_FILE *recovered_wm_bmp = create_BMP(recovered_wm_bmp_name, w_bmp->header.info.width,
+                                               w_bmp->header.info.height, 8);
+
     // Create Recovered Secret bmp
     char recovered_secret_bmp_name[MAX_PATH];
     memset(recovered_secret_bmp_name, 0, strlen(recovered_secret_bmp_name));
@@ -149,6 +157,8 @@ int main(int argc, char *argv[]) {
                                                    secret_bmp->header.info.height, 8);
 
     int current_recovered_secret_byte_index = 0;
+
+    int current_recovered_wp_byte_index = 0;
 
     // Iterate for divisor bytes segments
     for (int segment_of_divisor_bytes = 0;
@@ -180,6 +190,10 @@ int main(int argc, char *argv[]) {
                     // Reverse byte for correct writing to bmp
                     matSh[shadow_bmp_index][row][col] = reverse((uint8_t) matSh[shadow_bmp_index][row][col]);
 
+                    if (matSh[shadow_bmp_index][row][col] > 250) {
+                        int ke = 0;
+                    }
+
                     // Advance to next Shj col
                     col++;
                     if ((col % Shj_cols) == 0) {
@@ -193,7 +207,8 @@ int main(int argc, char *argv[]) {
 
             long **Sh = matSh[shadow_bmp_index];
 
-//            printMatrix(Shj_cols, n, Sh, "Recov Sh_");
+//            if (shadow_bmp_index == 0)
+//                printMatrix(Shj_cols, n, Sh, "Recov Sh_");
 
             // Por cada Sh desconcatenamos V_t y G_t
             long **recoveredG = deconcatG(Sh, n, k);
@@ -251,7 +266,7 @@ int main(int argc, char *argv[]) {
 
         // Matrix Recovered V
         matB = transpose(matB, k, n);
-        printMatrix(k, n, matB, "Recovered V (B):");
+//        printMatrix(k, n, matB, "Recovered V (B):");
 
         // Matrix Recovered Sd
         long **Sd = projectionSd(matB, n, k, inverses);
@@ -259,7 +274,15 @@ int main(int argc, char *argv[]) {
 
         // Matrix Recovered S
         long **recoveredS = add(Sd, recoveredR, n);
-//        printMatrix(n, n, recoveredS, "Recovered S:");
+//        printMatrix(n, n, recoveredS, "Pre Recovered S:");
+
+        long **currentRw = convertUint8StreamToLongMatrix(rw_bmp->data + (current_recovered_wp_byte_index * n * n), n,
+                                                          n);
+        current_recovered_wp_byte_index++;
+
+        // Matrix Recovered W
+        long **recoveredW = add(Sd, currentRw, n);
+//        printMatrix(n, n, recoveredW, "Recovered W:");
 
         // Fill recovered S to bmp
         for (int p = 0; p < n; p++) {
@@ -267,10 +290,18 @@ int main(int argc, char *argv[]) {
                 // Set bit on rw_bmp->data
                 recovered_secret_bmp->data[current_recovered_secret_byte_index] = (uint8_t) recoveredS[p][q];
 
+
+                if (recovered_secret_bmp->data[current_recovered_secret_byte_index] > 250) {
+                    int estamos_en_problemas = 1;
+                }
+
                 if (recovered_secret_bmp->data[current_recovered_secret_byte_index] !=
                     secret_bmp->data[current_recovered_secret_byte_index]) {
                     int estamos_en_problemas = 1;
                 }
+
+                // Save recovered W
+                recovered_wm_bmp->data[current_recovered_secret_byte_index] = (uint8_t) recoveredW[p][q];
 
                 current_recovered_secret_byte_index++;
             }
@@ -279,6 +310,9 @@ int main(int argc, char *argv[]) {
 
     // Save Recovered_Secret.bmp
     write_BMP(recovered_secret_bmp);
+
+    // Save Recovered_Watermark.bmp
+    write_BMP(recovered_wm_bmp);
 
     // Load watermark bmp
 
