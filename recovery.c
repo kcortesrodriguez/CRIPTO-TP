@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include <err.h>
 #include "modular.h"
 #include "global.h"
 #include "recovery.h"
@@ -91,13 +92,13 @@ long **resultG(int x, int y, long ***allGs, int totalGs) {
 }
 
 static void run(int n,
-         int k,
-         int *inverses,
-         BITMAP_FILE **shadow_bmps_recovery,
-         BITMAP_FILE *rw_bmp,
-         BITMAP_FILE *recovered_secret_bmp,
-         BITMAP_FILE *recovered_wm_bmp,
-         BITMAP_FILE *secret_bmp) {
+                int k,
+                int *inverses,
+                BITMAP_FILE **shadow_bmps_recovery,
+                BITMAP_FILE *rw_bmp,
+                BITMAP_FILE *recovered_secret_bmp,
+                BITMAP_FILE *recovered_wm_bmp,
+                BITMAP_FILE *secret_bmp) {
 
     // Initialize Sh vector of k matrices Shj
     long ***matSh = (long ***) malloc(k * sizeof(long **)); //TODO: free
@@ -273,7 +274,12 @@ static void run(int n,
     }
 }
 
-void recover(int n, int k, int *inverses, char *retrievedImage, char *watermarkTransformationImage, char *output_dir) {
+void recover(int n,
+             int k,
+             int *inverses,
+             char *retrievedImage,
+             char *watermarkTransformationImage,
+             char *output_dir) {
 
     // Create output/lsb directory
     char output_lsb_recovery_dir[MAX_PATH];
@@ -291,6 +297,12 @@ void recover(int n, int k, int *inverses, char *retrievedImage, char *watermarkT
     for (int t = 0; t < k; t++) {
         // Load shadow bmp modified at distribution by LSB
         shadow_bmps_recovery[t] = load_BMP(shadow_bmp_output_files[t]);
+
+        // If image size is not the same as secret's, abort
+        if (shadow_bmps_recovery[t]->header.info.width != shadow_bmps_recovery[0]->header.info.width
+            || shadow_bmps_recovery[t]->header.info.height != shadow_bmps_recovery[0]->header.info.height) {
+            errx(EXIT_FAILURE, "A share bmp width or height does not equal secret's.");
+        }
     }
 
     // Load Rw bmp
@@ -307,7 +319,6 @@ void recover(int n, int k, int *inverses, char *retrievedImage, char *watermarkT
     // Create Recovered Secret bmp
     char recovered_secret_bmp_name[MAX_PATH];
     memset(recovered_secret_bmp_name, 0, strlen(recovered_secret_bmp_name));
-//    strcat(recovered_secret_bmp_name, output_dir);
     strcat(recovered_secret_bmp_name, retrievedImage);
     BITMAP_FILE *recovered_secret_bmp = create_BMP(recovered_secret_bmp_name, rw_bmp->header.info.width,
                                                    rw_bmp->header.info.height, 8);
