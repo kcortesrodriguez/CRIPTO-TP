@@ -13,8 +13,10 @@
 
 void parseParameters(int argc, char *argv[],
                      size_t size,
-                     char *secretImage, char *retrievedImage,
-                     char *watermarkImage, char *watermarkTransformationImage,
+                     char *secretImage,
+                     char *retrievedImage,
+                     char *watermarkImage,
+                     char *watermarkTransformationImage,
                      char *directory,
                      int *k,
                      int *n,

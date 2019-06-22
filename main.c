@@ -57,10 +57,16 @@ int main(int argc, char *argv[]) {
                 secretImage,
                 watermarkImage,
                 output_dir,
-                shadowDirectory);
-
+                shadowDirectory); // Where shares reside
     } else {
 
+        recover(
+                n,
+                k,
+                inverses,
+                retrievedImage,
+                watermarkTransformationImage,
+                output_dir); // Where shares modified with LSB will be saved
     }
 
     // Destroy resources

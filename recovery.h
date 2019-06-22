@@ -11,13 +11,6 @@ long **matrixCj(int j, int k);
 
 long **resultG(int x, int y, long ***allGs, int totalGs);
 
-void recovery(int n,
-              int k,
-              int *inverses,
-              BITMAP_FILE *secret_bmp,
-              BITMAP_FILE *watermark_bmp,
-              BITMAP_FILE *rw_bmp,
-              BITMAP_FILE **shadow_bmps,
-              char *output_dir);
+void recover(int n, int k, int *inverses, char *retrievedImage, char *watermarkTransformationImage, char *output_dir);
 
 #endif //CRIPTO_TP_RECOVERY_H

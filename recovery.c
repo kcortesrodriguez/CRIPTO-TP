@@ -90,35 +90,20 @@ long **resultG(int x, int y, long ***allGs, int totalGs) {
     return returnMatrix;
 }
 
-void recovery(int n,
-              int k,
-              int *inverses,
-              BITMAP_FILE *secret_bmp,
-              BITMAP_FILE *watermark_bmp,
-              BITMAP_FILE *rw_bmp,
-              BITMAP_FILE **shadow_bmps,
-              char *output_dir) {
-
-    // Create output/lsb directory
-    char output_lsb_recovery_dir[MAX_PATH];
-    strcat(output_lsb_recovery_dir, "./");
-    strcat(output_lsb_recovery_dir, output_dir);
-    strcat(output_lsb_recovery_dir, "lsb");
-
-    // Shadow bmp recovery array
-    BITMAP_FILE *shadow_bmps_recovery[n];
-
-    // Get shadow bmp files at output directory
-    char **shadow_bmp_output_files = get_shadow_files(output_lsb_recovery_dir, n);
+static void run(int n,
+         int k,
+         int *inverses,
+         BITMAP_FILE **shadow_bmps_recovery,
+         BITMAP_FILE *rw_bmp,
+         BITMAP_FILE *recovered_secret_bmp,
+         BITMAP_FILE *recovered_wm_bmp,
+         BITMAP_FILE *secret_bmp) {
 
     // Initialize Sh vector of k matrices Shj
     long ***matSh = (long ***) malloc(k * sizeof(long **)); //TODO: free
 
     // Recover shadow bmps
     for (int t = 0; t < k; t++) {
-        // Load shadow bmp modified at distribution by LSB
-        shadow_bmps_recovery[t] = load_BMP(shadow_bmp_output_files[t]);
-
         // Initialize Shj
         long **res = (long **) calloc((size_t) n, sizeof(long *)); //TODO free
         for (int i = 0; i < n; i++)
@@ -133,23 +118,7 @@ void recovery(int n,
     int Shj_cols = Gj_cols + 1;
     int Sh_size = n * Shj_cols; // size in number of bytes of matrix; n rows, 1 is for vector V
     int divisor = Sh_size * 8; // 8 bytes from preSh are need for each byte of Sh_i
-    int divisor_bytes_segments = shadow_bmps[0]->header.info.image_size / divisor;
-
-    // Create Recovered Watermark bmp
-    char recovered_wm_bmp_name[MAX_PATH];
-    memset(recovered_wm_bmp_name, 0, strlen(recovered_wm_bmp_name));
-    strcat(recovered_wm_bmp_name, output_dir);
-    strcat(recovered_wm_bmp_name, "Recovered_Watermark.bmp");
-    BITMAP_FILE *recovered_wm_bmp = create_BMP(recovered_wm_bmp_name, watermark_bmp->header.info.width,
-                                               watermark_bmp->header.info.height, 8);
-
-    // Create Recovered Secret bmp
-    char recovered_secret_bmp_name[MAX_PATH];
-    memset(recovered_secret_bmp_name, 0, strlen(recovered_secret_bmp_name));
-    strcat(recovered_secret_bmp_name, output_dir);
-    strcat(recovered_secret_bmp_name, "Recovered_Secret.bmp");
-    BITMAP_FILE *recovered_secret_bmp = create_BMP(recovered_secret_bmp_name, secret_bmp->header.info.width,
-                                                   secret_bmp->header.info.height, 8);
+    int divisor_bytes_segments = shadow_bmps_recovery[0]->header.info.image_size / divisor;
 
     // Current recovered secret bmp byte index
     int current_recovered_secret_byte_index = 0;
@@ -302,6 +271,54 @@ void recovery(int n,
             }
         }
     }
+}
+
+void recover(int n, int k, int *inverses, char *retrievedImage, char *watermarkTransformationImage, char *output_dir) {
+
+    // Create output/lsb directory
+    char output_lsb_recovery_dir[MAX_PATH];
+    strcat(output_lsb_recovery_dir, "./");
+    strcat(output_lsb_recovery_dir, output_dir);
+    strcat(output_lsb_recovery_dir, "lsb");
+
+    // Shadow bmp recovery array
+    BITMAP_FILE *shadow_bmps_recovery[n];
+
+    // Get shadow bmp files at output directory
+    char **shadow_bmp_output_files = get_shadow_files(output_lsb_recovery_dir, n);
+
+    // Recover shadow bmps
+    for (int t = 0; t < k; t++) {
+        // Load shadow bmp modified at distribution by LSB
+        shadow_bmps_recovery[t] = load_BMP(shadow_bmp_output_files[t]);
+    }
+
+    // Load Rw bmp
+    BITMAP_FILE *rw_bmp = load_BMP(watermarkTransformationImage);
+
+    // Create Recovered Watermark bmp
+    char recovered_wm_bmp_name[MAX_PATH];
+    memset(recovered_wm_bmp_name, 0, strlen(recovered_wm_bmp_name));
+    strcat(recovered_wm_bmp_name, output_dir);
+    strcat(recovered_wm_bmp_name, "Recovered_Watermark.bmp");
+    BITMAP_FILE *recovered_wm_bmp = create_BMP(recovered_wm_bmp_name, rw_bmp->header.info.width,
+                                               rw_bmp->header.info.height, 8);
+
+    // Create Recovered Secret bmp
+    char recovered_secret_bmp_name[MAX_PATH];
+    memset(recovered_secret_bmp_name, 0, strlen(recovered_secret_bmp_name));
+//    strcat(recovered_secret_bmp_name, output_dir);
+    strcat(recovered_secret_bmp_name, retrievedImage);
+    BITMAP_FILE *recovered_secret_bmp = create_BMP(recovered_secret_bmp_name, rw_bmp->header.info.width,
+                                                   rw_bmp->header.info.height, 8);
+
+
+    // TODO: secret_bmp should not be passed to run, only for debugging
+    // Load Rw bmp
+    BITMAP_FILE *secret_bmp = load_BMP(watermarkTransformationImage);
+
+    // Recover secret in shadows and watermark
+    run(n, k, inverses, shadow_bmps_recovery, rw_bmp, recovered_secret_bmp, recovered_wm_bmp, secret_bmp);
 
     // Save Recovered_Secret.bmp
     write_BMP(recovered_secret_bmp);
@@ -310,8 +327,5 @@ void recovery(int n,
     write_BMP(recovered_wm_bmp);
 
     // Destroy resources
-//    freeLongMatrix(newSd, n);
-//    freeLongMatrix(B, n);
-    freeCharMatrix(shadow_bmp_output_files, n); // Free from recovery
+    freeCharMatrix(shadow_bmp_output_files, n);
 }
-

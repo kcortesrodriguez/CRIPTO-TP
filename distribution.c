@@ -219,14 +219,14 @@ void initialize_shadow_bmp_files(int n, char **shadow_files, BITMAP_FILE **shado
     }
 }
 
-void run(int n,
-         int k,
-         int *inverses,
-         BITMAP_FILE *secret_bmp,
-         BITMAP_FILE *watermark_bmp,
-         BITMAP_FILE *rw_bmp,
-         int *shadow_bmps_index,
-         BITMAP_FILE **shadow_bmps) {
+static void run(int n,
+                int k,
+                int *inverses,
+                BITMAP_FILE *secret_bmp,
+                BITMAP_FILE *watermark_bmp,
+                BITMAP_FILE *rw_bmp,
+                int *shadow_bmps_index,
+                BITMAP_FILE **shadow_bmps) {
 
     // Current Rw byte index
     int current_rw_byte_index = 0;
