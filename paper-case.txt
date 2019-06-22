@@ -69,7 +69,7 @@
         recoveredR[i] = (long *) calloc((size_t) n, sizeof(long));
 
     // Matrix with 1s at first column and cjs at second column
-    long **matCj = matrixCjV2(k, k); //NEW
+    long **matCj = matrixCj(k, k); //NEW
     printMatrix(k, k, matCj, "matCj:");
 
     // Initialize Gxy matrix (but it's really a vector)
