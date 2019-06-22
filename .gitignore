@@ -254,6 +254,6 @@ $RECYCLE.BIN/
 __MACOSX
 
 # ./pruebas //TODO remove pruebas from repo and from git cache with git cache rm
-./output/
-./paper-case.txt
-./pruebas/
+output/
+paper-case.txt
+pruebas/
