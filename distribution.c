@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <math.h>
 #include <libgen.h>
+#include <err.h>
 #include "random.h"
 #include "distribution.h"
 #include "matrix.h"
@@ -192,7 +193,12 @@ long **matX(int k, int n) {
     return res;
 }
 
-void initialize_shadow_bmp_files(int n, char **shadow_files, BITMAP_FILE **shadow_bmps, char *output_lsb_dir) {
+void initialize_shadow_bmp_files(int n,
+                                 char **shadow_files,
+                                 BITMAP_FILE **shadow_bmps,
+                                 char *output_lsb_dir,
+                                 unsigned int secret_width,
+                                 unsigned int secret_height) {
 
     // Traverse shadow bmp files
     for (int t = 0; t < n; t++) {
@@ -202,6 +208,12 @@ void initialize_shadow_bmp_files(int n, char **shadow_files, BITMAP_FILE **shado
 
         // Load bmp
         BITMAP_FILE *shadow_bmp = load_BMP(shadow_bmp_path);
+
+        // If image size is not the same as secret's, abort
+        if (shadow_bmp->header.info.width != secret_width
+            || shadow_bmp->header.info.height != secret_height) {
+            errx(EXIT_FAILURE, "A share bmp width or height does not equal secret's.");
+        }
 
         // Set new name for bmp
         char lsb_shadow_bmp_name[MAX_PATH];
@@ -365,15 +377,20 @@ void distribute(int n,
     // Get shadow files at directory
     char **shadow_files = get_shadow_files(shadowDirectory, n);
 
-    // Initialize shadow bmp files
-    initialize_shadow_bmp_files(n, shadow_files, shadow_bmps, output_lsb_dir);
-
     // Initialize shadow bmp index array
     int shadow_bmps_index[n];
     memset(shadow_bmps_index, 0, n * sizeof(int));
 
     // Load secret bmp
     BITMAP_FILE *secret_bmp = load_BMP(secretImage);
+
+    // Initialize shadow bmp files
+    initialize_shadow_bmp_files(n,
+                                shadow_files,
+                                shadow_bmps,
+                                output_lsb_dir,
+                                secret_bmp->header.info.width,
+                                secret_bmp->header.info.height);
 
     // Load watermark bmp
     BITMAP_FILE *w_bmp = load_BMP(watermarkImage);

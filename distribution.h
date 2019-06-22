@@ -28,7 +28,9 @@ long **matX(int k, int n);
 void initialize_shadow_bmp_files(int n,
                                  char **shadow_files,
                                  BITMAP_FILE **shadow_bmps,
-                                 char *output_lsb_dir);
+                                 char *output_lsb_dir,
+                                 unsigned int secret_width,
+                                 unsigned int secret_height);
 
 void truncateBytesTo250(long **S, int n);
 
