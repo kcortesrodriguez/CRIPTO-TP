@@ -35,10 +35,9 @@ void truncateBytesTo250(long **S, int n);
 void distribute(int n,
                 int k,
                 int *inverses,
-                BITMAP_FILE *secret_bmp,
-                BITMAP_FILE *watermark_bmp,
-                BITMAP_FILE *rw_bmp,
-                int *shadow_bmps_index,
-                BITMAP_FILE **shadow_bmps);
+                char *secretImage,
+                char *watermarkImage,
+                char *output_dir,
+                char *shadowDirectory);
 
 #endif //CRIPTO_TP_DISTRIBUTION_H
