@@ -9,7 +9,6 @@
 #include "matrix.h"
 #include "distribution.h"
 
-
 uint8_t reverse(uint8_t b) {
     b = (b & 0xF0) >> 4 | (b & 0x0F) << 4;
     b = (b & 0xCC) >> 2 | (b & 0x33) << 2;
@@ -59,14 +58,14 @@ long *gaussJordan(int n, long **matrix, int inverses[251]) {
  * @param k columns, and limit power
  * @return
  */
-long **matrixCj(int j, int k) {
+long **matrixCj(int j, int k, BITMAP_FILE **shadow_bmps_recovery) {
     long **a = (long **) malloc(j * sizeof(long *));
     for (int i = 0; i < j; i++)
         a[i] = (long *) calloc((size_t) k, sizeof(long));
 
     for (int i = 0; i < j; i++) {
         for (int m = 0; m < k; m++) {
-            a[i][m] = modulo((long) pow((double) (i + 1), (double) m), 251);
+            a[i][m] = modulo((long) pow((double) (shadow_bmps_recovery[i]->header.file.res1 + 1), (double) m), 251);
         }
     }
 
@@ -185,7 +184,7 @@ static void run(int n,
         }
 
         // Matrix with 1s at first column and cjs at second column
-        long **matCj = matrixCj(k, k);
+        long **matCj = matrixCj(k, k, shadow_bmps_recovery);
 //        printMatrix(k, k, matCj, "matCj:");
 
         // Initialize recovered R
@@ -260,14 +259,14 @@ static void run(int n,
                 // Set bit on rw_bmp->data
                 recovered_secret_bmp->data[current_recovered_secret_byte_index] = (uint8_t) recoveredS[p][q];
 
-                if (recovered_secret_bmp->data[current_recovered_secret_byte_index] > 250) {
-                    int estamos_en_problemas = 1;
-                }
-
-                if (recovered_secret_bmp->data[current_recovered_secret_byte_index] !=
-                    secret_bmp->data[current_recovered_secret_byte_index]) {
-                    int estamos_en_problemas = 1;
-                }
+//                if (recovered_secret_bmp->data[current_recovered_secret_byte_index] > 250) {
+//                    int estamos_en_problemas = 1;
+//                }
+//
+//                if (recovered_secret_bmp->data[current_recovered_secret_byte_index] !=
+//                    secret_bmp->data[current_recovered_secret_byte_index]) {
+//                    int estamos_en_problemas = 1;
+//                }
 
                 // Save recovered W
                 recovered_wm_bmp->data[current_recovered_secret_byte_index] = (uint8_t) recoveredW[p][q];
@@ -279,24 +278,41 @@ static void run(int n,
     }
 }
 
+void bubbleSortBitmapFiles(BITMAP_FILE **arr, int n) {
+    // Base case
+    if (n == 1)
+        return;
+
+    // One pass of bubble sort. After
+    // this pass, the largest element
+    // is moved (or bubbled) to end.
+    for (int i = 0; i < n - 1; i++)
+        if (arr[i]->header.file.res1 > arr[i + 1]->header.file.res1) {
+            BITMAP_FILE *aux = arr[i];
+            arr[i] = arr[i + 1];
+            arr[i + 1] = aux;
+        }
+
+    // Largest element is fixed,
+    // recur for remaining array
+    bubbleSortBitmapFiles(arr, n - 1);
+}
+
 void recover(int n,
              int k,
              int *inverses,
-             char *retrievedImage,
-             char *watermarkTransformationImage,
-             char *output_dir) {
-
-    // Create output/lsb directory
-    char output_lsb_recovery_dir[MAX_PATH];
-    strcat(output_lsb_recovery_dir, output_dir);
-    strcat(output_lsb_recovery_dir, "lsb");
+             char retrievedImage[260],
+             char watermarkTransformationImage[260],
+             char output_dir[260],
+             char shadowDirectory[260]) {
 
     // Shadow bmp recovery array
-    BITMAP_FILE *shadow_bmps_recovery[n];
+    BITMAP_FILE *shadow_bmps_recovery[k];
 
     // Get shadow bmp files at output directory
-    char **shadow_bmp_output_files = get_shadow_files(output_lsb_recovery_dir, n);
+    char **shadow_bmp_output_files = get_shadow_files(shadowDirectory, k);
 
+    printf("Pre sort\n");
     // Recover shadow bmps
     for (int t = 0; t < k; t++) {
         // Load shadow bmp modified at distribution by LSB
@@ -307,6 +323,18 @@ void recover(int n,
             || shadow_bmps_recovery[t]->header.info.height != shadow_bmps_recovery[0]->header.info.height) {
             errx(EXIT_FAILURE, "A share bmp width or height does not equal other bmps.");
         }
+
+        printf("order-name:\t%d\t%s\n", shadow_bmps_recovery[t]->header.file.res1, shadow_bmps_recovery[t]->fname);
+    }
+
+    // Sort shadow bmps by order number at reserved byte
+    bubbleSortBitmapFiles(shadow_bmps_recovery, k);
+//    sort_shadow_bmps_by_order_number(shadow_bmps_recovery, k);
+
+    printf("\nPost sort\n");
+    // Recover shadow bmps
+    for (int t = 0; t < k; t++) {
+        printf("order-name:\t%d\t%s\n", shadow_bmps_recovery[t]->header.file.res1, shadow_bmps_recovery[t]->fname);
     }
 
     // Load Rw bmp
@@ -342,5 +370,5 @@ void recover(int n,
     write_BMP(recovered_wm_bmp);
 
     // Destroy resources
-    freeCharMatrix(shadow_bmp_output_files, n);
+    freeCharMatrix(shadow_bmp_output_files, k);
 }
