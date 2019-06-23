@@ -10,6 +10,7 @@
 #include <dirent.h>
 #include <limits.h>
 #include "global.h"
+#include <unistd.h>
 
 #define MAX_STRING 260
 
