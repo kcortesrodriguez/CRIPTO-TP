@@ -26,8 +26,7 @@ enum {
     BITMAP_NO_ERROR,
     BITMAP_CREATE_ERROR,
     BITMAP_OPEN_ERROR,
-    BITMAP_WRITE_ERROR,
-    BITMAP_UNKNOWN_ERROR
+    BITMAP_WRITE_ERROR
 };
 
 #pragma pack(push, 1)
@@ -74,44 +73,6 @@ static void destroy_BMP(BITMAP_FILE *bmp) {
             free(bmp->data);
         free(bmp);
     }
-}
-
-/* check_BMP:  checks for error; reports if one found */
-static int check_BMP(BITMAP_FILE *bmp) {
-    if (bmp) {
-        switch (bmp->error) {
-            case BITMAP_NO_ERROR:
-#ifdef DEBUG
-                printf("Error: None\n");
-#endif
-                break;
-            case BITMAP_CREATE_ERROR:
-                printf("Error: Cannot create %s\n",
-                       bmp->fname);
-                destroy_BMP(bmp);
-                break;
-            case BITMAP_OPEN_ERROR:
-                printf("Error: Cannot open file %s\n",
-                       bmp->fname);
-                destroy_BMP(bmp);
-                break;
-            case BITMAP_WRITE_ERROR:
-                printf("Error: Cannot write file %s\n",
-                       bmp->fname);
-                destroy_BMP(bmp);
-                break;
-            case BITMAP_UNKNOWN_ERROR:
-                printf("Error: Unknown error\n");
-                destroy_BMP(bmp);
-                break;
-            default:
-                printf("Not a valid error code.\n");
-                break;
-        }
-        return bmp->error;
-    }
-    printf("Error: BITMAP_FILE variable not set\n");
-    return 6;
 }
 
 /* load_BMP:  loads an image file into a bitmap data structure */
@@ -252,7 +213,6 @@ static BITMAP_FILE *create_BMP(const char *filename, unsigned int w,
     bmp->header.info.num_imp = 0;
 
 
-    // RGBQUAD aColors[256]
     int RGBQUAD_index = 0;
     for (int i = 0; i < 256; i++) {
         // 3 times i
@@ -267,29 +227,6 @@ static BITMAP_FILE *create_BMP(const char *filename, unsigned int w,
     }
 
     return bmp;
-}
-
-/* display_info_BMP:  display info about the bitmap file */
-static void display_info_BMP(BITMAP_FILE *bmp) {
-    if (bmp) {
-        printf("***INFO BELOW ***\n"
-               "***********************************\n"
-               "BITMAP HEADER            : %u\n"
-               "BITMAP SIZE              : %u\n"
-               "BITMAP OFFSET            : %u\n"
-               "BITMAP WIDTH             : %u\n"
-               "BITMAP HEIGHT            : %u\n"
-               "BITMAP BITS PER PIXEL    : %u\n"
-               "***********************************\n",
-               bmp->header.file.header, bmp->header.file.size,
-               bmp->header.file.offset, bmp->header.info.width,
-               bmp->header.info.height, bmp->header.info.bpp);
-/*		printf("*** Data Below ***\n"
-			"***********************************\n"
-			"%s\n"
-			"***********************************\n",
-			bmp->data); */
-    }
 }
 
 #endif

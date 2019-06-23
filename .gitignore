@@ -253,5 +253,8 @@ $RECYCLE.BIN/
 .DC*
 __MACOSX
 
-# ./pruebas //TODO remove pruebas from repo and from git cache with git cache rm
 output/
+paper-case.txt
+pruebas/
+build
+CRIPTO_TP

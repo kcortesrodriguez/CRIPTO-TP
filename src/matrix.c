@@ -119,7 +119,7 @@ long **inverse(long **m, int n, int inverses[251]) {
         }
     }
 
-    printMatrix(2 * n, n, mInverse, "Aug plus id matrix");
+//    printMatrix(2 * n, n, mInverse, "Aug plus id matrix");
 
     // Interchange the row of matrix, starting from the last row
     for (int i = n - 1; i > 0; i--) {
@@ -140,7 +140,7 @@ long **inverse(long **m, int n, int inverses[251]) {
         for (int j = 0; j < n; j++) {
             if (j != i) {
                 temp = modulo(mInverse[j][i] * inverses[mInverse[i][i]], 251);
-                for (int k = 0; k < 2 * n; k++) {
+                for (int k = 0; k < 2 * n; k++) { // TODO: watchout 2 * n vs. n + 1 (kprime)
                     mInverse[j][k] = modulo(mInverse[j][k] - modulo(mInverse[i][k] * temp, 251), 251);
                 }
             }
@@ -161,7 +161,7 @@ long **inverse(long **m, int n, int inverses[251]) {
 
 long **add(long **mat1, long **mat2, int n) {
     long **res = (long **) malloc(n * sizeof(long *));
-    for (int i = 0; i < n; i++) res[i] = (long *) calloc(n, sizeof(long));
+    for (int i = 0; i < n; i++) res[i] = (long *) calloc((size_t) n, sizeof(long));
 
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
@@ -174,9 +174,8 @@ long **add(long **mat1, long **mat2, int n) {
 }
 
 long **subtract(long **mat1, long **mat2, int n) {
-
     long **res = (long **) malloc(n * sizeof(long *));
-    for (int i = 0; i < n; i++) res[i] = (long *) calloc(n, sizeof(long));
+    for (int i = 0; i < n; i++) res[i] = (long *) calloc((size_t) n, sizeof(long));
 
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
@@ -211,31 +210,18 @@ void printVector(int k, long *array, char *title) {
     printf("\n");
 }
 
-void printVectorUint8(int k, uint8_t *array) {
-    for (int i = 0; i < k; i++) {
-        printf("\t%d", array[i]);
-    }
-}
-
 void printMatrix(int k, int n, long **matrix, char *title) {
     if (!VERBOSE) return;
     printf("\n%s\n", title);
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < k; j++) {
-            printf("%ld ", matrix[i][j]);
+            printf("%ld\t", matrix[i][j]);
         }
         printf("\n");
     }
 }
 
-void printMatrixUint8(int k, int n, uint8_t **matrix) {
-    for (int i = 0; i < n; i++) {
-        printVectorUint8(k, matrix[i]);
-        printf("\n");
-    }
-}
-
-long **concat(long *vec, long **mat, int n, int m) {
+long **concatVecMat(long *vec, long **mat, int n, int m) {
     long **res = (long **) malloc(n * sizeof(long *));
     for (int i = 0; i < n; i++) {
         res[i] = (long *) calloc(((size_t) m + 1), sizeof(long));
@@ -255,6 +241,33 @@ long **concat(long *vec, long **mat, int n, int m) {
 
     return res;
 }
+
+/*
+ * mat1 and mat2 must have the same number of rows
+ */
+long **concatMatMat(long **mat1, long **mat2, int rows, int cols1, int cols2) {
+    long **res = (long **) malloc(rows * sizeof(long *));
+    for (int i = 0; i < rows; i++) {
+        res[i] = (long *) calloc(((size_t) (cols1 + cols2)), sizeof(long));
+    }
+
+    // Fill mat1 in res
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols1; j++) {
+            res[i][j] = mat1[i][j];
+        }
+    }
+
+    // Fill mat2 in res
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols2; j++) {
+            res[i][j + cols1] = mat2[i][j];
+        }
+    }
+
+    return res;
+}
+
 
 uint8_t **convertMatrixFromLongToUint8(long **mat, int n, int k) {
     uint8_t **res = (uint8_t **) malloc(n * sizeof(uint8_t *));
@@ -289,9 +302,9 @@ long **convertUint8StreamToLongMatrix(uint8_t *stream, int n, int k) {
  * @return the G_t matrix
  */
 long **deconcatG(long **mat, int n, int k) {
-    long **res = (long **) calloc(n, sizeof(long *)); //TODO free
+    long **res = (long **) calloc((size_t) n, sizeof(long *)); //TODO free
     for (int i = 0; i < n; i++)
-        res[i] = (long *) calloc(k, sizeof(long));
+        res[i] = (long *) calloc((size_t) k, sizeof(long));
 
     for (int j = 0; j < n; ++j) {
         for (int i = 1; i < k + 1; ++i) {
@@ -310,9 +323,9 @@ long **deconcatG(long **mat, int n, int k) {
  * @return the G_t matrix
  */
 long *deconcatV(long **mat, int n) {
-    long *res = (long *) calloc(n, sizeof(long)); //TODO free
+    long *res = (long *) calloc((size_t) n, sizeof(long)); //TODO free
 
-    for (int j = 0; j < n; ++j) {
+    for (int j = 0; j < n; j++) {
         res[j] = mat[j][0];
     }
 

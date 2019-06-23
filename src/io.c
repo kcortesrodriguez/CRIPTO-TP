@@ -7,16 +7,23 @@
 #include <fts.h>
 #include <sys/stat.h>
 #include <libgen.h>
+#include <dirent.h>
+#include <limits.h>
 #include "global.h"
+#include <unistd.h>
 
 #define MAX_STRING 260
 
 void parseParameters(int argc, char *argv[],
                      size_t size,
-                     char *secretImage, char *retrievedImage,
-                     char *watermarkImage, char *watermarkTransformationImage,
+                     char *secretImage,
+                     char *retrievedImage,
+                     char *watermarkImage,
+                     char *watermarkTransformationImage,
                      char *directory,
-                     int *k, int *n) {
+                     int *k,
+                     int *n,
+                     bool *isDistribute) {
 
     struct option longopts[] = {
             {"dir", required_argument, NULL, 'i'},
@@ -26,7 +33,7 @@ void parseParameters(int argc, char *argv[],
     const char *usageFormat = "Usage: %s [-d | -r] -s filename.bmp -m filename.bmp -k -n --dir directory\n";
 
     bool distribute = false;
-    bool retrieve = false;
+    bool recover = false;
     int opt;
 
     while ((opt = getopt_long(argc, argv, "drs:m:k:n:i:v", longopts, NULL)) != -1) {
@@ -38,7 +45,7 @@ void parseParameters(int argc, char *argv[],
                 distribute = true;
                 break;
             case 'r':
-                retrieve = true;
+                recover = true;
                 break;
             case 's':
                 if (distribute) {
@@ -53,7 +60,7 @@ void parseParameters(int argc, char *argv[],
                         exit(EXIT_FAILURE);
                     }
 
-                } else if (retrieve) {
+                } else if (recover) {
                     strncpy(retrievedImage, optarg, size - 1);
                     retrievedImage[size - 1] = 0;
 
@@ -64,7 +71,6 @@ void parseParameters(int argc, char *argv[],
                         fprintf(stderr, usageFormat, argv[0]);
                         exit(EXIT_FAILURE);
                     }
-
                 }
                 break;
             case 'm':
@@ -80,7 +86,7 @@ void parseParameters(int argc, char *argv[],
                         exit(EXIT_FAILURE);
                     }
 
-                } else if (retrieve) {
+                } else if (recover) {
                     strncpy(watermarkTransformationImage, optarg, size - 1);
                     watermarkTransformationImage[size - 1] = 0;
 
@@ -91,7 +97,6 @@ void parseParameters(int argc, char *argv[],
                         fprintf(stderr, usageFormat, argv[0]);
                         exit(EXIT_FAILURE);
                     }
-
                 }
                 break;
             case 'k':
@@ -110,11 +115,18 @@ void parseParameters(int argc, char *argv[],
         }
     }
 
-    // Check exclusive option: either distribute or retrieve
-    if (distribute && retrieve) {
+    // Check 2 =< k <= n
+    if (*k < 2 || *k > *n) {
+        errx(EXIT_FAILURE, "2 =< k <= n");
+    }
+
+    // Check exclusive option: either distribute or recover
+    if (distribute && recover) {
         errx(EXIT_FAILURE, "-d and -r cannot be used together");
     }
 
+    // If distribute is true, isDistribute = true, otherwise the program will recover
+    *isDistribute = distribute;
 }
 
 const char *get_filename_ext(const char *filename) {
@@ -155,12 +167,14 @@ char **get_shadow_files(char *directory, int n) {
 
     // Traverse directory
     int shadow_index = n - 1;
-    while ((p = fts_read(ftsp)) != NULL) {
+    while ((p = fts_read(ftsp)) != NULL && (shadow_index + 1)) {
         switch (p->fts_info) {
             case FTS_F:
                 // No file at subfolders, only at present level
                 if (p->fts_level == 1 && (strcmp("bmp", get_filename_ext(basename(p->fts_path))) == 0)) {
-                    strncpy(shadow_files[shadow_index--], p->fts_path, MAX_STRING);
+                    strncpy(shadow_files[shadow_index], p->fts_path, MAX_STRING);
+//                    printf("levantó:\t%s\n", p->fts_path);
+                    shadow_index = shadow_index - 1;
                 }
                 break;
             default:
@@ -173,10 +187,29 @@ char **get_shadow_files(char *directory, int n) {
     return shadow_files;
 }
 
-void createDirectory(char *path) {
-    struct stat st = {0};
+static void mkdirRecursive(const char *path, mode_t mode) {
+    char opath[PATH_MAX];
+    char *p;
+    size_t len;
 
-    if (stat(path, &st) == -1) {
-        mkdir(path, 0700);
-    }
+    strncpy(opath, path, sizeof(opath));
+    opath[sizeof(opath) - 1] = '\0';
+    len = strlen(opath);
+    if (len == 0)
+        return;
+    else if (opath[len - 1] == '/')
+        opath[len - 1] = '\0';
+    for(p = opath; *p; p++)
+        if (*p == '/') {
+            *p = '\0';
+            if (access(opath, F_OK))
+                mkdir(opath, mode);
+            *p = '/';
+        }
+    if (access(opath, F_OK))         /* if path is not terminated with / */
+        mkdir(opath, mode);
+}
+
+void createDirectory(char *path) {
+    mkdirRecursive(path, S_IRWXU);
 }
