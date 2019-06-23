@@ -225,7 +225,7 @@ void initialize_shadow_bmp_files(int n,
         strcpy(shadow_bmp->fname, lsb_shadow_bmp_name);
 
         // Save order number at reserved byte
-        shadow_bmp->header.file.res1 = (unsigned short) (t + 1);
+        shadow_bmp->header.file.res1 = (unsigned short) t;
 
         // Set altered shadow bmp file
         shadow_bmps[t] = shadow_bmp;
