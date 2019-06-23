@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
                 output_dir,
                 shadowDirectory); // Where shares reside
 
-    } else { //TODO: remove comment
+    } else {
 
         recover(
                 n,
