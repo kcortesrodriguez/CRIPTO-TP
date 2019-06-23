@@ -1,14 +1,14 @@
 default:
 	@echo "Building project"
-	@echo "-"
+	@echo "."
 	@rm -rf build
-	@echo "\\"
+	@echo "."
 	@mkdir build
-	@cd build && cmake .. >/dev/null && echo "|" >/dev/null && make >/dev/null
-	@echo "/"
+	@cd build && cmake .. &>/dev/null && echo "." && make &>/dev/null
+	@echo "."
 	@echo "Cleaning"
-	@echo "-"
+	@echo "."
 	@mv build/CRIPTO_TP CRIPTO_TP
-	@echo "\\"
+	@echo "."
 	@rm -rf build
 	@echo "Cheers!!! Happy crypting!"
