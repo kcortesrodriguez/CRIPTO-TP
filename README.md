@@ -47,10 +47,10 @@ Distribute the secret “Secreto.bmp” with watermark “Marca.bmp” with sche
 ./CRIPTO_TP -d -s ./pruebas/Secreto.bmp -m ./pruebas/Marca.bmp -k 4 -n 8 --dir ./pruebas/shares
 ```
 
-Retrieve secret “secreto.bmp”, with watermark “Rw.bmp” (at output) with scheme (4,8) looking for images at “output/lsb"
+Retrieve secret “secreto.bmp”, with watermark “RW.bmp” (at output) with scheme (4,8) looking for images at “output/lsb"
 
 ```
-./CRIPTO_TP -r -s ./output/Secreto.bmp -m ./output/Rw.bmp -k 4 -n 8 --dir ./output/lsb
+./CRIPTO_TP -r -s ./output/Secreto.bmp -m ./output/RW.bmp -k 4 -n 8 --dir ./output/lsb
 ```
 
 If you wish you can run with a verbose option, including ```-v``` at the end.
