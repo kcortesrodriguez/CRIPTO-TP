@@ -394,6 +394,7 @@ void distribute(int n,
 
     // Create output/lsb directory
     char output_lsb_dir[MAX_PATH];
+    memset(output_lsb_dir, 0, MAX_PATH);
     strcat(output_lsb_dir, output_dir);
     strcat(output_lsb_dir, "lsb/");
     createDirectory(output_lsb_dir);
