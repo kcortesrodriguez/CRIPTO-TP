@@ -307,34 +307,40 @@ void recover(int n,
              char shadowDirectory[260]) {
 
     // Shadow bmp recovery array
-    BITMAP_FILE *shadow_bmps_recovery[k];
+    BITMAP_FILE *n_shadow_bmps_recovery[n];
 
     // Get shadow bmp files at output directory
-    char **shadow_bmp_output_files = get_shadow_files(shadowDirectory, k);
+    char **shadow_bmp_output_files = get_shadow_files(shadowDirectory, n);
 
     printf("Pre sort\n");
     // Recover shadow bmps
-    for (int t = 0; t < k; t++) {
+    for (int t = 0; t < n; t++) {
         // Load shadow bmp modified at distribution by LSB
-        shadow_bmps_recovery[t] = load_BMP(shadow_bmp_output_files[t]);
+        n_shadow_bmps_recovery[t] = load_BMP(shadow_bmp_output_files[t]);
 
         // If image size is not the same as secret's, abort
-        if (shadow_bmps_recovery[t]->header.info.width != shadow_bmps_recovery[0]->header.info.width
-            || shadow_bmps_recovery[t]->header.info.height != shadow_bmps_recovery[0]->header.info.height) {
+        if (n_shadow_bmps_recovery[t]->header.info.width != n_shadow_bmps_recovery[0]->header.info.width
+            || n_shadow_bmps_recovery[t]->header.info.height != n_shadow_bmps_recovery[0]->header.info.height) {
             errx(EXIT_FAILURE, "A share bmp width or height does not equal other bmps.");
         }
 
-        printf("order-name:\t%d\t%s\n", shadow_bmps_recovery[t]->header.file.res1, shadow_bmps_recovery[t]->fname);
+        printf("order-name:\t%d\t%s\n", n_shadow_bmps_recovery[t]->header.file.res1, n_shadow_bmps_recovery[t]->fname);
     }
 
     // Sort shadow bmps by order number at reserved byte
-    bubbleSortBitmapFiles(shadow_bmps_recovery, k);
-//    sort_shadow_bmps_by_order_number(shadow_bmps_recovery, k);
+    bubbleSortBitmapFiles(n_shadow_bmps_recovery, n);
 
     printf("\nPost sort\n");
     // Recover shadow bmps
+    for (int t = 0; t < n; t++) {
+        printf("order-name:\t%d\t%s\n", n_shadow_bmps_recovery[t]->header.file.res1, n_shadow_bmps_recovery[t]->fname);
+    }
+
+    // Shadow bmp recovery array of only 4
+    BITMAP_FILE *shadow_bmps_recovery[k];
     for (int t = 0; t < k; t++) {
-        printf("order-name:\t%d\t%s\n", shadow_bmps_recovery[t]->header.file.res1, shadow_bmps_recovery[t]->fname);
+        shadow_bmps_recovery[t] = n_shadow_bmps_recovery[t+3];
+        printf("\tk order-name:\t%d\t%s\n", shadow_bmps_recovery[t]->header.file.res1, shadow_bmps_recovery[t]->fname);
     }
 
     // Load Rw bmp
