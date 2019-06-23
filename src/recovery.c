@@ -307,14 +307,14 @@ void recover(int n,
              char shadowDirectory[260]) {
 
     // Shadow bmp recovery array
-    BITMAP_FILE *n_shadow_bmps_recovery[n];
+    BITMAP_FILE *n_shadow_bmps_recovery[k];
 
     // Get shadow bmp files at output directory
-    char **shadow_bmp_output_files = get_shadow_files(shadowDirectory, n);
+    char **shadow_bmp_output_files = get_shadow_files(shadowDirectory, k);
 
     printf("Pre sort\n");
     // Recover shadow bmps
-    for (int t = 0; t < n; t++) {
+    for (int t = 0; t < k; t++) {
         // Load shadow bmp modified at distribution by LSB
         n_shadow_bmps_recovery[t] = load_BMP(shadow_bmp_output_files[t]);
 
@@ -328,18 +328,18 @@ void recover(int n,
     }
 
     // Sort shadow bmps by order number at reserved byte
-    bubbleSortBitmapFiles(n_shadow_bmps_recovery, n);
+    bubbleSortBitmapFiles(n_shadow_bmps_recovery, k);
 
     printf("\nPost sort\n");
     // Recover shadow bmps
-    for (int t = 0; t < n; t++) {
+    for (int t = 0; t < k; t++) {
         printf("order-name:\t%d\t%s\n", n_shadow_bmps_recovery[t]->header.file.res1, n_shadow_bmps_recovery[t]->fname);
     }
 
     // Shadow bmp recovery array of only 4
     BITMAP_FILE *shadow_bmps_recovery[k];
     for (int t = 0; t < k; t++) {
-        shadow_bmps_recovery[t] = n_shadow_bmps_recovery[t+3];
+        shadow_bmps_recovery[t] = n_shadow_bmps_recovery[t];
         printf("\tk order-name:\t%d\t%s\n", shadow_bmps_recovery[t]->header.file.res1, shadow_bmps_recovery[t]->fname);
     }
 
