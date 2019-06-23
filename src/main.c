@@ -59,14 +59,14 @@ int main(int argc, char *argv[]) {
                 output_dir,
                 shadowDirectory); // Where shares reside
 
-//    } else { //TODO: remove comment
+    } else { //TODO: remove comment
 
         recover(
                 n,
                 k,
                 inverses,
-                "./output/Secreto.bmp",
-                "./output/Rw.bmp",
+                retrievedImage,
+                watermarkTransformationImage,
                 output_dir); // Where shares modified with LSB will be saved
     }
 

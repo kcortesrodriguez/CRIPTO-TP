@@ -186,7 +186,13 @@ char **get_shadow_files(char *directory, int n) {
 
 void createDirectory(char *path) {
 
-    if ((int) opendir(path) != 0 ) {
-        mkdir(path, 0700);
+    int res1 = (int) opendir(path);
+    if (res1 == 0) {
+        int res2 = mkdir(path, 0777);
+        if (res2 != 0) {
+            char aux[MAX_LEN];
+            sprintf(aux, "Could not create %s", path);
+            errx(EXIT_FAILURE, aux);
+        }
     }
 }

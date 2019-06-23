@@ -260,7 +260,6 @@ static void run(int n,
                 // Set bit on rw_bmp->data
                 recovered_secret_bmp->data[current_recovered_secret_byte_index] = (uint8_t) recoveredS[p][q];
 
-
                 if (recovered_secret_bmp->data[current_recovered_secret_byte_index] > 250) {
                     int estamos_en_problemas = 1;
                 }
@@ -289,7 +288,6 @@ void recover(int n,
 
     // Create output/lsb directory
     char output_lsb_recovery_dir[MAX_PATH];
-    strcat(output_lsb_recovery_dir, "./");
     strcat(output_lsb_recovery_dir, output_dir);
     strcat(output_lsb_recovery_dir, "lsb");
 
@@ -307,7 +305,7 @@ void recover(int n,
         // If image size is not the same as secret's, abort
         if (shadow_bmps_recovery[t]->header.info.width != shadow_bmps_recovery[0]->header.info.width
             || shadow_bmps_recovery[t]->header.info.height != shadow_bmps_recovery[0]->header.info.height) {
-            errx(EXIT_FAILURE, "A share bmp width or height does not equal secret's.");
+            errx(EXIT_FAILURE, "A share bmp width or height does not equal other bmps.");
         }
     }
 
