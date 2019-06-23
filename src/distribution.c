@@ -72,7 +72,7 @@ long **projectionSd(long **A, int n, int k, int inverses[251]) {
 
         return proj;
     } else {
-        if (VERBOSE) printf("%s", "Inverse does not exist!");
+        if (VERBOSE) printf("%s\n", "Inverse does not exist! Retrying...");
 
         freeLongMatrix(AtA, k);
         freeLongMatrix(At, k);
@@ -232,14 +232,14 @@ void initialize_shadow_bmp_files(int n,
     }
 }
 
-static void run(int n,
-                int k,
-                int *inverses,
-                BITMAP_FILE *secret_bmp,
-                BITMAP_FILE *watermark_bmp,
-                BITMAP_FILE *rw_bmp,
-                int *shadow_bmps_index,
-                BITMAP_FILE **shadow_bmps) {
+void run_d(int n,
+           int k,
+           int *inverses,
+           BITMAP_FILE *secret_bmp,
+           BITMAP_FILE *watermark_bmp,
+           BITMAP_FILE *rw_bmp,
+           int *shadow_bmps_index,
+           BITMAP_FILE **shadow_bmps) {
 
     // Current Rw byte index
     int current_rw_byte_index = 0;
@@ -255,12 +255,17 @@ static void run(int n,
 //        printMatrix(n, n, S, "S matrix:");
 
         // Matrix A
-        long **A = matA(n, k);
-//        printMatrix(k, n, A, "A matrix");
+        long **A;
 
         // Matrix Sd
-        long **Sd = projectionSd(A, n, k, inverses);
-        printMatrix(n, n, Sd, "Sd matrix");
+        long **Sd;
+        do {
+            A = matA(n, k);
+            //        printMatrix(k, n, A, "A matrix");
+
+            Sd = projectionSd(A, n, k, inverses);
+        } while (Sd == NULL);
+//        printMatrix(n, n, Sd, "Sd matrix");
 
         // Matrix R
         long **R = remainderR(S, Sd, n);
@@ -301,7 +306,6 @@ static void run(int n,
         long ***Sh = matSh(G, V, n, k);
         uint8_t ***uint8_Sh = (uint8_t ***) malloc(n * sizeof(uint8_t **));
         for (int t = 0; t < n; t++) {
-//            if (t == 0)
 //                printMatrix((int) (ceil((double) n / k) + 1), n, Sh[t], "Sh_ matrix");
             uint8_Sh[t] = convertMatrixFromLongToUint8(Sh[t], n, (int) (ceil((double) n / k) + 1));
         }
@@ -317,10 +321,13 @@ static void run(int n,
                 for (int b = 0; b < (int) (ceil((double) n / k) + 1); b++) {
                     uint8_t current_byte = uint8_Sh[t][a][b];
 
+                    // Revert so as to read write left to right (as in exercise sheet)
+                    current_byte = reverse(current_byte);
+
                     if (k == 4 && n == 8) {
                         // Traverse bits of current byte
                         for (int l = 0; l < 8; l++) {
-                            uint8_t one_or_zero = (uint8_t) ((current_byte >> l) & 0x01);
+                            uint8_t one_or_zero = (uint8_t) ((current_byte >> l) & 1);
 
                             // Set bit on shadow
                             uint8_t current_movie_byte = (uint8_t) shadow_bmps[t]->data[current_shadow_byte_index];
@@ -331,14 +338,16 @@ static void run(int n,
                     } else if (k == 2 && n == 4) {
                         // Traverse bits of current byte
                         for (int l = 0; l < 8; l = l + 2) {
-                            uint8_t first_one_or_zero = (uint8_t) ((current_byte >> l) & 0x01);
-                            uint8_t second_one_or_zero = (uint8_t) ((current_byte >> (l + 1)) & 0x01);
+                            uint8_t first_one_or_zero = (uint8_t) ((current_byte >> l) & 1);
+                            uint8_t second_one_or_zero = (uint8_t) ((current_byte >> (l + 1)) & 1);
 
-                            uint8_t last_two_bits = (uint8_t) (2 * first_one_or_zero + 1 * second_one_or_zero);
+                            uint8_t last_two_bits = (uint8_t) (first_one_or_zero << 1 | second_one_or_zero);
+
                             // Set bit on shadow
                             uint8_t current_movie_byte = (uint8_t) shadow_bmps[t]->data[current_shadow_byte_index];
                             shadow_bmps[t]->data[current_shadow_byte_index] =
                                     (uint8_t) (current_movie_byte & ~3) | last_two_bits;
+
                             current_shadow_byte_index++;
                         }
 
@@ -422,7 +431,7 @@ void distribute(int n,
     BITMAP_FILE *rw_bmp = create_BMP(rw_bmp_name, w_bmp->header.info.width, w_bmp->header.info.height, 8);
 
     // Distribute secret in shadows and Rw
-    run(n, k, inverses, secret_bmp, w_bmp, rw_bmp, shadow_bmps_index, shadow_bmps);
+    run_d(n, k, inverses, secret_bmp, w_bmp, rw_bmp, shadow_bmps_index, shadow_bmps);
 
     // Save shadow bmp
     for (int t = 0; t < n; t++) {

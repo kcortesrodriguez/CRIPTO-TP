@@ -116,7 +116,7 @@ static void run(int n,
     int Gj_cols = (int) ceil((double) n / k);
     int Shj_cols = Gj_cols + 1;
     int Sh_size = n * Shj_cols; // size in number of bytes of matrix; n rows, 1 is for vector V
-    int divisor = Sh_size * 8; // 8 bytes from preSh are need for each byte of Sh_i
+    int divisor = Sh_size * n; // n bytes from preSh are need for each byte of Sh_i
     int divisor_bytes_segments = shadow_bmps_recovery[0]->header.info.image_size / divisor;
 
     // Current recovered secret bmp byte index
@@ -147,18 +147,21 @@ static void run(int n,
                                                                                                        (segment_of_divisor_bytes *
                                                                                                         divisor)]);
 
-                uint8_t one_or_zero = (uint8_t) (curr_shadow_lsb_byte & 0x01);
+                if (k == 4 && n == 8) {
+                    uint8_t one_or_zero = (uint8_t) (curr_shadow_lsb_byte & 1);
 
-                matSh[shadow_bmp_index][row][col] = (uint8_t) ((matSh[shadow_bmp_index][row][col] << 1) | one_or_zero);
+                    matSh[shadow_bmp_index][row][col] = (uint8_t) ((matSh[shadow_bmp_index][row][col] << 1) |
+                                                                   one_or_zero);
+                } else if (k == 2 && n == 4) {
+                    uint8_t first_one_or_zero = (uint8_t) (curr_shadow_lsb_byte & 1);
+                    uint8_t second_one_or_zero = (uint8_t) (curr_shadow_lsb_byte & 2);
 
-                if ((b + 1) % 8 == 0) {
-                    // Reverse byte for correct writing to bmp
-                    matSh[shadow_bmp_index][row][col] = reverse((uint8_t) matSh[shadow_bmp_index][row][col]);
+                    uint8_t last_two_bits = (uint8_t) (first_one_or_zero | second_one_or_zero);
 
-                    if (matSh[shadow_bmp_index][row][col] > 250) {
-                        int ke = 0;
-                    }
-
+                    matSh[shadow_bmp_index][row][col] = (uint8_t) ((matSh[shadow_bmp_index][row][col] << 2) |
+                                                                   last_two_bits);
+                }
+                if ((b + 1) % n == 0) {
                     // Advance to next Shj col
                     col++;
                     if ((col % Shj_cols) == 0) {
@@ -171,6 +174,7 @@ static void run(int n,
             }
 
             long **Sh = matSh[shadow_bmp_index];
+//                printMatrix(Shj_cols, n, Sh, "Recovered Sh matrix");
 
             // Por cada Sh desconcatenamos V_t y G_t
             long **recoveredG = deconcatG(Sh, n, k);
@@ -211,14 +215,18 @@ static void run(int n,
 //                printMatrix(k + 1, k, concatCjGs, "la concatCjGs:");
 
                 long *solutionVector = gaussJordan(k, concatCjGs, inverses);
-
 //                printVector(k, solutionVector, "solutionVector:");
 
                 // Save solution vector at recovered R
-                recoveredR[x][0 + k * y] = solutionVector[0];
-                recoveredR[x][1 + k * y] = solutionVector[1];
-                recoveredR[x][2 + k * y] = solutionVector[2];
-                recoveredR[x][3 + k * y] = solutionVector[3];
+                if (k == 4 && n == 8) {
+                    recoveredR[x][0 + k * y] = solutionVector[0];
+                    recoveredR[x][1 + k * y] = solutionVector[1];
+                    recoveredR[x][2 + k * y] = solutionVector[2];
+                    recoveredR[x][3 + k * y] = solutionVector[3];
+                } else if (k == 2 && n == 4) {
+                    recoveredR[x][0 + k * y] = solutionVector[0];
+                    recoveredR[x][1 + k * y] = solutionVector[1];
+                }
 
                 free(solutionVector);
             }
@@ -232,7 +240,7 @@ static void run(int n,
 
         // Matrix Recovered Sd
         long **Sd = projectionSd(matB, n, k, inverses);
-        printMatrix(n, n, Sd, "Recovered Sd");
+//        printMatrix(n, n, Sd, "Recovered Sd");
 
         // Matrix Recovered S
         long **recoveredS = add(Sd, recoveredR, n);

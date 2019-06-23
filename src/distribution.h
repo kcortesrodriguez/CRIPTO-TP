@@ -34,6 +34,15 @@ void initialize_shadow_bmp_files(int n,
 
 void truncateBytesTo250(long **S, int n);
 
+void run_d(int n,
+           int k,
+           int *inverses,
+           BITMAP_FILE *secret_bmp,
+           BITMAP_FILE *watermark_bmp,
+           BITMAP_FILE *rw_bmp,
+           int *shadow_bmps_index,
+           BITMAP_FILE **shadow_bmps);
+
 void distribute(int n,
                 int k,
                 int *inverses,
