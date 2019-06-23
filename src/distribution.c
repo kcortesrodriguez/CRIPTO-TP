@@ -232,14 +232,14 @@ void initialize_shadow_bmp_files(int n,
     }
 }
 
-void run_d(int n,
-           int k,
-           int *inverses,
-           BITMAP_FILE *secret_bmp,
-           BITMAP_FILE *watermark_bmp,
-           BITMAP_FILE *rw_bmp,
-           int *shadow_bmps_index,
-           BITMAP_FILE **shadow_bmps) {
+static void run(int n,
+                int k,
+                int *inverses,
+                BITMAP_FILE *secret_bmp,
+                BITMAP_FILE *watermark_bmp,
+                BITMAP_FILE *rw_bmp,
+                int *shadow_bmps_index,
+                BITMAP_FILE **shadow_bmps) {
 
     // Current Rw byte index
     int current_rw_byte_index = 0;
@@ -430,7 +430,7 @@ void distribute(int n,
     BITMAP_FILE *rw_bmp = create_BMP(rw_bmp_name, w_bmp->header.info.width, w_bmp->header.info.height, 8);
 
     // Distribute secret in shadows and Rw
-    run_d(n, k, inverses, secret_bmp, w_bmp, rw_bmp, shadow_bmps_index, shadow_bmps);
+    run(n, k, inverses, secret_bmp, w_bmp, rw_bmp, shadow_bmps_index, shadow_bmps);
 
     // Save shadow bmp
     for (int t = 0; t < n; t++) {
