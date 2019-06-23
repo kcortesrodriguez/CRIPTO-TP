@@ -171,6 +171,7 @@ char **get_shadow_files(char *directory, int n) {
                 // No file at subfolders, only at present level
                 if (p->fts_level == 1 && (strcmp("bmp", get_filename_ext(basename(p->fts_path))) == 0)) {
                     strncpy(shadow_files[shadow_index], p->fts_path, MAX_STRING);
+//                    printf("levantó:\t%s\n", p->fts_path);
                     shadow_index = shadow_index - 1;
                 }
                 break;
