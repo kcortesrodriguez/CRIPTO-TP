@@ -22,7 +22,8 @@ long **matA(int n, int k) {
 
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < k; j++) {
-            A[i][j] = modulo(urandom(), 251); // 251 because A must have values in [0, 251)
+//            A[i][j] = modulo(urandom(), 251); // 251 because A must have values in [0, 251)
+            A[i][j] = modulo((uint32_t) safe_next_char(), 251); // 251 because A must have values in [0, 251)
         }
     }
 

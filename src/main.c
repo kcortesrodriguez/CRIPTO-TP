@@ -14,6 +14,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <libgen.h>
+#include <sys/time.h>
 #include "global.h"
 #include "recovery.h"
 
@@ -47,6 +48,9 @@ int main(int argc, char *argv[]) {
 
     // Populate multiplicative inverses mod 251
     int *inverses = modularInverse(250, 251);
+
+    // Set seed for random chars
+    set_seed(time(NULL));
 
     if (isDistribute) {
 

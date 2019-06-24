@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include "random.h"
 #include "modular.h"
+#include <limits.h>
 
 #define TRUE 0
 #define FALSE 1
@@ -49,11 +50,13 @@ int *generateRandoms(int n) {
 
     for (int i = 0; i < n; i++) {
 
-        int randomNumber = (int) modulo(urandom(), 251);
+        int randomNumber = (int) modulo(safe_next_char(), 251);
+//        int randomNumber = (int) modulo(urandom(), 251);
 
         if (i != 0) {
             do {
-                randomNumber = (int) modulo(urandom(), 251);
+                randomNumber = (int) modulo(safe_next_char(), 251);
+//                randomNumber = (int) modulo(urandom(), 251);
             } while (containsValue(array, i, randomNumber) == TRUE);
         }
 
@@ -62,3 +65,21 @@ int *generateRandoms(int n) {
 
     return array;
 }
+
+void set_seed(int64_t s) {
+    seed = (s ^ 0x5DEECE66DL) & ((1LL << 48) - 1);
+}
+
+uint8_t next_char(void) {
+    seed = (seed * 0x5DEECE66DL + 0xBL) & ((1LL << 48) - 1);
+    return (uint8_t) (seed >> 40);
+}
+
+uint8_t safe_next_char(void) {
+    uint8_t res = next_char();
+    while (res >= 251) {
+        res = next_char();
+    }
+    return res;
+}
+
