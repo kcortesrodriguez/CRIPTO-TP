@@ -1,9 +1,7 @@
 #ifndef CRIPTO_TP_RANDOM_H
 #define CRIPTO_TP_RANDOM_H
 
-unsigned long urandom();
-
-int *generateRandoms(int n);
+uint8_t * generateRandoms(int n);
 
 /**
  * variable global
@@ -18,6 +16,6 @@ void set_seed(int64_t seed);
  */
 uint8_t next_char(void);
 
-uint8_t safe_next_char(void);
+uint8_t safe_next_char();
 
 #endif //CRIPTO_TP_RANDOM_H
