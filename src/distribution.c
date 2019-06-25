@@ -114,7 +114,7 @@ long *g_i_j(long **R, int initial_column, int cj, int n, int k) {
  * t is the current participant index.
  */
 long **matG_t(long **R, int n, int k, int t) {
-    int G_t_cols = (int) ceil((double) n / k); // TODO: code method for create matrix !
+    int G_t_cols = (int) ceil((double) n / k);
     long **res = (long **) calloc((size_t) G_t_cols, sizeof(long *));
 
     for (int i = 0; i < G_t_cols; i++) {

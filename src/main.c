@@ -7,6 +7,7 @@
 #include "distribution.h"
 #include "random.h"
 #include <sys/time.h>
+#include <time.h>
 #include "recovery.h"
 
 int VERBOSE = FALSE;

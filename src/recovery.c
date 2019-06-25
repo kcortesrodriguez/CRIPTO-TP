@@ -98,7 +98,7 @@ static void run(int n,
                 BITMAP_FILE *recovered_wm_bmp) {
 
     // Initialize Sh vector of k matrices Shj
-    long ***matSh = (long ***) malloc(k * sizeof(long **)); //TODO: free
+    long ***matSh = (long ***) malloc(k * sizeof(long **));
 
     // Traverse 8 bpp shadow image 24 x 8 bytes at a time for (4,8) or 12 x 8 for (2,4)
     int Gj_cols = (int) ceil((double) n / k);
@@ -118,7 +118,7 @@ static void run(int n,
          segment_of_divisor_bytes < divisor_bytes_segments; segment_of_divisor_bytes++) {
 
         // Initialize G vector of k matrices Gj
-        long ***matG = (long ***) malloc(k * sizeof(long **)); //TODO: free
+        long ***matG = (long ***) malloc(k * sizeof(long **));
 
         // Initialize B vector of k vectors vj
         long **matB = (long **) malloc(k * sizeof(long *));

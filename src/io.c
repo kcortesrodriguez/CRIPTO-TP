@@ -186,7 +186,7 @@ char **get_shadow_files(char *directory, int n) {
 
 DIR *createDirectory(char *path) {
     DIR *opened_dir = opendir(path);
-    if ((int) opened_dir == 0) {
+    if (opened_dir == 0) {
         mkdir(path, 0777);
     }
     return opened_dir;

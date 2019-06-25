@@ -1,6 +1,8 @@
 #ifndef CRIPTO_TP_RANDOM_H
 #define CRIPTO_TP_RANDOM_H
 
+#include "global.h"
+
 uint8_t * generateRandoms(int n);
 
 /**

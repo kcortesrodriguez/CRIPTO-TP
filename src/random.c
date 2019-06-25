@@ -6,17 +6,17 @@
 #include "modular.h"
 #include <limits.h>
 
-#define TRUE 0
-#define FALSE 1
+#define _TRUE 0
+#define _FALSE 1
 
 //chequea si un elemento value se encuentra en el array array de longitud sizeArray
 int containsValue(const uint8_t *array, int sizeArray, int value) {
     for (int i = 0; i < sizeArray; i++) {
         if (array[i] == value) {
-            return TRUE;
+            return _TRUE;
         }
     }
-    return FALSE;
+    return _FALSE;
 }
 
 //genera un vector de n randoms en Z 251 que no se repiten
@@ -28,7 +28,7 @@ uint8_t *generateRandoms(int n) {
     for (int i = 0; i < n; i++) {
         do {
             randomNumber = safe_next_char();
-        } while (containsValue(array, i, randomNumber) == TRUE);
+        } while (containsValue(array, i, randomNumber) == _TRUE);
 
         array[i] = randomNumber;
     }

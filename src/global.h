@@ -3,8 +3,12 @@
 #define MAX_LEN 260
 #define FALSE 0
 #define TRUE 1
+
+#include <string.h>
+
 extern int VERBOSE;
 typedef u_int8_t uint8_t;
+typedef u_int32_t uint32_t;
 
 static const char *byte_to_binary(int x) {
     static char b[9];

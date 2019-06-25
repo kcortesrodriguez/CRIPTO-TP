@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "global.h"
 
 // Considering negative x too
 long modulo(long x, int N) {

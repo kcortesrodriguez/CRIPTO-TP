@@ -312,7 +312,7 @@ long **deconcatG(long **mat, int n, int k) {
  * @return the G_t matrix
  */
 long *deconcatV(long **mat, int n) {
-    long *res = (long *) calloc((size_t) n, sizeof(long)); //TODO free
+    long *res = (long *) calloc((size_t) n, sizeof(long));
 
     for (int j = 0; j < n; j++) {
         res[j] = mat[j][0];
@@ -334,7 +334,7 @@ void swapDouble(double **mat, int row1, int row2, int col) {
 }
 
 double **cloneLongToDoubleMatrix(long **mat, int n, int k) {
-    double **res = (double **) malloc(n * sizeof(double *)); // TODO: free
+    double **res = (double **) malloc(n * sizeof(double *));
     for (int i = 0; i < n; i++) {
         res[i] = (double *) calloc((size_t) k, sizeof(double));
     }
