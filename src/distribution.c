@@ -18,14 +18,27 @@
 // proj(A) y S - proj(A) no debe tener valores mayores que 251
 long **matA(int n, int k) {
     long **A = (long **) malloc(n * sizeof(long *));
-    for (int i = 0; i < n; i++) A[i] = (long *) malloc(k * sizeof(long));
+    for (int i = 0; i < n; i++) A[i] = (long *) calloc((size_t) k, sizeof(long));
 
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < k; j++) {
-//            A[i][j] = modulo(urandom(), 251); // 251 because A must have values in [0, 251)
-            A[i][j] = modulo((uint32_t) safe_next_char(), 251); // 251 because A must have values in [0, 251)
+    int rank_of_A;
+    int rank_of_AtA;
+    do {
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < k; j++) {
+                A[i][j] = (uint32_t) safe_next_char(); // 251 because A must have values in [0, 251)
+            }
         }
-    }
+
+        rank_of_A = rankOfMatrix(A, n, k);
+
+        long **At = transpose(A, n, k);
+        long **AtA = multiply(At, A, k, k, n);
+        rank_of_AtA = rankOfMatrix(AtA, k, k);
+
+        freeLongMatrix(At, k);
+        freeLongMatrix(AtA, k);
+
+    } while (rank_of_A != k || rank_of_AtA != k);
 
     return A;
 }
@@ -33,47 +46,31 @@ long **matA(int n, int k) {
 long **projectionSd(long **A, int n, int k, int inverses[251]) {
 
     long **At = transpose(A, n, k);
-//    printMatrix(n, k, At, "At matrix");
 
     long **AtA = multiply(At, A, k, k, n);
-//    printMatrix(k, k, AtA, "AtA matrix");
 
     long det = determinantOfMatrix(AtA, k, k);
 
     if (det != 0) {
-//        if (VERBOSE) printf("\n%s\n", "Inverse exists!");
 
-        long **AugmentedAtaInverse = inverse(AtA, k, inverses);
-//        printMatrix(k * 2, k, AugmentedAtaInverse, "AugmentedAtaInverse matrix");
-
-        long **AtAInverse = (long **) malloc(k * sizeof(long *));
-        for (int i = 0; i < k; i++) AtAInverse[i] = (long *) calloc((size_t) k, sizeof(long));
-
-        // Fill AtAInverse
-        for (int row = 0; row < k; row++) {
-            for (int columns = 0; columns < k; columns++) {
-                AtAInverse[row][columns] = AugmentedAtaInverse[row][columns + k];
-            }
-        }
-
-//        printMatrix(k, k, AtAInverse, "AtAInverse matrix");
+        long **AugmentedAtaInverse = (long **) malloc(k * sizeof(long *));
+        for (int i = 0; i < k; i++) AugmentedAtaInverse[i] = (long *) calloc((size_t) k, sizeof(long));
+        inverseWithAdjoint(AtA, k, AugmentedAtaInverse, inverses);
 
         // A * (At * A)'
-        long **AxInverse = multiply(A, AtAInverse, n, k, k);
-//        printMatrix(k, n, AxInverse, "AxInverse matrix");
+        long **AxInverse = multiply(A, AugmentedAtaInverse, n, k, k);
 
         // (A * (At * A)') * At
         long **proj = multiply(AxInverse, At, n, n, k);
 
         freeLongMatrix(AugmentedAtaInverse, k);
         freeLongMatrix(AtA, k);
-        freeLongMatrix(AtAInverse, k);
         freeLongMatrix(AxInverse, n);
         freeLongMatrix(At, k);
 
         return proj;
     } else {
-        if (VERBOSE) printf("%s\n", "Inverse does not exist! Retrying...");
+        if (VERBOSE) printf("%s\n", "Inverse does not exist for Sd projection! Retrying...");
 
         freeLongMatrix(AtA, k);
         freeLongMatrix(At, k);
@@ -155,18 +152,34 @@ long **matV(long **A, long **X, int n, int k) {
 long ***matSh(long ***G, long **V, int n, int k) {
     long ***Sh = (long ***) malloc(n * sizeof(long **));
 
+    long **Vt = transpose(V, n, n);
+
     for (int i = 0; i < n; i++) {
-        Sh[i] = concatVecMat(transpose(V, n, n)[i], G[i], n, (int) (ceil((double) n / k)));
+        Sh[i] = concatVecMat(Vt[i], G[i], n, (int) (ceil((double) n / k)));
     }
 
+    freeLongMatrix(Vt, n);
+
     return Sh;
+}
+
+uint32_t int_pow(uint32_t x, uint32_t y) {
+    // X^Y
+    if (y == 0) {
+        return 1;
+    }
+    uint32_t ret = x;
+    for (int i = 0; i < y - 1; i++) {
+        ret *= x;
+    }
+    return ret;
 }
 
 long *generateVector(int k, int initialValue) {
     long *array = (long *) malloc(sizeof(long) * k);
 
     for (int i = 0; i < k; i++) {
-        array[i] = modulo((long) pow((double) initialValue, (double) i), 251);
+        array[i] = modulo(int_pow((uint32_t) initialValue, (uint32_t) i), 251);
     }
 
     return array;
@@ -180,7 +193,7 @@ long *generateVector(int k, int initialValue) {
  */
 long **matX(int k, int n) {
     long **temp = (long **) malloc(n * sizeof(long *));
-    int *randoms = generateRandoms(n);
+    uint8_t *randoms = generateRandoms(n);
 
     for (int i = 0; i < n; i++) {
         temp[i] = generateVector(k, randoms[i]);
@@ -253,7 +266,6 @@ static void run(int n,
         // Convert secret stream to n x n matrix
         long **S = convertUint8StreamToLongMatrix(secret_bmp->data + (i * n * n), n, n);
         truncateBytesTo250(S, n);
-//        printMatrix(n, n, S, "S matrix:");
 
         // Matrix A
         long **A;
@@ -262,15 +274,15 @@ static void run(int n,
         long **Sd;
         do {
             A = matA(n, k);
-            //        printMatrix(k, n, A, "A matrix");
 
             Sd = projectionSd(A, n, k, inverses);
+
+            if (Sd == NULL)
+                freeLongMatrix(A, n);
         } while (Sd == NULL);
-//        printMatrix(n, n, Sd, "Sd matrix");
 
         // Matrix R
         long **R = remainderR(S, Sd, n);
-//        printMatrix(n, n, R, "R matrix"); //TODO write in report that R matrix from paper is wrong.
 
         // Matrix W
         // Convert watermark stream to n x n matrix
@@ -278,7 +290,6 @@ static void run(int n,
 
         // Matrix Rw
         long **Rw = remainderRw(W, Sd, n);
-//        printMatrix(n, n, Rw, "Rw matrix:");
 
         // Fill Rw
         for (int p = 0; p < n; p++) {
@@ -291,23 +302,17 @@ static void run(int n,
 
         // Matrix X
         long **X = matX(k, n);
-//        printMatrix(n, k, X, "X matrix");
 
         // Matrix V
         long **V = matV(A, X, n, k);
-//        printMatrix(n, n, V, "V matrix");
 
         // Matrix G
         long ***G = matG(R, n, k);
-        for (int t = 0; t < n && VERBOSE; t++) {
-//            printMatrix((int) ceil((double) n / k), n, G[t], "G_ matrix");
-        }
 
         // Matrix Sh
         long ***Sh = matSh(G, V, n, k);
         uint8_t ***uint8_Sh = (uint8_t ***) malloc(n * sizeof(uint8_t **));
         for (int t = 0; t < n; t++) {
-//                printMatrix((int) (ceil((double) n / k) + 1), n, Sh[t], "Sh_ matrix");
             uint8_Sh[t] = convertMatrixFromLongToUint8(Sh[t], n, (int) (ceil((double) n / k) + 1));
         }
 
@@ -328,26 +333,27 @@ static void run(int n,
                     if (k == 4 && n == 8) {
                         // Traverse bits of current byte
                         for (int l = 0; l < 8; l++) {
-                            uint8_t one_or_zero = (uint8_t) ((current_byte >> l) & 1);
+                            uint8_t one_or_zero = (uint8_t) ((unsigned) (current_byte >> (unsigned) l) & 1u);
 
                             // Set bit on shadow
-                            uint8_t current_movie_byte = (uint8_t) shadow_bmps[t]->data[current_shadow_byte_index];
-                            shadow_bmps[t]->data[current_shadow_byte_index] =
-                                    (uint8_t) (current_movie_byte & ~1) | one_or_zero;
+                            shadow_bmps[t]->data[current_shadow_byte_index] = (unsigned char) (
+                                    (shadow_bmps[t]->data[current_shadow_byte_index] & ~1u) | (one_or_zero & 1u));
+
                             current_shadow_byte_index++;
                         }
                     } else if (k == 2 && n == 4) {
                         // Traverse bits of current byte
                         for (int l = 0; l < 8; l = l + 2) {
-                            uint8_t first_one_or_zero = (uint8_t) ((current_byte >> l) & 1);
-                            uint8_t second_one_or_zero = (uint8_t) ((current_byte >> (l + 1)) & 1);
+                            uint8_t first_one_or_zero = (uint8_t) (((unsigned) current_byte >> (unsigned) l) & 1u);
+                            uint8_t second_one_or_zero = (uint8_t) (((unsigned) current_byte >> (unsigned) (l + 1)) &
+                                                                    1u);
 
-                            uint8_t last_two_bits = (uint8_t) (first_one_or_zero << 1 | second_one_or_zero);
+                            uint8_t last_two_bits = (uint8_t) ((unsigned) first_one_or_zero << 1u | second_one_or_zero);
 
                             // Set bit on shadow
                             uint8_t current_movie_byte = (uint8_t) shadow_bmps[t]->data[current_shadow_byte_index];
                             shadow_bmps[t]->data[current_shadow_byte_index] =
-                                    (uint8_t) (current_movie_byte & ~3) | last_two_bits;
+                                    (uint8_t) (current_movie_byte & ~3u) | last_two_bits;
 
                             current_shadow_byte_index++;
                         }
@@ -398,7 +404,7 @@ void distribute(int n,
     memset(output_lsb_dir, 0, MAX_PATH);
     strcat(output_lsb_dir, output_dir);
     strcat(output_lsb_dir, "lsb/");
-    createDirectory(output_lsb_dir);
+    DIR *output_lsb_dir_struct = createDirectory(output_lsb_dir);
 
     // Shadow bmp array
     BITMAP_FILE *shadow_bmps[n];
@@ -450,14 +456,14 @@ void distribute(int n,
     for (int t = 0; t < n; t++) {
         destroy_BMP(shadow_bmps[t]);
     }
-
+    closedir(output_lsb_dir_struct);
 }
 
 void truncateBytesTo250(long **S, int n) {
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
             if (((uint8_t) S[i][j]) > 250) {
-                S[i][j] = 250L;
+                S[i][j] = 250;
             }
         }
     }
