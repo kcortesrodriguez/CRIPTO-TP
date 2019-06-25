@@ -124,7 +124,6 @@ static BITMAP_FILE *load_BMP(const char *filename) {
         bmp->data = malloc(sizeof(unsigned char) * image_size);
         if (bmp->data) {
             fread(bmp->data, 1, image_size, fp);
-            if (VERBOSE) printf("\nValid image loaded.\n");
             fclose(fp);
             bmp->error = BITMAP_NO_ERROR;
         } else {

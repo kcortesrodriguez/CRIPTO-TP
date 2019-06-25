@@ -2,6 +2,7 @@
 #define CRIPTO_TP_IO_H
 
 #include <stdbool.h>
+#include <dirent.h>
 
 void parseParameters(int argc, char *argv[],
                      size_t size,
@@ -14,7 +15,7 @@ void parseParameters(int argc, char *argv[],
 
 char **get_shadow_files(char *dir, int n);
 
-void createDirectory(char *path);
+DIR *createDirectory(char *path);
 
 const char *get_filename_ext(const char *filename);
 

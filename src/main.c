@@ -1,20 +1,13 @@
 #include <stdio.h>
-#include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 #include "modular.h"
 #include "io.h"
 #include "distribution.h"
-#include "matrix.h"
-#include "bitmap.h"
 #include "random.h"
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <libgen.h>
-#include "global.h"
+#include <sys/time.h>
+#include <time.h>
 #include "recovery.h"
 
 int VERBOSE = FALSE;
@@ -43,10 +36,13 @@ int main(int argc, char *argv[]) {
     // Create output directory
     char output_dir[MAX_PATH];
     strcat(output_dir, "output/");
-    createDirectory(output_dir);
+    DIR *output_dir_struct = createDirectory(output_dir);
 
     // Populate multiplicative inverses mod 251
     int *inverses = modularInverse(250, 251);
+
+    // Set seed for random chars
+    set_seed(time(NULL));
 
     if (isDistribute) {
 
@@ -72,6 +68,7 @@ int main(int argc, char *argv[]) {
 
     // Destroy resources
     free(inverses);
+    closedir(output_dir_struct);
 
     return EXIT_SUCCESS;
 }

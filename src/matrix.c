@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdbool.h>
 #include "matrix.h"
 #include "modular.h"
 #include "random.h"
@@ -32,12 +33,12 @@ void getCofactor(long **mat, long **temp, int p, int q, int n) {
 
 // Recursive function for finding determinant of matrix.
 // n is current dimension of mat[][], N is the original dimension of the matrix.
-long determinantOfMatrix(long **mat, int N, int n) {
-    long D = 0; // Initialize result
+int determinantOfMatrix(long **mat, int N, int n) {
+    int D = 0; // Initialize result
 
     //  Base case : if matrix contains single element
     if (n == 1)
-        return mat[0][0];
+        return (int) mat[0][0];
 
     // To store cofactors
     long **temp = (long **) malloc(N * sizeof(long *));
@@ -49,8 +50,8 @@ long determinantOfMatrix(long **mat, int N, int n) {
     for (int f = 0; f < n; f++) {
         // Getting Cofactor of mat[0][f]
         getCofactor(mat, temp, 0, f, n);
-        D += sign * mat[0][f] * determinantOfMatrix(temp, N, n - 1);
-
+        D += modulo(sign * mat[0][f] * determinantOfMatrix(temp, N, n - 1), 251);
+        D = (int) modulo(D, 251);
         // terms are to be added with alternate sign
         sign = -sign;
     }
@@ -58,6 +59,61 @@ long determinantOfMatrix(long **mat, int N, int n) {
     freeLongMatrix(temp, N);
 
     return D;
+}
+
+// Function to get adjoint of A[N][N] in adj[N][N].
+void adjoint(long **A, int N, long **adj) {
+    if (N == 1) {
+        adj[0][0] = 1;
+        return;
+    }
+
+    // temp is used to store cofactors of A[][]
+    int sign;
+    long **temp = (long **) malloc(N * sizeof(long *));
+    for (int i = 0; i < N; i++) temp[i] = (long *) calloc((size_t) N, sizeof(long));
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            // Get cofactor of A[i][j]
+            getCofactor(A, temp, i, j, N);
+
+            // sign of adj[j][i] positive if sum of row
+            // and column indexes is even.
+            sign = ((i + j) % 2 == 0) ? 1 : -1;
+
+            // Interchanging rows and columns to get the
+            // transpose of the cofactor matrix
+            adj[j][i] = modulo((sign) * (determinantOfMatrix(temp, N, N - 1)), 251);
+        }
+    }
+
+    freeLongMatrix(temp, N);
+}
+
+// Function to calculate and store inverse, returns false if
+// matrix is singular
+bool inverseWithAdjoint(long **A, int N, long **inverse, const int *inverses) {
+    // Find determinant of A[][]
+    int det = determinantOfMatrix(A, N, N);
+    if (det == 0) {
+        return false;
+    }
+
+    // Find adjoint
+    long **adj = (long **) malloc(N * sizeof(long *));
+    for (int i = 0; i < N; i++) adj[i] = (long *) calloc((size_t) N, sizeof(long));
+
+    adjoint(A, N, adj);
+
+    // Find Inverse using formula "inverse(A) = adj(A)/det(A)"
+    for (int i = 0; i < N; i++)
+        for (int j = 0; j < N; j++)
+            inverse[i][j] = modulo(adj[i][j] * inverses[det], 251);
+
+    freeLongMatrix(adj, N);
+
+    return true;
 }
 
 // This function stores transpose of A[][] in B[][]
@@ -90,73 +146,15 @@ long **multiply(long **mat1, long **mat2, int n, int m, int k) {
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
             res[i][j] = 0L;
-            for (int h = 0; h < k; h++)
-                res[i][j] += mat1[i][h] * mat2[h][j];
+            for (int h = 0; h < k; h++) {
+                res[i][j] = modulo(res[i][j], 251) +
+                            modulo(mul_mod((uint32_t) mat1[i][h], (uint32_t) mat2[h][j], 251), 251);
+            }
             res[i][j] = modulo(res[i][j], 251);
         }
     }
 
     return res;
-}
-
-// Function to perform the inverse operation on the matrix.
-long **inverse(long **m, int n, int inverses[251]) {
-
-    long **mInverse = (long **) malloc(n * sizeof(long *));
-    for (int i = 0; i < n; i++) mInverse[i] = (long *) calloc((size_t) n * 2, sizeof(long));
-
-    // Create the augmented matrix
-    // Add the identity matrix
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < 2 * n; j++) {
-
-            if (j < n)
-                mInverse[i][j] = m[i][j];
-
-            // Add '1' at the diagonal places
-            if (j == (i + n))
-                mInverse[i][j] = 1;
-        }
-    }
-
-//    printMatrix(2 * n, n, mInverse, "Aug plus id matrix");
-
-    // Interchange the row of matrix, starting from the last row
-    for (int i = n - 1; i > 0; i--) {
-
-        // Swapping the rows
-        if (mInverse[i - 1][0] < mInverse[i][0]) {
-            long *temp = mInverse[i];
-            mInverse[i] = mInverse[i - 1];
-            mInverse[i - 1] = temp;
-        }
-    }
-
-    long temp;
-
-    // Replace a row by sum of itself and a
-    // constant multiple of another row of the matrix
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            if (j != i) {
-                temp = modulo(mInverse[j][i] * inverses[mInverse[i][i]], 251);
-                for (int k = 0; k < 2 * n; k++) { // TODO: watchout 2 * n vs. n + 1 (kprime)
-                    mInverse[j][k] = modulo(mInverse[j][k] - modulo(mInverse[i][k] * temp, 251), 251);
-                }
-            }
-        }
-    }
-
-    // Multiply each row by a nonzero integer.
-    // Divide row element by the diagonal element
-    for (int i = 0; i < n; i++) {
-        temp = mInverse[i][i];
-        for (int j = 0; j < 2 * n; j++) {
-            mInverse[i][j] = modulo(mInverse[i][j] * inverses[temp], 251);
-        }
-    }
-
-    return mInverse;
 }
 
 long **add(long **mat1, long **mat2, int n) {
@@ -199,15 +197,6 @@ void freeCharMatrix(char **m, int n) {
         free(m[i]);
     }
     free(m);
-}
-
-void printVector(int k, long *array, char *title) {
-    if (!VERBOSE) return;
-    printf("\n%s\n", title);
-    for (int i = 0; i < k; i++) {
-        printf("%ld ", array[i]);
-    }
-    printf("\n");
 }
 
 void printMatrix(int k, int n, long **matrix, char *title) {
@@ -302,7 +291,7 @@ long **convertUint8StreamToLongMatrix(uint8_t *stream, int n, int k) {
  * @return the G_t matrix
  */
 long **deconcatG(long **mat, int n, int k) {
-    long **res = (long **) calloc((size_t) n, sizeof(long *)); //TODO free
+    long **res = (long **) calloc((size_t) n, sizeof(long *));
     for (int i = 0; i < n; i++)
         res[i] = (long *) calloc((size_t) k, sizeof(long));
 
@@ -323,7 +312,7 @@ long **deconcatG(long **mat, int n, int k) {
  * @return the G_t matrix
  */
 long *deconcatV(long **mat, int n) {
-    long *res = (long *) calloc((size_t) n, sizeof(long)); //TODO free
+    long *res = (long *) calloc((size_t) n, sizeof(long));
 
     for (int j = 0; j < n; j++) {
         res[j] = mat[j][0];
@@ -333,3 +322,106 @@ long *deconcatV(long **mat, int n) {
 }
 
 
+/**
+ * function for exchanging two rows of a double matrix
+ */
+void swapDouble(double **mat, int row1, int row2, int col) {
+    for (int i = 0; i < col; i++) {
+        double temp = mat[row1][i];
+        mat[row1][i] = mat[row2][i];
+        mat[row2][i] = temp;
+    }
+}
+
+double **cloneLongToDoubleMatrix(long **mat, int n, int k) {
+    double **res = (double **) malloc(n * sizeof(double *));
+    for (int i = 0; i < n; i++) {
+        res[i] = (double *) calloc((size_t) k, sizeof(double));
+    }
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < k; j++) {
+            res[i][j] = (double) mat[i][j];
+        }
+    }
+    return res;
+}
+
+/**
+ * function for finding rank of matrix
+ */
+int rankOfMatrix(long **mat, int R, int C) {
+    int rank = C;
+
+    double **aux = cloneLongToDoubleMatrix(mat, R, C);
+
+    for (int row = 0; row < rank; row++) {
+        // Before we visit current row 'row', we make 
+        // sure that mat[row][0],....mat[row][row-1] 
+        // are 0. 
+
+        // Diagonal element is not zero 
+        if (aux[row][row]) {
+            for (int col = 0; col < R; col++) {
+                if (col != row) {
+                    // This makes all entries of current 
+                    // column as 0 except entry 'mat[row][row]' 
+                    double mult = aux[col][row] / aux[row][row];
+                    for (int i = 0; i < rank; i++)
+                        aux[col][i] -= mult * aux[row][i];
+                }
+            }
+        }
+
+            // Diagonal element is already zero. Two cases 
+            // arise: 
+            // 1) If there is a row below it with non-zero 
+            //    entry, then swap this row with that row 
+            //    and process that row 
+            // 2) If all elements in current column below 
+            //    mat[r][row] are 0, then remvoe this column 
+            //    by swapping it with last column and 
+            //    reducing number of columns by 1. 
+        else {
+            bool reduce = true;
+
+            /* Find the non-zero element in current 
+                column  */
+            for (int i = row + 1; i < R; i++) {
+                // Swap the row with non-zero element 
+                // with this row. 
+                if (aux[i][row]) {
+                    swapDouble(aux, row, i, rank);
+                    reduce = false;
+                    break;
+                }
+            }
+
+            // If we did not find any row with non-zero 
+            // element in current columnm, then all 
+            // values in this column are 0. 
+            if (reduce) {
+                // Reduce number of columns 
+                rank--;
+
+                // Copy the last column here 
+                for (int i = 0; i < R; i++)
+                    aux[i][row] = aux[i][rank];
+            }
+
+            // Process this row again 
+            row--;
+        }
+
+        // Uncomment these lines to see intermediate results 
+        // display(mat, R, C); 
+        // printf("\n"); 
+    }
+
+    for (int i = 0; i < R; i++) {
+        double *current_ptr = aux[i];
+        free(current_ptr);
+    }
+    free(aux);
+
+    return rank;
+}

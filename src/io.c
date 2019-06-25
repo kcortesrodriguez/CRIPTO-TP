@@ -8,9 +8,7 @@
 #include <sys/stat.h>
 #include <libgen.h>
 #include <dirent.h>
-#include <limits.h>
 #include "global.h"
-#include <unistd.h>
 
 #define MAX_STRING 260
 
@@ -173,7 +171,6 @@ char **get_shadow_files(char *directory, int n) {
                 // No file at subfolders, only at present level
                 if (p->fts_level == 1 && (strcmp("bmp", get_filename_ext(basename(p->fts_path))) == 0)) {
                     strncpy(shadow_files[shadow_index], p->fts_path, MAX_STRING);
-//                    printf("levantó:\t%s\n", p->fts_path);
                     shadow_index = shadow_index - 1;
                 }
                 break;
@@ -187,8 +184,10 @@ char **get_shadow_files(char *directory, int n) {
     return shadow_files;
 }
 
-void createDirectory(char *path) {
-    if ((int) opendir(path) == 0 ) {
+DIR *createDirectory(char *path) {
+    DIR *opened_dir = opendir(path);
+    if (opened_dir == 0) {
         mkdir(path, 0777);
     }
+    return opened_dir;
 }
