@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 // Considering negative x too
-// TODO remember to include this discovery in report
 long modulo(long x, int N) {
     return (x % N + N) % N;
 }
@@ -17,5 +16,19 @@ int *modularInverse(int n, int prime) {
         inverses[i] = inverses[prime % i] * (prime - prime / i) % prime;
 
     return inverses;
+}
+
+uint32_t mul_mod(uint32_t a, uint32_t b, uint32_t mod) {
+    long double x;
+    uint32_t c;
+    int32_t r;
+    if (a >= mod)
+        a %= mod;
+    if (b >= mod)
+        b %= mod;
+    x = a;
+    c = x * b / mod;
+    r = (int32_t) (a * b - c * mod) % (int32_t) mod;
+    return r < 0 ? r + mod : r;
 }
 
